@@ -166,6 +166,10 @@ extern "C"
     (((num) != 0u) && (((num) & ((num) - 1)) == 0u))
 
 /** @} */
+
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
 #ifdef __cplusplus
 }
 #endif

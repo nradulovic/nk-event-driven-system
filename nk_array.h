@@ -17,43 +17,32 @@
 
 #define NK_ARRAY__T(item_type)                                              \
         {                                                                   \
-            struct nk_array__p__base array_base;                            \
+            size_t item_no; /* Number of items in buffer */                 \
             item_type * items;                                              \
         }
 
 #define NK_ARRAY__INITIALIZER(items_p)                                      \
         {                                                                   \
-            .array_base =                                                   \
-            {                                                               \
-                .item_no = NK_BITS__ARRAY_SIZE(items_p),                    \
-            },                                                              \
+            .item_no = NK_BITS__ARRAY_SIZE(items_p),                        \
             .items = items_p                                                \
         }
 
-#define NK_ARRAY__INITIALIZE(array_p, item_no, items_p)                     \
+#define NK_ARRAY__INITIALIZE(array_p, a_item_no, items_p)                   \
         do {                                                                \
-            nk_array__p__initialize(                                        \
-                    &(array_p)->array_base,                                 \
-                    item_no,                                                \
-                    items_p,                                                \
-                    nk_array__item_size(array_p) * (item_no));              \
+            (array_p)->item_no = (a_item_no);                               \
             (array_p)->items = (items_p);                                   \
+            memset((array_p)->items, 0,                                     \
+                   sizeof((array_p)->items[0]) * (array_p)->item_no);       \
         } while (0)
 
-#define NK_ARRAY__INITIALIZE_FROM(array_p, item_no, items_p)                \
+#define NK_ARRAY__INITIALIZE_FROM(array_p, a_item_no, items_p)              \
         do {                                                                \
-            nk_array__p__initialize_from(&(array_p)->array_base, item_no);  \
+            (array_p)->item_no = (a_item_no);                               \
             (array_p)->items = (items_p);                                   \
         } while (0)
 
 #define nk_array__item_size(array_p)                                        \
         sizeof(*(array_p)->items)
-
-#define nk_array__item_no(array_p)                                          \
-        nk_array__p__item_no(&(array_p)->array_base)
-
-#define nk_array__ref(array_p, index_s)                                     \
-        (&(array_p)->items[(index_s)])
 
 #define NK_ARRAY__BUCKET_T(item_type, item_no)                              \
         {                                                                   \
@@ -93,37 +82,5 @@
                 NK_ARRAY(array_p),                                          \
                 NK_BITS__ARRAY_SIZE((array_p)->buffer),                     \
                 (array_p)->buffer)
-
-/** @brief      Array object structure.
- */
-struct nk_array__p__base
-{
-    size_t item_no; /* Number of items in buffer */
-};
-
-static inline void
-nk_array__p__initialize(
-        struct nk_array__p__base * array_base,
-        size_t item_no,
-        void * items_buffer,
-        size_t items_buffer_size)
-{
-    array_base->item_no = item_no;
-    memset(items_buffer, 0, items_buffer_size);
-}
-
-static inline void
-nk_array__p__initialize_from(
-        struct nk_array__p__base * array_base,
-        size_t item_no)
-{
-    array_base->item_no = item_no;
-}
-
-static inline size_t
-nk_array__p__item_no(const struct nk_array__p__base * array_base)
-{
-    return array_base->item_no;
-}
 
 #endif /* NEON_KIT_GENERIC_NK_ARRAY_H_ */

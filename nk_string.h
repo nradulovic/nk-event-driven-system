@@ -81,7 +81,7 @@ nk_string__length(const struct nk_string *self)
 static inline size_t
 nk_string__size(const struct nk_string *self)
 {
-    return nk_array__item_no(&self->array);
+    return self->array.item_no;
 }
 
 static inline char
@@ -116,5 +116,9 @@ nk_string__lower(struct nk_string *self);
 
 void
 nk_string__upper(struct nk_string *self);
+
+char nk_char__lower(char character);
+
+char nk_char__upper(char character);
 
 #endif /* NEON_KIT_GENERIC_NK_STRING_H_ */

@@ -6,10 +6,8 @@
  */
 #include <ctype.h>
 
+#include "nk_bits.h"
 #include "nk_string.h"
-
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 bool
 nk_string__is_equal(const struct nk_string *self, const struct nk_string *other)
@@ -103,4 +101,14 @@ nk_string__upper(struct nk_string *self)
     for (size_t i = 0u; i < self->length; i++) {
         self->array.items[i] = (char)toupper(self->array.items[i]);
     }
+}
+
+char nk_char__lower(char character)
+{
+    return (char)tolower(character);
+}
+
+char nk_char__upper(char character)
+{
+    return (char)toupper(character);
 }
