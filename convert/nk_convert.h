@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 
-#include "nk_result.h"
+#include "../nk_result.h"
 
 struct nk_convert__hex_to_bin__result NK_RESULT__T(uint8_t);
 struct nk_convert__bin_to_hex__result NK_RESULT__T(char);

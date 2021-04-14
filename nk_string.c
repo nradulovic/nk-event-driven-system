@@ -5,6 +5,7 @@
  *      Author: nenad
  */
 #include <ctype.h>
+#include <stdint.h>
 
 #include "nk_bits.h"
 #include "nk_string.h"
@@ -16,7 +17,7 @@ nk_string__is_equal(const struct nk_string *self, const struct nk_string *other)
         return false;
     }
     for (size_t i = 0u; i < self->length; i++) {
-        if (self->array.items[i] != other->array.items[i]) {
+        if (self->items[i] != other->items[i]) {
             return false;
         }
     }
@@ -26,12 +27,9 @@ nk_string__is_equal(const struct nk_string *self, const struct nk_string *other)
 struct nk_string
 nk_string__view(const struct nk_string *self, size_t from, size_t to)
 {
-    size_t view_from = MIN(from, self->length);
-    size_t view_to = MIN(to, self->length);
     struct nk_string view;
 
-    NK_ARRAY__INITIALIZE_FROM(&view.array, view_to - view_from, &self->array.items[view_from]);
-    view.length = view_to - view_from;
+    NK_ARRAY__INITIALIZE_WINDOW(&view, self, from, to);
     return view;
 }
 
@@ -91,7 +89,7 @@ void
 nk_string__lower(struct nk_string *self)
 {
     for (size_t i = 0u; i < self->length; i++) {
-        self->array.items[i] = (char)tolower(self->array.items[i]);
+        self->items[i] = (char)tolower(self->items[i]);
     }
 }
 
@@ -99,7 +97,7 @@ void
 nk_string__upper(struct nk_string *self)
 {
     for (size_t i = 0u; i < self->length; i++) {
-        self->array.items[i] = (char)toupper(self->array.items[i]);
+        self->items[i] = (char)toupper(self->items[i]);
     }
 }
 

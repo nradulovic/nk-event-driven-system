@@ -47,13 +47,13 @@
 
 #define NK_FQUEUE__PUT(fqueue_p, item)                                      \
         do {                                                                \
-            *nk_array__ref(&(fqueue_p)->item_array,                         \
-                nk_fqueue__p__put(&(fqueue_p)->fqueue_base)) = (item);      \
+            (fqueue_p)->item_array.items[                                   \
+                nk_fqueue__p__put(&(fqueue_p)->fqueue_base)] = (item);      \
         } while (0)
 
 #define NK_FQUEUE__GET(fqueue_p)                                            \
-        *nk_array__ref(&(fqueue_p)->item_array,                             \
-                nk_fqueue__p__get(&(fqueue_p)->fqueue_base))
+        (fqueue_p)->item_array.items[                                       \
+                nk_fqueue__p__get(&(fqueue_p)->fqueue_base)]
 
 struct nk_fqueue__p__base
 {

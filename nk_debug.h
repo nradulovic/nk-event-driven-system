@@ -8,6 +8,6 @@
 #ifndef GENERIC_NK_DEBUG_H_
 #define GENERIC_NK_DEBUG_H_
 
-#define nk_assert(expr)
+#define nk_assert(expr)     (void) 0
 
 #endif /* GENERIC_NK_DEBUG_H_ */

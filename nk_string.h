@@ -16,25 +16,13 @@
 
 #define NK_ENABLED_STRING
 
-struct nk_string
-{
-    struct nk_string_array
-        NK_ARRAY__T(char)
-    array;
-    size_t length;
-};
+struct nk_string NK_ARRAY__T(char);
 
 #define NK_STRING__INITIALIZER(string_buffer_p)                             \
-        {                                                                   \
-            .array = NK_ARRAY__INITIALIZER(string_buffer_p),                \
-            .length = 0                                                     \
-        }
+        NK_ARRAY__INITIALIZER(string_buffer_p)
 
-#define NK_STRING__INITIALIZER_FROM(string_buffer_p, c_string)              \
-        {                                                                   \
-            .array = NK_ARRAY__INITIALIZER(string_buffer_p),                \
-            .length = NK_BITS__ARRAY_SIZE(c_string) - 1u                    \
-        }
+#define NK_STRING__INITIALIZER_WITH(string_buffer_p, c_string)              \
+        NK_ARRAY__INITIALIZER_WITH(string_buffer_p, sizeof(c_string) - 1u)
 
 #define NK_STRING__INITIALIZE(string_p, string_buffer_p)                    \
         nk_string__p__initialize(                                           \
@@ -56,9 +44,9 @@ struct nk_string
 
 #define NK_STRING__BUCKET_INITIALIZER_FROM(self, c_string)                  \
         {                                                                   \
-            .string = NK_STRING__INITIALIZER_FROM(                          \
+            .string = NK_STRING__INITIALIZER_WITH(                          \
                         (self)->string_array, (c_string)),                  \
-            .string_array = c_string                                      \
+            .string_array = c_string                                        \
         }
 
 struct nk_string__find__result
@@ -68,8 +56,7 @@ static inline
 void
 nk_string__p__initialize(struct nk_string *string, char *string_buffer, size_t string_buffer_size)
 {
-    NK_ARRAY__INITIALIZE(&string->array, string_buffer_size, string_buffer);
-    string->length = 0u;
+    NK_ARRAY__INITIALIZE(string, string_buffer_size, string_buffer);
 }
 
 static inline size_t
@@ -81,13 +68,13 @@ nk_string__length(const struct nk_string *self)
 static inline size_t
 nk_string__size(const struct nk_string *self)
 {
-    return self->array.item_no;
+    return self->item_no;
 }
 
 static inline char
 nk_string__char(const struct nk_string *self, size_t index)
 {
-    return self->array.items[index];
+    return self->items[index];
 }
 
 bool

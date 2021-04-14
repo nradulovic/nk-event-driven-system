@@ -10,15 +10,10 @@
 
 #define NK_FARRAY__T(item_type, item_no)                                    \
 		{                                                                   \
-            item_type array[item_no];                                       \
+            item_type items[item_no];                                       \
 		}
 
-#define NK_FARRAY__INITIALIZE_WITH(self, ...)                               \
-        {                                                                   \
-            .array =                                                        \
-            {                                                               \
-                __VA_ARGS__                                                 \
-            },                                                              \
-        }
+#define NK_FARRAY__LENGTH(self)                                             \
+        (sizeof((self)->items) / sizeof((self)->items[0]))
 
 #endif /* GENERIC_NK_FARRAY_H_ */
