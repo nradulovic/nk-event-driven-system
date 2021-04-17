@@ -8,17 +8,21 @@
 #ifndef GENERIC_CODEC_NK_MANCHESTER_H_
 #define GENERIC_CODEC_NK_MANCHESTER_H_
 
-#include "generic/nk_error.h"
+#include <stddef.h>
+
+#include "generic/nk_result.h"
+
+#define NK_ENABLED_MANCHESTER
 
 struct nk_types__array__u8;
 struct nk_types__array__bool;
 
-#define NK_ENABLED_MANCHESTER
+struct nk_manchester__result NK_RESULT__T(size_t);
 
-enum nk_error
+struct nk_manchester__result
 nk_manchester__encode__biphasel(const struct nk_types__array__u8 *source, struct nk_types__array__bool *encoded);
 
-enum nk_error
+struct nk_manchester__result
 nk_manchester__decode__biphasel(const struct nk_types__array__bool *source, struct nk_types__array__u8 *decoded);
 
 #endif /* GENERIC_CODEC_NK_MANCHESTER_H_ */
