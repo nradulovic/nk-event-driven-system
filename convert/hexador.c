@@ -79,13 +79,13 @@ nk_hexador__to_hex(const struct nk_types__array__u8 *buffer,
             result.value = i;
             break;
         }
-        string->items[i * 2u] = btoh_result.value;
+        //string->items[i * 2u] = btoh_result.value;
         btoh_result = nk_convert__bin_to_hex(lsb_half);
         if (btoh_result.error != NK_ERROR__OK) {
             result.error = NK_ERROR__DATA_INVALID;
             result.value = i;
         }
-        string->items[i * 2u + 1u] = btoh_result.value;
+        //string->items[i * 2u + 1u] = btoh_result.value;
     }
     return result;
 }

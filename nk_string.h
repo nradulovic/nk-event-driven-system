@@ -42,12 +42,13 @@ struct nk_string NK_ARRAY__T(char);
             .string_array = { 0 }                                           \
         }
 
-#define NK_STRING__BUCKET_INITIALIZER_FROM(self, c_string)                  \
+#define NK_STRING__BUCKET_INITIALIZER_WITH(self, c_string)                  \
         {                                                                   \
             .string = NK_STRING__INITIALIZER_WITH(                          \
                         (self)->string_array, (c_string)),                  \
             .string_array = c_string                                        \
         }
+
 
 struct nk_string__find__result
     NK_RESULT__T(size_t);
@@ -99,10 +100,10 @@ void
 nk_string__rstrip(struct nk_string *self, const struct nk_string *other);
 
 void
-nk_string__lower(struct nk_string *self);
+nk_string__lower(const struct nk_string * const self);
 
 void
-nk_string__upper(struct nk_string *self);
+nk_string__upper(const struct nk_string *self);
 
 char nk_char__lower(char character);
 

@@ -86,7 +86,7 @@ nk_string__rstrip(struct nk_string *self, const struct nk_string *other)
 }
 
 void
-nk_string__lower(struct nk_string *self)
+nk_string__lower(const struct nk_string * const self)
 {
     for (size_t i = 0u; i < self->length; i++) {
         self->items[i] = (char)tolower(self->items[i]);
@@ -94,10 +94,10 @@ nk_string__lower(struct nk_string *self)
 }
 
 void
-nk_string__upper(struct nk_string *self)
+nk_string__upper(const struct nk_string *self)
 {
     for (size_t i = 0u; i < self->length; i++) {
-        self->items[i] = (char)toupper(self->items[i]);
+        //self->items[i] = (char)toupper(self->items[i]);
     }
 }
 
