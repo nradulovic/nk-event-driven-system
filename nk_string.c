@@ -97,7 +97,7 @@ void
 nk_string__upper(const struct nk_string *self)
 {
     for (size_t i = 0u; i < self->length; i++) {
-        //self->items[i] = (char)toupper(self->items[i]);
+        self->items[i] = (char)toupper(self->items[i]);
     }
 }
 

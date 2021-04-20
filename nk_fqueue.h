@@ -29,13 +29,13 @@
                 .mask = sizeof(item_buffer_p) /                             \
                         sizeof(item_buffer_p[0]) - 1u                       \
             },                                                              \
-            NK_ARRAY__INITIALIZER(item_buffer_p)                            \
+            NK_ARRAY__INITIALIZER_EMPTY(item_buffer_p)                      \
         }
 
 #define NK_FQUEUE__INITIALIZE(fqueue_p, item_no, item_buffer_p)             \
         do {                                                                \
             nk_fqueue__p__initialize(&(fqueue_p)->fqueue_base, item_no);    \
-            NK_ARRAY__INITIALIZE(&(fqueue_p)->item_array,                     \
+            NK_ARRAY__INITIALIZE_EMPTY(&(fqueue_p)->item_array,                     \
                  item_no, (item_buffer_p));                                 \
         } while (0)
 

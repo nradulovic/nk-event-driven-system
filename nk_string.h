@@ -16,48 +16,75 @@
 
 #define NK_ENABLED_STRING
 
+/**
+ * @brief   String construction
+ *
+ * There are multiple ways to construct a string. The following methods of string construction are supported:
+ * 1. Static construction of empty string using static buffer
+ * 2. Static construction of non-empty string using static buffer
+ * 3. Runtime construction of empty string using dynamic buffer
+ * 4. Runtime construction of non-empty string using dynamic buffer
+ * 5. Runtime construction of non-empty string from static buffer
+ */
+
+/**
+ * @brief   String bucket construction
+ * 1. Empty bucket
+ * 2. Non-empty bucket with string initializer
+ * 3. Non-empty bucket with dynamic string
+ */
+
 struct nk_string NK_ARRAY__T(char);
 
-#define NK_STRING__INITIALIZER(string_buffer_p)                             \
-        NK_ARRAY__INITIALIZER(string_buffer_p)
+/**
+ * @brief   Static construction of non-empty string using static buffer
+ */
+#define NK_STRING__INITIALIZER(static_buffer, static_buffer_length)         \
+        NK_ARRAY__INITIALIZER(static_buffer, (static_buffer_length))
 
-#define NK_STRING__INITIALIZER_WITH(string_buffer_p, c_string)              \
-        NK_ARRAY__INITIALIZER_WITH(string_buffer_p, sizeof(c_string) - 1u)
-
-#define NK_STRING__INITIALIZE(string_p, string_buffer_p)                    \
-        nk_string__p__initialize(                                           \
-                    (string_p),                                             \
-                    (string_buffer_p),                                      \
-                    sizeof(string_buffer_p))
+/**
+ * @brief   Static construction of empty string using static buffer
+ */
+#define NK_STRING__INITIALIZER_EMPTY(static_buffer)                         \
+        NK_ARRAY__INITIALIZER(static_buffer, 0u)
 
 #define NK_STRING__BUCKET_T(char_no)                                        \
-        {                                                                   \
-            struct nk_string string;                                        \
-            char string_array[(char_no)];                                   \
-        }
+        NK_ARRAY__BUCKET_TYPED_T(char, char_no, struct nk_string)
 
-#define NK_STRING__BUCKET_INITIALIZER(self)                                 \
-        {                                                                   \
-            .string = NK_STRING__INITIALIZER((self)->string_array),         \
-            .string_array = { 0 }                                           \
-        }
+#define NK_STRING__BUCKET_INITIALIZER(self, static_string)                       \
+        NK_ARRAY__BUCKET_INITIALIZER((self), sizeof(static_string) - 1u, static_string)
 
-#define NK_STRING__BUCKET_INITIALIZER_WITH(self, c_string)                  \
-        {                                                                   \
-            .string = NK_STRING__INITIALIZER_WITH(                          \
-                        (self)->string_array, (c_string)),                  \
-            .string_array = c_string                                        \
-        }
+#define NK_STRING__BUCKET_INITIALIZER_EMPTY(self)                           \
+        NK_ARRAY__BUCKET_INITIALIZER_EMPTY((self))
 
+#define NK_STRING__BUCKET_INITIALIZE(self, string_p, string_length)         \
+        NK_ARRAY__BUCKET_INITIALIZE(self, string_p, string_length)
+
+#define NK_STRING__BUCKET_INITIALIZE_EMPTY(self)                            \
+        NK_ARRAY__BUCKET_INITIALIZE_EMPTY(self)
+
+#define NK_STRING__BUCKET_INITIALIZE_WITH(self, static_string)                   \
+        NK_ARRAY__BUCKET_INITIALIZE(self, static_string, sizeof(static_string) - 1u)
 
 struct nk_string__find__result
     NK_RESULT__T(size_t);
 
-static inline
-void
-nk_string__p__initialize(struct nk_string *string, char *string_buffer, size_t string_buffer_size)
+/**
+ * @brief   Runtime construction of empty string using dynamic buffer
+ */
+static inline void
+nk_string__initialize_empty(struct nk_string *string, char *string_buffer, size_t string_buffer_size)
 {
-    NK_ARRAY__INITIALIZE(string, string_buffer_size, string_buffer);
+    NK_ARRAY__INITIALIZE_EMPTY(string, string_buffer_size, string_buffer);
+}
+
+/**
+ * @brief   Runtime construction of non-empty string using dynamic buffer
+ */
+static inline void
+nk_string__initialize(struct nk_string *string, char *string_buffer, size_t string_buffer_size, size_t string_size)
+{
+    NK_ARRAY__INITIALIZE(string, string_buffer_size, string_buffer, string_size);
 }
 
 static inline size_t
@@ -104,6 +131,9 @@ nk_string__lower(const struct nk_string * const self);
 
 void
 nk_string__upper(const struct nk_string *self);
+
+void
+nk_string__append(struct nk_string *self, const struct nk_string *other);
 
 char nk_char__lower(char character);
 
