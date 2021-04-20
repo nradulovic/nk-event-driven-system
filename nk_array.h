@@ -123,8 +123,10 @@
 
 #define NK_ARRAY__INITIALIZE_WINDOW(window_p, array_p, from, to)            \
         do {                                                                \
-            size_t view_from = MIN((from), (array_p)->length);              \
-            size_t view_to = MIN((to), (array_p)->length);                  \
+            size_t l_from = (from);                                         \
+            size_t l_to = (to);                                             \
+            size_t view_from = MIN(l_from, (array_p)->length);              \
+            size_t view_to = MIN(l_to, (array_p)->length);                  \
             size_t length = view_to - view_from;                            \
             NK_ARRAY__INITIALIZE(                                           \
                     (window_p),                                             \
