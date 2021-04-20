@@ -18,6 +18,7 @@ enum nk_error
     NK_ERROR__DATA_INVALID,
     NK_ERROR__DATA_ODD,
     NK_ERROR__DATA_OVF,
+    NK_ERROR__DATA_UNDERFLOW,
 
     /* Buffer error */
     NK_ERROR__BUFFER_OVF
