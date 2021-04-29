@@ -94,6 +94,12 @@ nk_string__length(const struct nk_string *self)
 }
 
 static inline size_t
+nk_string__free(const struct nk_string * self)
+{
+    return NK_ARRAY__FREE(self);
+}
+
+static inline size_t
 nk_string__size(const struct nk_string *self)
 {
     return self->item_no;
@@ -118,7 +124,13 @@ bool
 nk_string__contains(const struct nk_string *self, const struct nk_string *other);
 
 bool
+nk_string__startswith(const struct nk_string *self, const struct nk_string *other);
+
+bool
 nk_string__endswith(const struct nk_string *self, const struct nk_string *other);
+
+void
+nk_string__clear_all(struct nk_string * self);
 
 /**
  * \brief       Modifies string \a self and removes trailing characters specified in \a other removed
@@ -127,13 +139,19 @@ void
 nk_string__rstrip(struct nk_string *self, const struct nk_string *other);
 
 void
-nk_string__lower(const struct nk_string * const self);
+nk_string__lstrip(struct nk_string *self, const struct nk_string *other);
 
 void
-nk_string__upper(const struct nk_string *self);
+nk_string__lower(struct nk_string * self);
+
+void
+nk_string__upper(struct nk_string *self);
 
 void
 nk_string__append(struct nk_string *self, const struct nk_string *other);
+
+void
+nk_string__copy(struct nk_string *self, const struct nk_string * other);
 
 char nk_char__lower(char character);
 

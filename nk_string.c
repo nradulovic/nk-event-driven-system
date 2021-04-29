@@ -5,6 +5,7 @@
  *      Author: nenad
  */
 #include <ctype.h>
+#include <string.h>
 #include <stdint.h>
 
 #include "nk_bits.h"
@@ -65,6 +66,19 @@ nk_string__contains(const struct nk_string *self, const struct nk_string *other)
 }
 
 bool
+nk_string__startswith(const struct nk_string *self, const struct nk_string *other)
+{
+    if (other->length > self->length) {
+        return false;
+    }
+    const struct nk_string view = nk_string__view(self, 0, other->length);
+    if (nk_string__is_equal(&view, other)) {
+        return true;
+    }
+    return false;
+}
+
+bool
 nk_string__endswith(const struct nk_string *self, const struct nk_string *other)
 {
     if (other->length > self->length) {
@@ -78,35 +92,70 @@ nk_string__endswith(const struct nk_string *self, const struct nk_string *other)
 }
 
 void
+nk_string__clear_all(struct nk_string *self)
+{
+    self->length = 0u;
+}
+
+void
 nk_string__rstrip(struct nk_string *self, const struct nk_string *other)
 {
-    while (nk_string__endswith(self, other)) {
+    if (nk_string__endswith(self, other)) {
         self->length -= other->length;
     }
 }
 
 void
-nk_string__lower(const struct nk_string * const self)
+nk_string__lstrip(struct nk_string *self, const struct nk_string *other)
 {
-    for (size_t i = 0u; i < self->length; i++) {
-        self->items[i] = (char)tolower(self->items[i]);
+    if (nk_string__startswith(self, other)) {
+        memmove(self->items, self->items + other->length, self->length - other->length);
+        self->length -= other->length;
     }
 }
 
 void
-nk_string__upper(const struct nk_string *self)
+nk_string__lower(struct nk_string *self)
 {
     for (size_t i = 0u; i < self->length; i++) {
-        self->items[i] = (char)toupper(self->items[i]);
+        self->items[i] = (char) tolower(self->items[i]);
     }
 }
 
-char nk_char__lower(char character)
+void
+nk_string__upper(struct nk_string *self)
 {
-    return (char)tolower(character);
+    for (size_t i = 0u; i < self->length; i++) {
+        self->items[i] = (char) toupper(self->items[i]);
+    }
 }
 
-char nk_char__upper(char character)
+void
+nk_string__append(struct nk_string *self, const struct nk_string *other)
 {
-    return (char)toupper(character);
+    size_t to_copy = MIN(nk_string__free(self), other->length);
+
+    memcpy(self->items + self->length, other->items, to_copy);
+    self->length += to_copy;
+}
+
+void
+nk_string__copy(struct nk_string *self, const struct nk_string *other)
+{
+    size_t to_copy = MIN(self->item_no, other->length);
+
+    memcpy(self->items, other->items, to_copy);
+    self->length = to_copy;
+}
+
+char
+nk_char__lower(char character)
+{
+    return (char) tolower(character);
+}
+
+char
+nk_char__upper(char character)
+{
+    return (char) toupper(character);
 }
