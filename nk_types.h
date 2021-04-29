@@ -25,5 +25,6 @@ struct nk_types__array__size NK_ARRAY__T(size_t);
 struct nk_types__array__voidp NK_ARRAY__T(void *);
 
 struct nk_types__array__bool NK_ARRAY__T(bool);
+struct nk_types__array__char NK_ARRAY__T(char);
 
 #endif /* GENERIC_NK_TYPES_H_ */
