@@ -10,10 +10,16 @@
 
 #include <stddef.h>
 
-typedef const char* (command_interpreter_fn)(void *p__terminal_context,
-                                             void *command_context,
-                                             size_t arg_count,
-                                             const char *arg_value[]);
+struct nk_string;
+struct terminal__command_descriptor;
+
+struct terminal_arguments
+NK_ARRAY__T(struct nk_string*);
+struct terminal_commands
+NK_ARRAY__T(struct terminal__command_descriptor*);
+
+typedef const char*
+(command_interpreter_fn)(void *p__terminal_context, void *command_context, struct terminal_arguments *args);
 
 struct terminal__command_interpreter
 {
@@ -29,25 +35,23 @@ struct terminal__command_descriptor
 
 struct terminal_descriptor
 {
-    const struct terminal__command_descriptor *p__commands;
-    size_t p__no_commands;
-    char *p__arg_buffer;
-    size_t p__arg_size;
-    void *p__terminal_context;
-    size_t p__content_index;
-    const char *error_message;
+    const struct terminal_commands *p__commands;
+    struct nk_string *p__working_buffer;
+    struct nk_string *p__error_message;
+    void * p__terminal_context;
 };
 
-void terminal__init(struct terminal_descriptor *terminal,
-                    const struct terminal__command_descriptor *commands,
-                    size_t commands_size,
-                    char *command_arg_buffer,
-                    size_t command_arg_size);
-const char* terminal__interpret(struct terminal_descriptor *terminal,
-                                const char *input,
-                                size_t input_length);
-void terminal__discard_command(struct terminal_descriptor *terminal);
-void terminal__set_terminal_context(struct terminal_descriptor *terminal, void *terminal_context);
+void
+terminal__init(struct terminal_descriptor *terminal,
+               const struct terminal_commands *commands,
+               struct nk_string *working_buffer,
+               struct nk_string *error_message);
 
+void
+terminal__interpret(struct terminal_descriptor *terminal, const struct nk_string *input, struct nk_string *output);
+void
+terminal__discard_command(struct terminal_descriptor *terminal);
+void
+terminal__set_terminal_context(struct terminal_descriptor *terminal, void *terminal_context);
 
 #endif /* GENERIC_TERMINAL_TERMINAL_H_ */
