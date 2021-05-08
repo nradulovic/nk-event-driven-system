@@ -2,7 +2,9 @@
  * nk_array.h
  *
  *  Created on: Apr 5, 2021
- *      Author: nenad
+ *      Author: (nbr) nenad.b.radulovic@gmail.com
+ *
+ *  08/05/2021: (nbr) Minor code formatting
  */
 
 #ifndef NEON_KIT_GENERIC_NK_ARRAY_H_
@@ -135,9 +137,6 @@
                     length);                                                \
         } while (0)
 
-#define nk_array__item_size(array_p)                                        \
-        sizeof(*(array_p)->items)
-
 #define NK_ARRAY__BUCKET_T(item_type, item_no)                              \
         {                                                                   \
             struct NK_ARRAY__T(item_type) array;                            \
@@ -178,8 +177,8 @@
                     l_buffer_size,                                          \
                     (array_p)->buffer,                                      \
                     l_buffer_length);                                       \
-            if (l_buffer != NULL) {                                       \
-                memcpy((array_p)->buffer, l_buffer, l_buffer_length);     \
+            if (l_buffer != NULL) {                                         \
+                memcpy((array_p)->buffer, l_buffer, l_buffer_length);       \
             }                                                               \
         } while (0)
 
@@ -200,6 +199,10 @@
                 (array_p),                                                  \
                 static_buffer,                                              \
                 NK_BITS__ARRAY_SIZE(static_buffer))
+
+
+#define NK_ARRAY__ITEM_SIZE(array_p)                                        \
+        sizeof(*(array_p)->items)
 
 #define NK_ARRAY__FREE(array_p)                                             \
         ((array_p)->item_no - (array_p)->length)
