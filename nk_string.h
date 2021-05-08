@@ -2,7 +2,9 @@
  * nk_string.h
  *
  *  Created on: Apr 10, 2021
- *      Author: nenad
+ *      Author: (nbr) nenad.b.radulovic@gmail.com
+ *
+ *  08/05/2021: (nbr) Minor code formatting
  */
 
 #ifndef NEON_KIT_GENERIC_NK_STRING_H_
@@ -51,7 +53,7 @@ struct nk_string NK_ARRAY__T(char);
 #define NK_STRING__BUCKET_T(char_no)                                        \
         NK_ARRAY__BUCKET_TYPED_T(char, char_no, struct nk_string)
 
-#define NK_STRING__BUCKET_INITIALIZER(self, static_string)                       \
+#define NK_STRING__BUCKET_INITIALIZER(self, static_string)                  \
         NK_ARRAY__BUCKET_INITIALIZER((self), sizeof(static_string) - 1u, static_string)
 
 #define NK_STRING__BUCKET_INITIALIZER_EMPTY(self)                           \
@@ -63,7 +65,7 @@ struct nk_string NK_ARRAY__T(char);
 #define NK_STRING__BUCKET_INITIALIZE_EMPTY(self)                            \
         NK_ARRAY__BUCKET_INITIALIZE_EMPTY(self)
 
-#define NK_STRING__BUCKET_INITIALIZE_WITH(self, static_string)                   \
+#define NK_STRING__BUCKET_INITIALIZE_WITH(self, static_string)              \
         NK_ARRAY__BUCKET_INITIALIZE(self, static_string, sizeof(static_string) - 1u)
 
 struct nk_string__find__result
