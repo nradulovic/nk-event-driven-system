@@ -2,14 +2,17 @@
  * hexador.c
  *
  *  Created on: Apr 12, 2021
- *      Author: nenad
+ *      Author: (nbr) nenad.b.radulovic@gmail.com
+ *
+ *  08/05/2021: (nbr) Minor code formatting
  */
 
-#include "hexador.h"
-#include "../nk_types.h"
-#include "../nk_string.h"
-#include "../convert/nk_convert.h"
-#include "../nk_debug.h"
+#include "generic/nk_debug.h"
+#include "generic/nk_types.h"
+#include "generic/nk_string.h"
+#include "generic/convert/nk_hexador.h"
+#include "generic/convert/nk_convert.h"
+
 
 struct nk_hexador__result
 nk_hexador__to_bin(const struct nk_string *string,
