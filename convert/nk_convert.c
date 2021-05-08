@@ -5,6 +5,7 @@
  *      Author: (nbr) nenad.b.radulovic@gmail.com
  *
  *  08/05/2021: (nbr) Hex functions will convert whole binary byte.
+ *                    Using variable length array in str_to_u32
  */
 
 #include <string.h>
@@ -81,14 +82,11 @@ struct nk_result__u32
 nk_convert__str_to_u32(const struct nk_string *string)
 {
     struct nk_result__u32 result;
-    char null_terminated[1024];
     unsigned long ul;
+    /* When creating a standard C string add one more place for null terminating character.
+     */
+    char null_terminated[string->length + 1u];
 
-    if (string->length == (sizeof(null_terminated) - 1u)) {
-        result.error = NK_ERROR__DATA_OVF;
-        result.value = 0u;
-        return result;
-    }
     memcpy(null_terminated, string->items, string->length);
     null_terminated[string->length] = '\0';
     errno = 0;
