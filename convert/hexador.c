@@ -33,22 +33,18 @@ nk_hexador__to_bin(const struct nk_string *string,
     result.error = NK_ERROR__OK;
     result.value = string->length;
     for (size_t i = 0u; i < string->length; i += 2u) {
-        struct nk_convert__hex_to_bin__result htob_result_lo;
-        struct nk_convert__hex_to_bin__result htob_result_hi;
+        struct nk_result__u8 htob_result;
+        struct nk_convert__hex hex;
 
-        htob_result_hi = nk_convert__hex_to_bin(string->items[i]);
-        if (htob_result_hi.error != NK_ERROR__OK) {
+        hex.lsb = string->items[i];
+        hex.msb = string->items[i + 1];
+        htob_result = nk_convert__hex_to_bin(hex);
+        if (htob_result.error != NK_ERROR__OK) {
             result.error = NK_ERROR__DATA_INVALID;
             result.value = i;
             break;
         }
-        htob_result_lo = nk_convert__hex_to_bin(string->items[i + 1]);
-        if (htob_result_lo.error != NK_ERROR__OK) {
-            result.error = NK_ERROR__DATA_INVALID;
-            result.value = i;
-            break;
-        }
-        buffer->items[i / 2u] = (uint8_t) ((htob_result_hi.value << 4) | htob_result_lo.value);
+        buffer->items[i / 2u] = htob_result.value;
     }
     return result;
 }
@@ -67,26 +63,14 @@ nk_hexador__to_hex(const struct nk_types__array__u8 *buffer,
         result.value = 0u;
         return result;
     }
+
+    for (size_t i = 0u; i < buffer->length; i++) {
+        struct nk_convert__hex btoh_result = nk_convert__bin_to_hex(buffer->items[i]);
+        string->items[i * 2u] = btoh_result.lsb;
+        string->items[i * 2u + 1u] = btoh_result.msb;
+    }
     result.error = NK_ERROR__OK;
     result.value = buffer->length;
-    for (size_t i = 0u; i < buffer->length; i++) {
-        struct nk_convert__bin_to_hex__result btoh_result;
-        uint8_t msb_half = buffer->items[i] >> 4u;
-        uint8_t lsb_half = buffer->items[i] & 0xfu;
-        btoh_result = nk_convert__bin_to_hex(msb_half);
-        if (btoh_result.error != NK_ERROR__OK) {
-            result.error = NK_ERROR__DATA_INVALID;
-            result.value = i;
-            break;
-        }
-        //string->items[i * 2u] = btoh_result.value;
-        btoh_result = nk_convert__bin_to_hex(lsb_half);
-        if (btoh_result.error != NK_ERROR__OK) {
-            result.error = NK_ERROR__DATA_INVALID;
-            result.value = i;
-        }
-        //string->items[i * 2u + 1u] = btoh_result.value;
-    }
     return result;
 }
 
