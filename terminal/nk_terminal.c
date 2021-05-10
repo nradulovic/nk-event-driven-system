@@ -1,14 +1,14 @@
 /*
- * terminal.c
+ * nk_terminal.c
  *
  *  Created on: Apr 29, 2021
- *      Author: nenad
+ *      Author: (nbr) nenad.b.radulovic@gmail.com
  */
 
 #include <stdint.h>
 
 #include "generic/nk_string.h"
-#include "generic/terminal/terminal.h"
+#include "generic/terminal/nk_terminal.h"
 
 static void
 process_command(struct terminal_descriptor *terminal, const struct nk_string *command_string, struct nk_string *output)

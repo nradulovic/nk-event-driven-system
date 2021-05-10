@@ -3,7 +3,6 @@
  *
  *  Created on: Apr 12, 2021
  *      Author: (nbr) nenad.b.radulovic@gmail.com
- *
  *  08/05/2021: (nbr) Hex functions will convert whole binary byte.
  *                    Using variable length array in str_to_u32
  */

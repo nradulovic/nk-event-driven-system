@@ -1,9 +1,8 @@
 /*
- * hexador.c
+ * nk_hexador.c
  *
  *  Created on: Apr 12, 2021
  *      Author: (nbr) nenad.b.radulovic@gmail.com
- *
  *  08/05/2021: (nbr) Minor code formatting
  */
 

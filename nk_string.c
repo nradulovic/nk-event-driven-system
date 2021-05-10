@@ -2,14 +2,14 @@
  * nk_string.c
  *
  *  Created on: Apr 11, 2021
- *      Author: nenad
+ *      Author: (nbr) nenad.b.radulovic@gmail.com
  */
 #include <ctype.h>
 #include <string.h>
 #include <stdint.h>
 
-#include "nk_bits.h"
-#include "nk_string.h"
+#include "generic/nk_bits.h"
+#include "generic/nk_string.h"
 
 bool
 nk_string__is_equal(const struct nk_string *self, const struct nk_string *other)

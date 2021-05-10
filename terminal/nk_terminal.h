@@ -1,8 +1,8 @@
 /*
- * terminal.h
+ * nk_terminal.h
  *
  *  Created on: Apr 13, 2021
- *      Author: nenad
+ *      Author: (nbr) nenad.b.radulovic@gmail.com
  */
 
 #ifndef GENERIC_TERMINAL_TERMINAL_H_
