@@ -16,6 +16,11 @@
 
 #include "nk_array.h"
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
 struct nk_types__array__bool NK_ARRAY__T(bool);
 struct nk_types__array__char NK_ARRAY__T(char);
 
@@ -30,5 +35,8 @@ struct nk_types__array__i32  NK_ARRAY__T(int32_t);
 struct nk_types__array__size NK_ARRAY__T(size_t);
 struct nk_types__array__void NK_ARRAY__T(void *);
 
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* GENERIC_NK_TYPES_H_ */

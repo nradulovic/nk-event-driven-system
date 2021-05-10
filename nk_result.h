@@ -16,6 +16,11 @@
 
 #include "nk_error.h"
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
 #define NK_RESULT__T(value_type)                                            \
         {                                                                   \
             enum nk_error error;                                            \
@@ -35,5 +40,9 @@ struct nk_result__i32  NK_RESULT__T(int32_t);
 
 struct nk_result__size NK_RESULT__T(size_t);
 struct nk_result__void NK_RESULT__T(void *);
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* NEON_KIT_GENERIC_NK_RESULT_H_ */

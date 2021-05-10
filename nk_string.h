@@ -16,6 +16,11 @@
 #include "nk_array.h"
 #include "nk_result.h"
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
 #define NK_ENABLED_STRING
 
 /**
@@ -158,5 +163,9 @@ nk_string__copy(struct nk_string *self, const struct nk_string * other);
 char nk_char__lower(char character);
 
 char nk_char__upper(char character);
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* NEON_KIT_GENERIC_NK_STRING_H_ */

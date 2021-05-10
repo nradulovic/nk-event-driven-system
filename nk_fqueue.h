@@ -10,6 +10,11 @@
 #ifndef NEON_KIT_GENERIC_NK_FQUEUE_H_
 #define NEON_KIT_GENERIC_NK_FQUEUE_H_
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
 #include <stddef.h>
 #include "nk_array.h"
 
@@ -94,5 +99,9 @@ nk_fqueue__p__get(struct nk_fqueue__p__base * fqueue_base)
 {
     return fqueue_base->tail;
 }
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* NEON_KIT_GENERIC_NK_FQUEUE_H_ */

@@ -15,6 +15,11 @@
 
 #include "nk_bits.h"
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
 #define NK_ENABLED_ARRAY
 
 /**
@@ -206,5 +211,9 @@
 
 #define NK_ARRAY__FREE(array_p)                                             \
         ((array_p)->item_no - (array_p)->length)
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* NEON_KIT_GENERIC_NK_ARRAY_H_ */

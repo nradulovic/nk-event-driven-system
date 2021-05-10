@@ -10,6 +10,11 @@
 #ifndef GENERIC_NK_FARRAY_H_
 #define GENERIC_NK_FARRAY_H_
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
 #include <string.h>
 
 #define NK_FARRAY__T(item_type, item_no)                                    \
@@ -28,5 +33,9 @@
 
 #define NK_FARRAY__SIZE(self)                                               \
         NK_FARRAY__LENGTH(self)
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* GENERIC_NK_FARRAY_H_ */
