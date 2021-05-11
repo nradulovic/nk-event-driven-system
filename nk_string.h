@@ -5,6 +5,7 @@
  *      Author: (nbr) nenad.b.radulovic@gmail.com
  *
  *  08/05/2021: (nbr) Minor code formatting
+ *  11/05/2021: (nbr) Added is_string_literal, append_literal and replace
  */
 
 #ifndef NEON_KIT_GENERIC_NK_STRING_H_
@@ -73,6 +74,9 @@ struct nk_string NK_ARRAY__T(char);
 #define NK_STRING__BUCKET_INITIALIZE_WITH(self, static_string)              \
         NK_ARRAY__BUCKET_INITIALIZE(self, static_string, sizeof(static_string) - 1u)
 
+#define NK_STRING__LITERAL(static_string)                                   \
+        (static_string), (sizeof(static_string) - 1u)
+
 struct nk_string__find__result
     NK_RESULT__T(size_t);
 
@@ -121,6 +125,9 @@ nk_string__char(const struct nk_string *self, size_t index)
 bool
 nk_string__is_equal(const struct nk_string *self, const struct nk_string *other);
 
+bool
+nk_string__is_equal_literal(const struct nk_string * self, const char * literal, size_t literal_length);
+
 struct nk_string
 nk_string__view(const struct nk_string *self, size_t from, size_t to);
 
@@ -158,7 +165,13 @@ void
 nk_string__append(struct nk_string *self, const struct nk_string *other);
 
 void
+nk_string__append_literal(struct nk_string *self, const char * literal, size_t literal_length);
+
+void
 nk_string__copy(struct nk_string *self, const struct nk_string * other);
+
+void
+nk_string__replace(struct nk_string *self, const struct nk_string *search, const struct nk_string *with);
 
 char nk_char__lower(char character);
 
