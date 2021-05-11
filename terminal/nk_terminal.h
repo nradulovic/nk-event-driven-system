@@ -10,16 +10,18 @@
 
 #include <stddef.h>
 
+#include "generic/nk_array.h"
+
+#define NK_ENABLED_TERMINAL
+
 struct nk_string;
-struct terminal__command_descriptor;
+
 
 struct terminal_arguments
-NK_ARRAY__T(struct nk_string*);
-struct terminal_commands
-NK_ARRAY__T(struct terminal__command_descriptor*);
+NK_ARRAY__T(struct nk_string);
 
 typedef const char*
-(command_interpreter_fn)(void *p__terminal_context, void *command_context, struct terminal_arguments *args);
+(command_interpreter_fn)(void *terminal_context, void *command_context, struct terminal_arguments *args, struct nk_string * output);
 
 struct terminal__command_interpreter
 {
@@ -27,11 +29,16 @@ struct terminal__command_interpreter
     void *command_context;
 };
 
+
 struct terminal__command_descriptor
 {
-    const char *command_id;
+    struct nk_string *command_id;
     struct terminal__command_interpreter interpreter;
 };
+
+struct terminal_commands
+NK_ARRAY__T(const struct terminal__command_descriptor *);
+
 
 struct terminal_descriptor
 {

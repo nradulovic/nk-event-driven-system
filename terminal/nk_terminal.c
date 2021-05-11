@@ -11,8 +11,52 @@
 #include "generic/terminal/nk_terminal.h"
 
 static void
-process_command(struct terminal_descriptor *terminal, const struct nk_string *command_string, struct nk_string *output)
+process_command_line(struct terminal_descriptor *terminal,
+                     const struct nk_string *command_string,
+                     struct nk_string *output)
 {
+    struct
+        NK_STRING__BUCKET_T(1)
+    delimiter = NK_STRING__BUCKET_INITIALIZER(&delimiter, " ");
+    struct nk_string__find__result delimiter_n;
+    struct nk_string command_view;
+    struct nk_string token_view;
+    struct
+        NK_ARRAY__BUCKET_TYPED_T(struct nk_string, 16u, struct terminal_arguments)
+    tokens = NK_ARRAY__BUCKET_INITIALIZER_EMPTY(&tokens);
+
+    /* If we have just enter (\r or \n) just return */
+    if (command_string->length <= 1u) {
+        return;
+    }
+    /* Remove last character which is either \r or \n and create token views */
+    command_view = nk_string__view(command_string, 0, command_string->length - 1u);
+
+    for (size_t token_i = 0u; token_i < tokens.array.item_no; token_i++) {
+        delimiter_n = nk_string__find(&command_view, &delimiter.array, 0, SIZE_MAX);
+        if (delimiter_n.error) {
+            delimiter_n.value = SIZE_MAX;
+        }
+        token_view = nk_string__view(&command_view, 0, delimiter_n.value);
+        if (token_view.length == 0u) {
+            break;
+        }
+        tokens.array.items[token_i] = token_view;
+        tokens.array.length++;
+        command_view = nk_string__view(&command_view, delimiter_n.value, SIZE_MAX);
+    }
+    /* First token is command, find the command */
+    for (size_t command_i = 0u; command_i < terminal->p__commands->length; command_i++) {
+        const struct terminal__command_descriptor *command = terminal->p__commands->items[command_i];
+
+        if (nk_string__is_equal(&tokens.array.items[0], command->command_id)) {
+            command->interpreter.fn(terminal->p__terminal_context,
+                                    command->interpreter.command_context,
+                                    &tokens.array,
+                                    output);
+            break;
+        }
+    }
 
 }
 
@@ -31,42 +75,36 @@ void
 terminal__interpret(struct terminal_descriptor *terminal, const struct nk_string *input, struct nk_string *output)
 {
     struct nk_string__find__result find_n;
-    struct nk_string__find__result find_r;
-    struct nk_string__find__result find_or;
     struct
         NK_STRING__BUCKET_T(1)
     enter_r = NK_STRING__BUCKET_INITIALIZER(&enter_r, "\r");
     struct
         NK_STRING__BUCKET_T(1)
     enter_n = NK_STRING__BUCKET_INITIALIZER(&enter_n, "\n");
+    struct
+        NK_STRING__BUCKET_T(2)
+    enter_nn = NK_STRING__BUCKET_INITIALIZER(&enter_n, "\n\n");
 
-    nk_string__append(terminal->p__working_buffer, input);
     nk_string__copy(output, input);
+    nk_string__append(terminal->p__working_buffer, input);
+    nk_string__replace(terminal->p__working_buffer, &enter_r.array, &enter_n.array);
+    nk_string__replace(terminal->p__working_buffer, &enter_nn.array, &enter_n.array);
 
-    /* See if the user pressed enter */
-    find_n = nk_string__find(terminal->p__working_buffer, &enter_n.array, 0, SIZE_MAX);
-    find_r = nk_string__find(terminal->p__working_buffer, &enter_r.array, 0, SIZE_MAX);
-
-    if ((find_n.error == NK_ERROR__OK) && (find_r.error == NK_ERROR__OK)) {
-        /* Both finds found a character */
-        find_or.error = NK_ERROR__OK;
-        find_or.value = MIN(find_n.value, find_r.value);
-    } else if (find_n.error == NK_ERROR__OK) {
-        find_or = find_n;
-    } else if (find_r.error == NK_ERROR__OK) {
-        find_or = find_r;
-    } else {
-        find_or.error = NK_ERROR__NOT_FOUND;
-        find_or.value = 0u;
-    }
-
-    if (find_or.error == NK_ERROR__OK) {
+    do {
         struct nk_string command_string;
-        /* Found '\n' in the string */
-        command_string = nk_string__view(terminal->p__working_buffer, 0, find_or.value);
-        process_command(terminal, &command_string, output);
+
+        /* See if the user pressed enter */
+        find_n = nk_string__find(terminal->p__working_buffer, &enter_n.array, 0, SIZE_MAX);
+
+        if (find_n.error != NK_ERROR__OK) {
+            break;
+        }
+
+        /* Found '\n' in the string, send the string to process and then remove it from working buffer */
+        command_string = nk_string__view(terminal->p__working_buffer, 0u, find_n.value + 1u);
+        process_command_line(terminal, &command_string, output);
         nk_string__lstrip(terminal->p__working_buffer, &command_string);
-    }
+    } while (true);
 }
 
 void
