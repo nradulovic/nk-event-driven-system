@@ -35,15 +35,15 @@ process_command_line(struct terminal_descriptor *terminal,
     for (size_t token_i = 0u; token_i < tokens.array.item_no; token_i++) {
         delimiter_n = nk_string__find(&command_view, &delimiter.array, 0, SIZE_MAX);
         if (delimiter_n.error) {
-            delimiter_n.value = SIZE_MAX;
-        }
-        token_view = nk_string__view(&command_view, 0, delimiter_n.value);
-        if (token_view.length == 0u) {
+            tokens.array.items[token_i] = command_view;
+            tokens.array.length++;
             break;
+        } else {
+            token_view = nk_string__view(&command_view, 0, delimiter_n.value);
+            tokens.array.items[token_i] = token_view;
+            tokens.array.length++;
         }
-        tokens.array.items[token_i] = token_view;
-        tokens.array.length++;
-        command_view = nk_string__view(&command_view, delimiter_n.value, SIZE_MAX);
+        command_view = nk_string__view(&command_view, delimiter_n.value + 1, SIZE_MAX);
     }
     /* First token is command, find the command */
     for (size_t command_i = 0u; command_i < terminal->p__commands->length; command_i++) {
@@ -84,11 +84,20 @@ terminal__interpret(struct terminal_descriptor *terminal, const struct nk_string
     struct
         NK_STRING__BUCKET_T(2)
     enter_nn = NK_STRING__BUCKET_INITIALIZER(&enter_n, "\n\n");
+    struct
+        NK_STRING__BUCKET_T(2)
+    double_space = NK_STRING__BUCKET_INITIALIZER(&double_space, "  ");
+    struct
+        NK_STRING__BUCKET_T(2)
+    single_space = NK_STRING__BUCKET_INITIALIZER(&single_space, " ");
 
     nk_string__copy(output, input);
     nk_string__append(terminal->p__working_buffer, input);
     nk_string__replace(terminal->p__working_buffer, &enter_r.array, &enter_n.array);
     nk_string__replace(terminal->p__working_buffer, &enter_nn.array, &enter_n.array);
+    while (nk_string__contains(terminal->p__working_buffer, &double_space.array)) {
+        nk_string__replace(terminal->p__working_buffer, &double_space.array, &single_space.array);
+    }
 
     do {
         struct nk_string command_string;
