@@ -5,6 +5,7 @@
  *      Author: (nbr) nenad.b.radulovic@gmail.com
  *
  *  08/05/2021: (nbr) Minor code formatting
+ *  11/05/2021: (nbr) Empty initializer will not initialize the buffer
  */
 
 #ifndef NEON_KIT_GENERIC_NK_ARRAY_H_
@@ -167,7 +168,9 @@ extern "C"
  * @brief   Static construction of empty array bucket
  */
 #define NK_ARRAY__BUCKET_INITIALIZER_EMPTY(self)                            \
-        NK_ARRAY__BUCKET_INITIALIZER((self), 0u, { 0 })
+        {                                                                   \
+            .array = NK_ARRAY__INITIALIZER((self)->buffer, 0)               \
+        }
 
 /**
  * @brief   Runtime construction of an array bucket from dynamic buffer
