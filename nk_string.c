@@ -164,6 +164,16 @@ nk_string__append_literal(struct nk_string *self, const char *literal, size_t li
 }
 
 void
+nk_string__append_c_string(struct nk_string *self, const char * literal)
+{
+    size_t literal_length = strlen(literal);
+    size_t to_copy = MIN(nk_string__free(self), literal_length);
+
+    memcpy(self->items + self->length, literal, to_copy);
+    self->length += to_copy;
+}
+
+void
 nk_string__copy(struct nk_string *self, const struct nk_string *other)
 {
     nk_string__clear_all(self);
