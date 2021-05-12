@@ -37,12 +37,12 @@ byte_encode_msb_first(const struct encoding_scheme *scheme, uint8_t value, struc
     }
 }
 
-static struct nk_manchester__result
+static struct nk_result__size
 byte_decode_msb_first(const struct decoding_scheme *scheme,
                  const struct nk_types__array__bool *source,
                  struct nk_types__array__u8 *decoded)
 {
-    struct nk_manchester__result result;
+    struct nk_result__size result;
 
     decoded->items[decoded->length] = 0u;
     for (size_t i = 0u; i < source->length; i += 2u) {
@@ -62,10 +62,10 @@ byte_decode_msb_first(const struct decoding_scheme *scheme,
     return result;
 }
 
-struct nk_manchester__result
+struct nk_result__size
 nk_manchester__encode__biphasel(const struct nk_types__array__u8 *source, struct nk_types__array__bool *encoded)
 {
-    struct nk_manchester__result result;
+    struct nk_result__size result;
 
     nk_assert(source);
     nk_assert(encoded);
@@ -90,10 +90,10 @@ nk_manchester__encode__biphasel(const struct nk_types__array__u8 *source, struct
     return result;
 }
 
-struct nk_manchester__result
+struct nk_result__size
 nk_manchester__decode__biphasel(const struct nk_types__array__bool *source, struct nk_types__array__u8 *decoded)
 {
-    struct nk_manchester__result result;
+    struct nk_result__size result;
 
     nk_assert(source);
     nk_assert(decoded);
@@ -115,9 +115,9 @@ nk_manchester__decode__biphasel(const struct nk_types__array__bool *source, stru
         return result;
     }
     result.error = NK_ERROR__OK;
-    result.value = source->length;
+    result.value = source->length / 2u;
     for (size_t i = 0u; i < source->length; i += 16u) {
-        struct nk_manchester__result byte_result;
+        struct nk_result__size byte_result;
         struct nk_types__array__bool window;
         NK_ARRAY__INITIALIZE_WINDOW(&window, source, i, i + 16u);
         byte_result = byte_decode_msb_first(&biphasel, &window, decoded);
