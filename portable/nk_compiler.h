@@ -3,6 +3,8 @@
  *
  *  Created on: May 8, 2021
  *      Author: (nbr) nenad.b.radulovic@gmail.com
+ *
+ *  13/07/2021: (nbr) Added NK_COMPILER__NO_RETURN
  */
 /**
  * @file
@@ -20,6 +22,9 @@ extern "C"
 {
 #endif
 
+/**
+ * @brief   Compiler directive to generate a function which does not return
+ */
 #define NK_COMPILER__NO_RETURN          __attribute__((noreturn))
 
 /**

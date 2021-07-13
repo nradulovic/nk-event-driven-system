@@ -4,6 +4,7 @@
  *  Created on: May 8, 2021
  *      Author: (nbr) nenad.b.radulovic@gmail.com
  *  08/05/2021: (nbr) Initial CORE interface definition
+ *  13/07/2021: (nbr) Added nk_core__reset
  */
 /**
  * @file

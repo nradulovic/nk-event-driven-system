@@ -4,6 +4,7 @@
  *  Created on: Apr 12, 2021
  *      Author: (nbr) nenad.b.radulovic@gmail.com
  *  08/05/2021: (nbr) Minor code formatting
+ *  13/07/2021: (nbr) Not using nk_types since they were moved to nk_array
  */
 
 #include "generic/common/nk_debug.h"
