@@ -15,6 +15,8 @@
 #ifndef NEON_KIT_GENERIC_NK_CORE_H_
 #define NEON_KIT_GENERIC_NK_CORE_H_
 
+#include <stdint.h>
+
 #if defined(__cplusplus)
 extern "C"
 {
@@ -28,6 +30,8 @@ struct nk_tasker__array * nk_core__tasker_instances(void);
 
 NK_COMPILER__NO_RETURN
 void nk_core__reset(void);
+
+uint32_t nk_core__instruction_count(void);
 
 #if defined(__cplusplus)
 }

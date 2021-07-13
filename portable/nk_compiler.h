@@ -15,8 +15,6 @@
 #ifndef NEON_KIT_GENERIC_NK_COMPILER_H_
 #define NEON_KIT_GENERIC_NK_COMPILER_H_
 
-#include <stdint.h>
-
 #if defined(__cplusplus)
 extern "C"
 {
@@ -31,8 +29,6 @@ extern "C"
  * @brief   Forward declaration of string
  */
 struct nk_string;
-
-uint32_t nk_compiler__instruction_count(void);
 
 /**
  * @brief   Get compiler id string
