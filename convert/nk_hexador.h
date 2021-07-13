@@ -8,7 +8,7 @@
 #ifndef GENERIC_CONVERT_NK_HEXADOR_H_
 #define GENERIC_CONVERT_NK_HEXADOR_H_
 
-#include "generic/nk_result.h"
+#include "generic/composite/nk_result.h"
 
 struct nk_string;
 struct nk_types__array__u8;

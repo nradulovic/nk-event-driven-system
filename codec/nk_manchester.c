@@ -7,10 +7,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "generic/nk_array.h"
-#include "generic/nk_farray.h"
-#include "generic/nk_types.h"
-#include "generic/nk_debug.h"
+#include "generic/composite/nk_array.h"
+#include "generic/composite/nk_farray.h"
+#include "generic/common/nk_debug.h"
 #include "generic/codec/nk_manchester.h"
 
 struct encode_bit_scheme

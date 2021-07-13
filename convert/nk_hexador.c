@@ -6,9 +6,8 @@
  *  08/05/2021: (nbr) Minor code formatting
  */
 
-#include "generic/nk_debug.h"
-#include "generic/nk_types.h"
-#include "generic/nk_string.h"
+#include "generic/common/nk_debug.h"
+#include "generic/composite/nk_string.h"
 #include "generic/convert/nk_hexador.h"
 #include "generic/convert/nk_convert.h"
 
@@ -68,11 +67,9 @@ nk_hexador__to_hex(const struct nk_types__array__u8 *buffer,
     }
 
     for (size_t i = 0u; i < buffer->length; i++) {
-        char char_buffer[2];
         struct nk_convert__hex btoh_result = nk_convert__bin_to_hex(buffer->items[i]);
-        char_buffer[0] = btoh_result.msb;
-        char_buffer[1] = btoh_result.lsb;
-        nk_string__append_literal(string, char_buffer, 2);
+        string->items[string->length++] = btoh_result.msb;
+        string->items[string->length++] = btoh_result.lsb;
     }
     result.error = NK_ERROR__OK;
     result.value = buffer->length;

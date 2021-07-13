@@ -9,20 +9,34 @@
 #define NEON_KIT_GENERIC_NK_TASKER_H_
 
 #include <stdint.h>
-#include "generic/nk_farray.h"
-#include "generic/nk_array.h"
+#include "generic/composite/nk_farray.h"
+#include "generic/composite/nk_array.h"
 
 #if defined(__cplusplus)
 extern "C"
 {
 #endif
 
+#define NK_ENABLED_TASKER
+
+/**
+ * @brief   Maximum number of allowed tasks
+ */
 #define NK_TASKER__MAX_TASKS            32u
+
+/**
+ * @brief   Maximum priority number
+ */
 #define NK_TASKER__MAX_PRIO             (NK_TASKER__MAX_TASKS - 1u)
 
-struct nk_cpu__context;
+/**
+ * @brief   Forward declaration of task structure
+ */
 struct nk_task;
 
+/**
+ * @brief   Tasker structure
+ */
 struct nk_tasker
 {
     struct nk_tasker__queue
@@ -36,7 +50,7 @@ struct nk_tasker
 };
 
 struct nk_tasker__array
-    NK_ARRAY__T(struct nk_tasker *)
+    NK_ARRAY__T(struct nk_tasker)
 ;
 
 /** @brief  Initialize tasker instances
@@ -47,21 +61,21 @@ void
 nk_tasker__initialize(struct nk_tasker__array *instances);
 
 void
-nk_tasker__start(struct nk_tasker *tasker, struct nk_task *task);
+nk_tasker__start(struct nk_tasker *self, struct nk_task *task);
 
 void
-nk_tasker__yield(struct nk_tasker *tasker);
+nk_tasker__yield(struct nk_tasker *self);
 
 void
-nk_tasker__disable(struct nk_tasker *tasker);
+nk_tasker__disable(struct nk_tasker *self);
 
 void
-nk_tasker__enable(struct nk_tasker *tasker);
+nk_tasker__enable(struct nk_tasker *self);
 
 static inline struct nk_task *
-nk_tasker__current(struct nk_tasker * tasker)
+nk_tasker__current(struct nk_tasker * self)
 {
-    return tasker->p__current;
+    return self->p__current;
 }
 
 #define NK_TASK__BUCKET_T(stack_size)                                       \
@@ -88,6 +102,11 @@ nk_tasker__current(struct nk_tasker * tasker)
 
 typedef void (nk_task__method_t)(void *);
 
+/**
+ * @brief   Forward declaration of CPU context structure
+ */
+struct nk_cpu__context;
+
 struct nk_task
 {
     void *p__arg;
@@ -96,15 +115,19 @@ struct nk_task
     union nk_task__context
     {
         struct nk_cpu__context *p__context;
-        struct nk_types__array_u8 *p__stack;
+        uint8_t *p__stack;
     } p__context;
 };
+
+void
+nk_task__initialize(struct nk_task * self);
 
 static inline uint32_t
 nk_task__get_prio(const struct nk_task *self)
 {
     return (uint32_t)self->p__prio;
 }
+
 
 struct nk_completion
 {
@@ -123,7 +146,7 @@ nk_completion__wait(struct nk_completion * self);
 
 struct nk_semaphore
 {
-    int32_t p__count;
+    int_fast32_t p__count;
     struct nk_tasker * p__tasker;
     struct nk_tasker__queue p__blocked;
 };
@@ -142,7 +165,7 @@ nk_semaphore__wait(struct nk_semaphore * self);
 static inline int32_t
 nk_semaphore__get_count(const struct nk_semaphore *self)
 {
-    return self->p__count;
+    return (int32_t)self->p__count;
 }
 
 #if defined(__cplusplus)

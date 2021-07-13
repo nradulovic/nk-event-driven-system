@@ -11,9 +11,9 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include "generic/nk_farray.h"
-#include "generic/nk_string.h"
-#include "nk_convert.h"
+#include "generic/composite/nk_farray.h"
+#include "generic/composite/nk_string.h"
+#include "generic/convert/nk_convert.h"
 
 struct hex_map_to_int
 {

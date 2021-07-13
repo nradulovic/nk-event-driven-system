@@ -8,6 +8,8 @@
 #ifndef NEON_KIT_GENERIC_NK_BITS_H_
 #define NEON_KIT_GENERIC_NK_BITS_H_
 
+#include <stdint.h>
+
 #if defined(__cplusplus)
 extern "C"
 {
@@ -167,8 +169,17 @@ extern "C"
 
 /** @} */
 
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-#define MIN(a, b) ((a) <= (b) ? (a) : (b))
+#define NK_BITS__MAX(a, b) ((a) >= (b) ? (a) : (b))
+#define NK_BITS__MIN(a, b) ((a) <= (b) ? (a) : (b))
+
+/**
+ * @brief   Calculate right mask for given index
+ *
+ * This function can be used to calculate right mask in speed efficient manner.
+ */
+uint32_t nk_bits__right_mask(uint_fast8_t index);
+
+uint32_t nk_bits__left_mask(uint_fast8_t index);
 
 #if defined(__cplusplus)
 }

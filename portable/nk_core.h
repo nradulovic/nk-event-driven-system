@@ -19,9 +19,14 @@ extern "C"
 {
 #endif
 
+#include "generic/portable/nk_compiler.h"
+
 struct nk_tasker__array;
 
 struct nk_tasker__array * nk_core__tasker_instances(void);
+
+NK_COMPILER__NO_RETURN
+void nk_core__reset(void);
 
 #if defined(__cplusplus)
 }

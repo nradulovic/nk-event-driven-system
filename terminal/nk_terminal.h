@@ -10,7 +10,7 @@
 
 #include <stddef.h>
 
-#include "generic/nk_array.h"
+#include "generic/composite/nk_array.h"
 
 #define NK_ENABLED_TERMINAL
 

@@ -8,7 +8,7 @@
 #ifndef GENERIC_CODEC_NK_MANCHESTER_H_
 #define GENERIC_CODEC_NK_MANCHESTER_H_
 
-#include "generic/nk_result.h"
+#include "generic/composite/nk_result.h"
 
 #define NK_ENABLED_MANCHESTER
 

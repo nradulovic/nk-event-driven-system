@@ -14,7 +14,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "nk_error.h"
+#include "generic/common/nk_error.h"
 
 #if defined(__cplusplus)
 extern "C"

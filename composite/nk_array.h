@@ -11,10 +11,11 @@
 #ifndef NEON_KIT_GENERIC_NK_ARRAY_H_
 #define NEON_KIT_GENERIC_NK_ARRAY_H_
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
 
-#include "nk_bits.h"
+#include "generic/common/nk_bits.h"
 
 #if defined(__cplusplus)
 extern "C"
@@ -133,8 +134,8 @@ extern "C"
         do {                                                                \
             size_t l_from = (from);                                         \
             size_t l_to = (to);                                             \
-            size_t view_from = MIN(l_from, (array_p)->length);              \
-            size_t view_to = MIN(l_to, (array_p)->length);                  \
+            size_t view_from = NK_BITS__MIN(l_from, (array_p)->length);     \
+            size_t view_to = NK_BITS__MIN(l_to, (array_p)->length);         \
             size_t length = view_to - view_from;                            \
             NK_ARRAY__INITIALIZE(                                           \
                     (window_p),                                             \
@@ -178,7 +179,8 @@ extern "C"
 #define NK_ARRAY__BUCKET_INITIALIZE(array_p, buffer_p, buffer_length)       \
         do {                                                                \
             size_t l_buffer_size = NK_BITS__ARRAY_SIZE((array_p)->buffer);  \
-            size_t l_buffer_length = MIN(l_buffer_size, buffer_length);     \
+            size_t l_buffer_length = NK_BITS__MIN(                          \
+                    l_buffer_size, buffer_length);                          \
             void * l_buffer = (void *)(buffer_p);                           \
             NK_ARRAY__INITIALIZE(                                           \
                     &((array_p)->array),                                    \
@@ -208,12 +210,31 @@ extern "C"
                 static_buffer,                                              \
                 NK_BITS__ARRAY_SIZE(static_buffer))
 
-
+/**
+ * @brief   Return item size in array
+ */
 #define NK_ARRAY__ITEM_SIZE(array_p)                                        \
         sizeof(*(array_p)->items)
 
+/**
+ * @brief   Return how many items are available in the array
+ */
 #define NK_ARRAY__FREE(array_p)                                             \
         ((array_p)->item_no - (array_p)->length)
+
+struct nk_types__array__bool NK_ARRAY__T(bool);
+struct nk_types__array__char NK_ARRAY__T(char);
+
+struct nk_types__array__u8   NK_ARRAY__T(uint8_t);
+struct nk_types__array__u16  NK_ARRAY__T(uint16_t);
+struct nk_types__array__u32  NK_ARRAY__T(uint32_t);
+
+struct nk_types__array__i8   NK_ARRAY__T(int8_t);
+struct nk_types__array__i16  NK_ARRAY__T(int16_t);
+struct nk_types__array__i32  NK_ARRAY__T(int32_t);
+
+struct nk_types__array__size NK_ARRAY__T(size_t);
+struct nk_types__array__void NK_ARRAY__T(void *);
 
 #if defined(__cplusplus)
 }

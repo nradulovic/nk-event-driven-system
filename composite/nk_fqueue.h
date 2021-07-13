@@ -16,7 +16,7 @@ extern "C"
 #endif
 
 #include <stddef.h>
-#include "nk_array.h"
+#include "generic/composite/nk_array.h"
 
 /*
  * TODO: The queue should switch to farray

@@ -14,8 +14,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "nk_array.h"
-#include "nk_result.h"
+#include "generic/composite/nk_array.h"
+#include "generic/composite/nk_result.h"
 
 #if defined(__cplusplus)
 extern "C"

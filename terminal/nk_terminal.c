@@ -7,7 +7,7 @@
 
 #include <stdint.h>
 
-#include "generic/nk_string.h"
+#include "generic/composite/nk_string.h"
 #include "generic/terminal/nk_terminal.h"
 
 static int

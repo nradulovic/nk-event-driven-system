@@ -9,15 +9,15 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "generic/nk_debug.h"
-#include "generic/nk_tasker.h"
-#include "generic/nk_core.h"
-#include "generic/nk_cpu.h"
+#include "generic/common/nk_debug.h"
+#include "generic/tasker/nk_tasker.h"
+#include "generic/portable/nk_core.h"
+#include "generic/portable/nk_cpu.h"
 
 static void 
 nk_tasker__queue__initialize(struct nk_tasker__queue * self);
 static void
-nk_tasker__queue__move_one(struct nk_tasker__queue * self, struct nk_tasker__queue * other, uint32_t id);
+nk_tasker__queue__move_one(struct nk_tasker__queue * self, struct nk_tasker__queue * other, uint_fast32_t id);
 static void 
 nk_tasker__queue__move_high(struct nk_tasker__queue * self, struct nk_tasker__queue * other);
 static void 
@@ -32,45 +32,58 @@ static void
 nk_tasker__queue__set(struct nk_tasker__queue * self, uint32_t id);
 
 static void
-tasker__initialize(struct nk_tasker * tasker);
+tasker__switch__conditional(struct nk_tasker * self);
 static void
-tasker__switch__conditional(struct nk_tasker * tasker);
-static void
-tasker__switch(struct nk_tasker * tasker);
+tasker__switch(struct nk_tasker * self);
 
 void nk_tasker__initialize(struct nk_tasker__array * instances)
 {
+    nk_assert(instances);
+
     for (size_t i = 0u; i < instances->length; i++) {
-        tasker__initialize(instances->items[i]);
+        instances->items[i].p__current = NULL;
+        nk_tasker__queue__initialize(&instances->items[i].p__ready);
+        NK_FARRAY__INITIALIZE_EMPTY(&instances->items[i].p__tasks);
     }
 }
 
 void
-nk_tasker__start(struct nk_tasker * tasker, struct nk_task *task)
+nk_tasker__start(struct nk_tasker * self, struct nk_task *task)
 {
-
+    nk_assert(self);
+    nk_assert(task);
+    nk_assert(task->p__prio <= NK_TASKER__MAX_PRIO);
+    nk_assert(task->p__method != NULL);
 }
 
 void
-nk_tasker__yield(struct nk_tasker * tasker)
+nk_tasker__yield(struct nk_tasker * self)
 {
 	struct nk_cpu__isr isr;
 	
+	nk_assert(self);
+
 	nk_cpu__isr__disable(&isr);
-	tasker__switch__conditional(tasker);
+	tasker__switch__conditional(self);
 	nk_cpu__isr__enable(&isr);
 }
 
 void
-nk_tasker__disable(struct nk_tasker * tasker)
+nk_tasker__disable(struct nk_tasker * self)
 {
-
+    nk_assert(self);
 }
 
 void
-nk_tasker__enable(struct nk_tasker * tasker)
+nk_tasker__enable(struct nk_tasker * self)
 {
+    nk_assert(self);
+}
 
+void
+nk_task__initialize(struct nk_task * self)
+{
+    nk_assert(self);
 }
 
 void
@@ -150,7 +163,7 @@ nk_tasker__queue__initialize(struct nk_tasker__queue * self)
 static void
 nk_tasker__queue__move_one(struct nk_tasker__queue * self, 
 						   struct nk_tasker__queue * other, 
-						   uint32_t id)
+						   uint_fast32_t id)
 {
 	uint32_t mask = 0x1u << id;
 	self->bitmap |= mask;
@@ -174,13 +187,19 @@ nk_tasker__queue__move_all(struct nk_tasker__queue * self, struct nk_tasker__que
 static uint32_t 
 nk_tasker__queue__get(const struct nk_tasker__queue * self)
 {
+    nk_assert(self->bitmap != 0);
 	return nk_cpu__ffs(self->bitmap);
 }
 
 static uint32_t 
 nk_tasker__queue__get_and_clear(struct nk_tasker__queue * self)
 {
-    return 5;
+    uint32_t retval;
+
+    nk_assert(self->bitmap != 0);
+    retval = nk_cpu__ffs(self->bitmap);
+    self->bitmap &= ~(0x1u << retval);
+    return retval;
 }
 
 static void
@@ -193,12 +212,4 @@ static void
 nk_tasker__queue__set(struct nk_tasker__queue * self, uint32_t id)
 {
 	self->bitmap |= 0x1u << id;
-}
-
-static void
-tasker__initialize(struct nk_tasker * tasker)
-{
-    tasker->p__current = NULL;
-    nk_tasker__queue__initialize(&tasker->p__ready);
-    NK_FARRAY__INITIALIZE_EMPTY(&tasker->p__tasks);
 }

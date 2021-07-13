@@ -9,8 +9,8 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "generic/nk_bits.h"
-#include "generic/nk_string.h"
+#include "generic/common/nk_bits.h"
+#include "generic/composite/nk_string.h"
 
 bool
 nk_string__is_equal(const struct nk_string *self, const struct nk_string *other)
@@ -148,7 +148,7 @@ nk_string__upper(struct nk_string *self)
 void
 nk_string__append(struct nk_string *self, const struct nk_string *other)
 {
-    size_t to_copy = MIN(nk_string__free(self), other->length);
+    size_t to_copy = NK_BITS__MIN(nk_string__free(self), other->length);
 
     memcpy(self->items + self->length, other->items, to_copy);
     self->length += to_copy;
@@ -157,7 +157,7 @@ nk_string__append(struct nk_string *self, const struct nk_string *other)
 void
 nk_string__append_literal(struct nk_string *self, const char *literal, size_t literal_length)
 {
-    size_t to_copy = MIN(nk_string__free(self), literal_length);
+    size_t to_copy = NK_BITS__MIN(nk_string__free(self), literal_length);
 
     memcpy(self->items + self->length, literal, to_copy);
     self->length += to_copy;
@@ -202,12 +202,12 @@ nk_string__replace(struct nk_string *self, const struct nk_string *search, const
         while (find.error == NK_ERROR__OK) {
             if (self->item_no > (find.value + with->length)) {
                 size_t move_size = self->length - (find.value + search->length);
-                move_size = MIN(self->item_no - (find.value + with->length), move_size);
+                move_size = NK_BITS__MIN(self->item_no - (find.value + with->length), move_size);
                 memmove(&self->items[find.value + search->length],
                         &self->items[find.value + with->length],
                         move_size);
             }
-            size_t copy_size = MIN(with->length, self->item_no - find.value);
+            size_t copy_size = NK_BITS__MIN(with->length, self->item_no - find.value);
             memcpy(&self->items[find.value], with->items, with->length);
             self->length += copy_size;
             find = nk_string__find(self, search, 0, SIZE_MAX);
