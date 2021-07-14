@@ -5,6 +5,7 @@
  *      Author: (nbr) nenad.b.radulovic@gmail.com
  *
  *  13/07/2021: (nbr) Added NK_COMPILER__NO_RETURN
+ *  14/07/2021: (nbr) Added NK_COMPILER__IGNORE_ARG
  */
 /**
  * @file
@@ -24,6 +25,9 @@ extern "C"
  * @brief   Compiler directive to generate a function which does not return
  */
 #define NK_COMPILER__NO_RETURN          __attribute__((noreturn))
+    
+    
+#define NK_COMPILER__IGNORE_ARG(arg)    (void)(arg);
 
 /**
  * @brief   Forward declaration of string
