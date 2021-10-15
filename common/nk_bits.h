@@ -8,6 +8,7 @@
 #ifndef NEON_KIT_GENERIC_NK_BITS_H_
 #define NEON_KIT_GENERIC_NK_BITS_H_
 
+#include <stddef.h>
 #include <stdint.h>
 
 #if defined(__cplusplus)
@@ -29,7 +30,10 @@ extern "C"
         (sizeof(array) / sizeof(array[0]))
 
 #define NK_BITS__STRUCT_MEMBER_SIZE(struct_type, member)                    \
-    sizeof (((const struct_type *)0)->member)
+        sizeof (((const struct_type *)0)->member)
+
+#define NK_BITS__CONTAINER_OF(ptr, type, member)                            \
+        (type *)((char *)ptr - offsetof(type, member))
 
 /** @brief      Returns the sizeof @c type in bits.
  *  @mseffect
