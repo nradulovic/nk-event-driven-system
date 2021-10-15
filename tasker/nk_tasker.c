@@ -36,14 +36,11 @@ tasker__switch__conditional(struct nk_tasker * self);
 static void
 tasker__switch(struct nk_tasker * self);
 
-void nk_tasker__initialize(struct nk_tasker__array * instances)
+void nk_tasker__initialize(struct nk_tasker * self)
 {
-    nk_assert(instances);
-
-    for (size_t i = 0u; i < instances->length; i++) {
-        instances->items[i].p__current = NULL;
+    self->p__current = NULL;
+    for (uint32_t i = 0u; i < NK_FARRAY__LENGTH(self->p__tasks); i++) {
         nk_tasker__queue__initialize(&instances->items[i].p__ready);
-        NK_FARRAY__INITIALIZE_EMPTY(&instances->items[i].p__tasks);
     }
 }
 
