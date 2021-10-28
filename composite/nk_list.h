@@ -15,10 +15,10 @@ extern "C"
 {
 #endif
 
-#define NK_LIST__INITIALIZER(list, object)        \
-        {                                           \
-            .p__next = (list),                      \
-            .p__prev = (list),                      \
+#define NK_LIST__INITIALIZER(list)                                          \
+        {                                                                   \
+            .p__next = (list),                                              \
+            .p__prev = (list),                                              \
         }
 
 struct nk_list
@@ -99,10 +99,12 @@ nk_list__remove(struct nk_list * self)
     self->p__prev->p__next = self->p__next;
 }
 
-bool nk_list__is_empty(const struct nk_list * self)
+static inline bool 
+nk_list__is_empty(const struct nk_list * self)
 {
     return !!(self->p__next == self);
 }
+
 #if defined(__cplusplus)
 }
 #endif

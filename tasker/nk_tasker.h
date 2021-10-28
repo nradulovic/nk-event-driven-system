@@ -10,7 +10,6 @@
 
 #include <stdint.h>
 #include "generic/composite/nk_farray.h"
-#include "generic/composite/nk_array.h"
 #include "generic/composite/nk_list.h"
 
 #if defined(__cplusplus)
@@ -30,69 +29,80 @@ extern "C"
  */
 struct nk_task;
 
-
-/**
- * @brief   Tasker structure
- */
 struct nk_tasker
 {
-    struct nk_dqueue p__ready_tasks;
-    struct nk_task *p__current;
+    uint32_t p__bitmap;
+    struct nk_tasker__p__sentinels
+        NK_FARRAY__T(struct nk_list*, NK_TASKER__MAX_PRIO + 1u)
+    p__sentinels;
 };
 
-/** @brief  Initialize tasker instances
- *
- * Initialize each instance given in instance array
- */
-void
-nk_tasker__initialize(struct nk_tasker *self);
-
-void
-nk_tasker__start(struct nk_tasker *self,
-                 struct nk_task *task);
-
-void
-nk_tasker__yield(struct nk_tasker *self);
-
-void
-nk_tasker__disable(struct nk_tasker *self);
-
-void
-nk_tasker__enable(struct nk_tasker *self);
-
-static inline struct nk_task*
-nk_tasker__current(struct nk_tasker *self)
+struct nk_tasker__blocker
 {
-    return self->p__current;
-}
+    struct nk_list p__sentinel;
+};
 
-#define NK_TASK__INITIALIZER(self, method, arg, prio)                \
-        {                                                               \
-            .p__entry = NK_LIST__INITIALIZER(&(self).p__entry, &(self)),\
-            .p__arg = (arg),                                            \
-            .p__method = (method),                                      \
-            .p__prio = (prio),                                          \
-        },                                                              \
-
-typedef void
-(nk_task__method_t)(void*);
-
-struct nk_task
+struct nk_tasker__node
 {
     struct nk_list p__entry;
-    void *p__arg;
-    nk_task__method_t *p__method;
-    uint_fast32_t p__prio;
+    uint_fast8_t p__priority;
 };
 
-void
-nk_task__initialize(struct nk_task *self);
+/**
+ * A node can have the following states
+ * - SLEEPING
+ * - RUNNING
+ * - BLOCKING
+ */
 
-static inline uint32_t
-nk_task__get_prio(const struct nk_task *self)
+void
+nk_tasker__init(struct nk_tasker * tasker);
+
+nk_tasker__blocker__init(struct nk_tasker__blocker * blocker);
+
+void
+nk_tasker__node__init(struct nk_tasker__node * node, uint_fast8_t priority);
+
+static inline uint_fast8_t
+nk_tasker__node__priority(const struct nk_tasker__node * node)
 {
-    return (uint32_t) self->p__prio;
+    return node->p__priority;
 }
+
+/**
+ * \brief       Put a sleeping node into the running state
+ * \return      A new node with highest priority which is in running state.
+ */
+struct nk_tasker__node*
+nk_tasker__run(struct nk_tasker *tasker, struct nk_tasker__node *node);
+
+/**
+ * \brief       Put a running node into the sleeping state
+ * \return      A new node with highest priority which is in running state.
+ */
+struct nk_tasker__node*
+nk_tasker__sleep(struct nk_tasker *tasker, struct nk_tasker__node *node);
+
+/**
+ * \brief       Put the highest priority running node into the blocked state
+ * \return      A new node with highest priority which is in running state.
+ */
+struct nk_tasker__node*
+nk_tasker__block(struct nk_tasker *tasker, struct nk_tasker__blocker *blocker);
+
+/**
+ * \brief       Put the highest priority blocked node into the running state
+ * \return      A new node with highest priority which is in running state.
+ */
+struct nk_tasker__node*
+nk_tasker__unblock_highest(struct nk_tasker *tasker, struct nk_tasker__blocker *blocker);
+
+/**
+ * \brief       Put all blocked nodes into the running state
+ * \return      A new node with highest priority which is in running state.
+ */
+struct nk_tasker__node*
+nk_tasker__unblock_all(struct nk_tasker *tasker, struct nk_tasker__blocker *blocker);
 
 #if defined(__cplusplus)
 }
