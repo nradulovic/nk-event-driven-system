@@ -29,6 +29,12 @@ extern "C"
     
 #define NK_COMPILER__IGNORE_ARG(arg)    (void)(arg);
 
+#define NK_COMPILER__CONTAINER_OF(ptr, type, member)                        \
+        (type *)((void *)((char *)(ptr) - offsetof(type, member)))
+
+#define NK_COMPILER__CONTAINER_OF_CONST(ptr, type, member)                  \
+        (const type *)((const void *)((const char *)(ptr) - offsetof(type, member)))
+
 /**
  * @brief   Forward declaration of string
  */

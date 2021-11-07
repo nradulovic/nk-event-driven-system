@@ -27,7 +27,7 @@ extern "C"
 /**
  * @brief   Forward declaration of task structure
  */
-struct nk_task;
+struct nk_tasker__node;
 
 struct nk_tasker
 {
@@ -35,6 +35,7 @@ struct nk_tasker
     struct nk_tasker__p__sentinels
         NK_FARRAY__T(struct nk_list*, NK_TASKER__MAX_PRIO + 1u)
     p__sentinels;
+    struct nk_tasker__node* p__current_node;
 };
 
 struct nk_tasker__blocker
@@ -45,7 +46,7 @@ struct nk_tasker__blocker
 struct nk_tasker__node
 {
     struct nk_list p__entry;
-    uint_fast8_t p__priority;
+    uint_fast8_t p__prio;
 };
 
 /**
@@ -56,53 +57,60 @@ struct nk_tasker__node
  */
 
 void
-nk_tasker__init(struct nk_tasker * tasker);
-
-nk_tasker__blocker__init(struct nk_tasker__blocker * blocker);
+nk_tasker__init(struct nk_tasker *tasker);
 
 void
-nk_tasker__node__init(struct nk_tasker__node * node, uint_fast8_t priority);
+nk_tasker__blocker__init(struct nk_tasker__blocker *blocker);
+
+void
+nk_tasker__node__init(struct nk_tasker__node *node,
+                      uint_fast8_t priority);
 
 static inline uint_fast8_t
-nk_tasker__node__priority(const struct nk_tasker__node * node)
+nk_tasker__node__prio(const struct nk_tasker__node *node)
 {
-    return node->p__priority;
+    return node->p__prio;
 }
 
 /**
  * \brief       Put a sleeping node into the running state
- * \return      A new node with highest priority which is in running state.
  */
-struct nk_tasker__node*
-nk_tasker__run(struct nk_tasker *tasker, struct nk_tasker__node *node);
+struct nk_tasker__node *
+nk_tasker__run(struct nk_tasker *tasker,
+               struct nk_tasker__node *node);
 
 /**
  * \brief       Put a running node into the sleeping state
  * \return      A new node with highest priority which is in running state.
  */
-struct nk_tasker__node*
-nk_tasker__sleep(struct nk_tasker *tasker, struct nk_tasker__node *node);
+struct nk_tasker__node *
+nk_tasker__sleep(struct nk_tasker *tasker,
+                 struct nk_tasker__node *node);
 
 /**
  * \brief       Put the highest priority running node into the blocked state
  * \return      A new node with highest priority which is in running state.
  */
 struct nk_tasker__node*
-nk_tasker__block(struct nk_tasker *tasker, struct nk_tasker__blocker *blocker);
+nk_tasker__block(struct nk_tasker *tasker,
+                 struct nk_tasker__node * node,
+                 struct nk_tasker__blocker *blocker);
 
 /**
  * \brief       Put the highest priority blocked node into the running state
  * \return      A new node with highest priority which is in running state.
  */
 struct nk_tasker__node*
-nk_tasker__unblock_highest(struct nk_tasker *tasker, struct nk_tasker__blocker *blocker);
+nk_tasker__unblock_highest(struct nk_tasker *tasker,
+                           struct nk_tasker__blocker *blocker);
 
 /**
  * \brief       Put all blocked nodes into the running state
  * \return      A new node with highest priority which is in running state.
  */
 struct nk_tasker__node*
-nk_tasker__unblock_all(struct nk_tasker *tasker, struct nk_tasker__blocker *blocker);
+nk_tasker__unblock_all(struct nk_tasker *tasker,
+                       struct nk_tasker__blocker *blocker);
 
 #if defined(__cplusplus)
 }
