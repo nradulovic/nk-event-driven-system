@@ -26,6 +26,7 @@ eds_event__create(uint32_t event_id, size_t event_data_size, eds_event ** event)
 
 uint32_t eds_event__id(const eds_event * event);
 void * eds_event__data(eds_event * event);
+size_t eds_event__size(const eds_event * event);
 
 typedef enum eds_sm__action
 {

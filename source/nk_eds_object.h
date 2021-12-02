@@ -9,6 +9,7 @@
 #define NEON_KIT_GENERIC_SOURCE_NK_EDS_OBJECT_H_
 
 #include <stdint.h>
+#include <stddef.h>
 
 #include "nk_eds.h"
 #include "nk_eds_port.h"
@@ -17,6 +18,13 @@ struct eds_object__list
 {
     struct eds_object__list * p__next;
     struct eds_object__list * p__prev;
+};
+
+struct eds_object__mem
+{
+    void * (*alloc)(size_t);
+    void (dealloc)(void *);
+    size_t max_size;
 };
 
 struct eds_object__equeue
@@ -42,7 +50,8 @@ struct eds_object__escheduler
 struct eds_object__event
 {
     uint32_t p__id;
-    uint_fast8_t p__mem_idx;
+    size_t p__size;
+    struct eds_object__mem * mem;
 };
 
 struct eds_object__sm
