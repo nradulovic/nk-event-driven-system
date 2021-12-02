@@ -80,6 +80,19 @@ struct nk_string NK_ARRAY__T(char);
 struct nk_string__find__result
     NK_RESULT__T(size_t);
 
+
+typedef char nk_char;
+
+struct nk_string__attr
+{
+    const nk_char * storage;
+    struct nk_string * instance;
+};
+
+struct nk_string * nk_string__create(
+                size_t size,
+                const struct nk_string__attr * attr);
+
 /**
  * @brief   Runtime construction of empty string using dynamic buffer
  */

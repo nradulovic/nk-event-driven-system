@@ -12,18 +12,17 @@
 #include <stdint.h>
 #include "generic/common/nk_bits.h"
 
-#define NK_BITARRAY__T(bitsize) \
-        {\
-            uint32_t fields[1u + NK_BITS__DIVIDE_ROUNDUP((bitsize), 32u)]; \
-        }
+struct nk_bitarray NK_ARRAY__T(uint32_t);
 
-#define NK_BITARRAY__INITIALIZER(self) \
-        { \
-            .fields = { 0 } \
-        }
+#define NK_BITARRAY__INITIALIZER(static_buffer)                             \
+        NK_ARRAY__INITIALIZER_EMPTY(static_buffer, 0)
 
-#define NK_BITARRAY__INITIALIZE(self) \
-            memset(&(self)->fields[0], 0, sizeof(&(self)->fields))
+#define NK_BITARRAY__BUCKET_T(bit_size) \
+        NK_ARRAY__BUCKET_TYPED_T(uint32_t, (bit_size) / 32u, struct nk_bitarray)
+
+#define NK_BITARRAY__BUCKET_INITIALIZER(self) \
+        NK_ARRAY__BUCKET_INITIALIZER_EMPTY(self)
+
 
 #define NK_BITARRAY__SET(self, a_bit) \
         nk_bitarray__p__set(&(self)->fields, (a_bit))
@@ -33,7 +32,6 @@ struct nk_bitarray
 {
     uint32_t mask;
     uint32_t * field;
-    size_t size;
 };
 
 #define NK_BITARRAY__BUCKET_T(bitsize)                                      \
@@ -48,7 +46,6 @@ struct nk_bitarray
             {                                                               \
                 .mask = 0u,                                                 \
                 .field = &(self)->fields[0],                                \
-                .size = NK_BITS__ARRAY_SIZE((self)->fields) / 32u           \
             },                                                              \
             .fields = { 0 }                                                 \
         }
@@ -57,14 +54,16 @@ struct nk_bitarray
         do {                                                                \
             (self)->bitarray.mask = 0u;                                     \
             (self)->bitarray.field = &(self)->fields[0];                    \
-            (self)->bitarray.size =                                         \
-                    NK_BITS__ARRAY_SIZE((self)->fields) / 32u;              \
-            nk_bitarray__initialize(self);                                  \
+            nk_bitarray__initialize(self, sizeof(self));                    \
         } while (0)
+
+#include "nk_bitarray.h"
+
+
 
 
 void
-nk_bitarray__initialize(struct nk_bitarray * bitarray);
+nk_bitarray__initialize(struct nk_bitarray * bitarray, size_t size_bytes);
 
 void
 nk_bitarray__atomic_set(struct nk_bitarray * bitarray, uint_fast8_t bit_index);

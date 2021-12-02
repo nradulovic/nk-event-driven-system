@@ -9,9 +9,9 @@
 #include "generic/composite/nk_bitarray.h"
 #include "generic/portable/nk_cpu.h"
 
-void nk_bitarray__initialize(struct nk_bitarray * bitarray)
+void nk_bitarray__initialize(struct nk_bitarray * bitarray, size_t size_bytes)
 {
-    memset(bitarray->field, 0, bitarray->size * 32u);
+    memset(bitarray->field, 0, size_bytes);
 }
 
 void
