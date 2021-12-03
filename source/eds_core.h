@@ -68,75 +68,45 @@ eds_core__list__is_empty(const struct eds_object__list * self)
     return !!(self->p__next == self);
 }
 
-void eds_core__mem__init(void);
-void eds_core__mem__add(struct eds_object__mem * mem);
-struct eds_object__mem * eds_core__mem__select(size_t size);
-void * eds_core__mem__allocate(struct eds_object__mem * mem,
-                             size_t size);
-void eds_core__mem__deallocate(struct eds_object__mem * mem,
-                               void * block);
-
-void eds_core__sm_executor__init(struct eds_object__sm_executor * sm_executor,
-                                 eds_sm__state_fn * initial_state,
-                                 void * workspace);
-eds_sm__action eds_core__sm_executor__dispatch(struct eds_object__sm_executor * sm_executor,
-                                               const struct eds_object__event * event);
-
-struct eds_object__event *
-eds_core__event__create(uint32_t event_id,
-                        size_t event_data_size,
-                        struct eds_object__mem * mem);
+void
+eds_core__mem__init(void);
 
 void
-eds_core__event__init(struct eds_object__event * event,
-                      uint32_t event_id,
-                      size_t event_data_size,
-                      struct eds_object__mem * mem);
+eds_core__mem__add(struct eds_object__mem * mem);
 
-extern inline void
-eds_core__event__ref_up(struct eds_object__event * event)
-{
-    event->p__ref_count++;
-}
+struct eds_object__mem *
+eds_core__mem__select(size_t size);
 
-extern inline void
-eds_core__event__ref_down(struct eds_object__event * event)
-{
-    event->p__ref_count--;
-}
+void *
+eds_core__mem__allocate(struct eds_object__mem * mem,
+                        size_t                   size);
 
-extern inline uint32_t
-eds_core__event__id(const struct eds_object__event * event)
-{
-    return event->p__id;
-}
+void
+eds_core__mem__deallocate(struct eds_object__mem * mem,
+                          void *                   block);
 
 extern inline size_t
-eds_core__event__size(const struct eds_object__event * event)
+eds_core__equeue__calculate_storage_size(size_t entries)
 {
-    return event->p__size;
+    return sizeof(struct eds_object__event *);
 }
 
-extern inline const struct eds_object__mem *
-eds_core__event__mem(const struct eds_object__event * event)
-{
-    return event->p__mem;
-}
+void
+eds_core__equeue__init(struct eds_object__equeue * equeue,
+                       size_t entries,
+                       struct eds_object__event * storage);
 
-extern inline bool
-eds_core__event__is_in_use(const struct eds_object__event * event)
-{
-    return (event->p__ref_count != 0u);
-}
+void
+eds_core__sm_executor__init(struct eds_object__sm_executor * sm_executor,
+                            eds_sm__state_fn *               initial_state,
+                            void *                           workspace);
 
-extern inline void *
-eds_core__event__data(struct eds_object__event * event)
-{
-    if (event->p__size != 0u) {
-        return event + 1u;
-    } else {
-        return NULL;
-    }
-}
+eds_sm__action
+eds_core__sm_executor__dispatch(struct eds_object__sm_executor * sm_executor,
+                                const struct eds_object__event * event);
+
+void
+eds_core__escheduler__node_init(struct eds_object__escheduler_node * node,
+                                uint_fast8_t prio);
 
 #endif /* NEON_KIT_GENERIC_SOURCE_NK_EDS_CORE_H_ */

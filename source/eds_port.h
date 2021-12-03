@@ -8,7 +8,9 @@
 #ifndef NEON_KIT_GENERIC_SOURCE_NK_EDS_PORT_H_
 #define NEON_KIT_GENERIC_SOURCE_NK_EDS_PORT_H_
 
-#include "kernel/nk_kernel__port.h"
+#include <stddef.h>
+
+#include "eds_port/eds_port_definition.h"
 
 struct eds_port__sleep;
 
@@ -21,5 +23,7 @@ struct eds_port__critical;
 void eds_port__critical__init(struct eds_port__critical * critical);
 void eds_port__critical__lock(struct eds_port__critical * critical);
 void eds_port__critical__unlock(struct eds_port__critical * critical);
+
+size_t eds_port__align_up(size_t non_aligned_value);
 
 #endif /* NEON_KIT_GENERIC_SOURCE_NK_EDS_PORT_H_ */

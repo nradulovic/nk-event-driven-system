@@ -48,6 +48,12 @@ struct eds_object__escheduler
     struct eds_object__list p__prio_groups[32];
 };
 
+struct eds_object__escheduler_node
+{
+    struct eds_object__list p__entry;
+    eds_sm__prio p__prio;
+};
+
 struct eds_object__event
 {
     uint32_t p__id;
@@ -58,11 +64,12 @@ struct eds_object__event
 
 struct eds_object__sm
 {
-    struct eds_object__sm_executor sm_executor;
+    struct eds_object__sm_executor p__sm_executor;
     struct eds_object__equeue p__equeue;
-    struct eds_object__list p__entry;
-    eds_sm__prio p__prio;
+    struct eds_object__escheduler_node p__node;
     struct eds_object__epa * p__epa;
+    struct eds_object__mem * p__mem;
+    const char * p__name;
 };
 
 struct eds_object__epa
