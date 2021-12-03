@@ -30,7 +30,6 @@ calculate_event_size(size_t event_data_size)
     return sizeof(struct eds_object__event) + eds_port__align_up(event_data_size);
 }
 
-
 struct eds_object__event *
 eds_core__event__create(uint32_t event_id,
                         size_t event_data_size,

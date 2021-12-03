@@ -12,7 +12,7 @@
 #include <stddef.h>
 
 #include "nk_eds.h"
-#include "nk_eds_port.h"
+#include "eds_port.h"
 
 struct eds_object__list
 {
@@ -23,7 +23,7 @@ struct eds_object__list
 struct eds_object__mem
 {
     void * (*alloc)(size_t);
-    void (dealloc)(void *);
+    void (* dealloc)(void *);
     void * context;
     size_t max_size;
 };
@@ -70,7 +70,5 @@ struct eds_object__epa
     struct eds_object__escheduler scheduler;
     struct eds_port__sleep sleep;
 };
-
-
 
 #endif /* NEON_KIT_GENERIC_SOURCE_NK_EDS_OBJECT_H_ */

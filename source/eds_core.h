@@ -10,7 +10,7 @@
 
 #include <stdbool.h>
 
-#include "nk_eds_object.h"
+#include "eds_object.h"
 
 #define EDS_CORE__N_OF_EVENT_MEM            32u
 
@@ -71,7 +71,7 @@ eds_core__list__is_empty(const struct eds_object__list * self)
 void eds_core__mem__init(void);
 void eds_core__mem__add(struct eds_object__mem * mem);
 struct eds_object__mem * eds_core__mem__select(size_t size);
-void eds_core__mem__allocate(struct eds_object__mem * mem,
+void * eds_core__mem__allocate(struct eds_object__mem * mem,
                              size_t size);
 void eds_core__mem__deallocate(struct eds_object__mem * mem,
                                void * block);
@@ -130,7 +130,7 @@ eds_core__event__is_in_use(const struct eds_object__event * event)
 }
 
 extern inline void *
-eds_core__event__data(const struct eds_object__event * event)
+eds_core__event__data(struct eds_object__event * event)
 {
     if (event->p__size != 0u) {
         return event + 1u;

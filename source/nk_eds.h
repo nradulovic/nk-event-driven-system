@@ -115,7 +115,7 @@ struct eds_epa__attr
 };
 
 eds_error
-eds_epa__create(const eds_epa__attr *atrr, eds_epa **epa);
+eds_epa__create(const struct eds_epa__attr *atrr, eds_epa **epa);
 
 eds_error
 eds_epa__delete(eds_epa *epa);
