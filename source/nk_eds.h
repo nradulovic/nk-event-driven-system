@@ -16,9 +16,45 @@ typedef struct eds_object__sm eds_sm;
 typedef struct eds_object__event eds_event;
 typedef uint32_t eds_error;
 
+#define EDS_ERROR__NONE                     0
+#define EDS_ERROR__INVLD_ARGUMENT           0x01
+#define EDS_ERROR__NO_MEMORY                0x02
+#define EDS_ERROR__NO_RESOURCE              0x03
+
+/**
+ * @brief       Add memory allocator for EDS objects creation handling.
+ *
+ * This functions needs to be called before any other function from EDS package. It will store
+ * the information about available allocators. Allocators are used by create functions of EDS.
+ *
+ * If no allocators are provided EDS will use standard C library malloc and free. This might not be desirable
+ * so by adding new memory allocators standard C allocators wont be used.
+ *
+ * Specify for each allocator malloc/free pair how big memory partitions it can handle. This adds
+ * ability to use multiple memory pools of different sizes.
+ *
+ * EDS can accept up to 32 different allocators. It was shown in practice that up to 7 allocators of different
+ * size are needed for a typical application.
+ *
+ * @param       alloc is a pointer to function which allocates memory space. This function receives only one argument
+ *              @a size which tells to allocator how big the memory block should be.
+ * @param       dealloc is a pointer to function which receives the previosly allocated block and it should recycle its
+ *              space.
+ * @param       context is pointer to allocator context structure if it needed by allocator.
+ * @param       max_size is maximum size of block that can be allocated and freed by allocator. In case when a pool memory
+ *              is used this argument will be equal to pool  memory block size. When this argument is set to zero or
+ *              SIZE_MAX value then this allocator would be used in case no other allocator sattisifes required size.
+ *
+ * @return      Operation status.
+ * @retval      EDS_ERROR__NONE Operation completed successfully.
+ * @retval      EDS_ERROR__INVLD_ARGUMENT Is returned when either @a alloc or @dealloc arguments are NULL pointer
+ * @retval      EDS_ERROR__NO_RESOURCE Is returned when application tried to add more than 32 instances of memory
+ *              allocator.
+ */
 eds_error
-eds_event__add_mem(void* (*alloc)(size_t size),
-                   void  (*dealloc)(void*),
+eds__add_mem(void* (*alloc)(void *, size_t size),
+                   void  (*dealloc)(void*, void*),
+                   void * context,
                    size_t max_size);
 
 eds_error

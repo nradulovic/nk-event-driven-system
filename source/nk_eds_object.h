@@ -24,6 +24,7 @@ struct eds_object__mem
 {
     void * (*alloc)(size_t);
     void (dealloc)(void *);
+    void * context;
     size_t max_size;
 };
 
@@ -51,7 +52,8 @@ struct eds_object__event
 {
     uint32_t p__id;
     size_t p__size;
-    struct eds_object__mem * mem;
+    struct eds_object__mem * p__mem;
+    uint32_t p__ref_count;
 };
 
 struct eds_object__sm
