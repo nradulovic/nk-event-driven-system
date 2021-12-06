@@ -2,6 +2,7 @@
 #include "nk_eds.h"
 #include "eds_core.h"
 #include "eds_event.h"
+#include "eds_port.h"
 
 nk_eds_error
 eds_sm__create(eds_sm__state_fn *         initial_state,
@@ -39,7 +40,7 @@ eds_sm__create(eds_sm__state_fn *         initial_state,
         if (mem == NULL) {
             return NK_EDS_ERROR__NO_RESOURCE;
         }
-        l_sm = eds_core__mem__allocate(mem, sm_size_bytes);
+        l_sm = eds_core__mem__allocate_from(mem, sm_size_bytes);
         if (l_sm == NULL) {
             return NK_EDS_ERROR__NO_MEMORY;
         }
@@ -66,24 +67,22 @@ eds_sm__delete(eds_sm *sm)
 {
     struct eds_port__critical critical;
 
-    if (sm == NULL) {
+    if (sm == NULL)
+    {
         return NK_EDS_ERROR__INVLD_ARGUMENT;
     }
     eds_port__critical__lock(&critical);
     /* Clear the queue */
-    while (!eds_core__equeue__is_empty(&sm->p__equeue)) {
+    while (!eds_core__equeue__is_empty(&sm->p__equeue))
+    {
         const struct eds_object__event * event;
-        struct eds_object__event * d_event;
 
         event = eds_core__equeue__pop(&sm->p__equeue);
-        d_event = eds_event__to_dynamic(event);
-        if (d_event != NULL) {
-            eds_event__term(d_event);
-            eds_core__mem__deallocate(eds_event__mem(d_event), d_event);
-        }
+        eds_event__deallocate(event);
     }
     /* If this SM was already added to EPA */
-    if (sm->p__epa != NULL) {
+    if (sm->p__epa != NULL)
+    {
         eds_core__escheduler__block(&sm->p__epa->scheduler, &sm->p__node);
     }
     eds_port__critical__unlock(&critical);
@@ -93,8 +92,7 @@ eds_sm__delete(eds_sm *sm)
 
 nk_eds_error
 eds_sm__send_signal(eds_sm * sm,
-                    uint32_t event_id,
-                    uint32_t timeout_ms)
+                    uint32_t event_id)
 {
     struct eds_object__event * event;
     nk_eds_error error;
@@ -104,7 +102,7 @@ eds_sm__send_signal(eds_sm * sm,
     if (error) {
         return error;
     }
-    error = eds_sm__send_event(sm, event, timeout_ms);
+    error = nk_eds_sm__send_event(sm, event);
 
     if (error) {
         nk_eds_event__cancel(event);
@@ -112,3 +110,18 @@ eds_sm__send_signal(eds_sm * sm,
     return error;
 }
 
+nk_eds_error
+nk_eds_sm__send_event(eds_sm *sm, const nk_eds_event *event)
+{
+    struct eds_port__critical critical;
+
+    if ((sm == NULL) || (event == NULL)) {
+        return NK_EDS_ERROR__INVLD_ARGUMENT;
+    }
+    if (sm->p__epa == NULL) {
+        return NK_EDS_ERROR__NO_PERMISSION;
+    }
+    eds_port__critical__lock(&critical);
+    eds_event__ref_up(event);
+    eds_port__critical__unlock(&critical);
+}

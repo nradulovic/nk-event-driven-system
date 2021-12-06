@@ -11,6 +11,47 @@ eds_event__calculate_bundle_size(size_t event_data_size)
     return sizeof(struct eds_object__event) + eds_port__align_up(event_data_size);
 }
 
+eds_core__error
+eds_event__allocate(uint32_t event_id,
+    size_t event_data_size,
+    struct eds_object__event ** event)
+{
+    struct eds_object__mem * mem;
+    struct eds_object__event * l_event;
+    size_t event_size;
+
+    event_size = eds_event__calculate_bundle_size(event_data_size);
+    mem = eds_core__mem__select(event_size);
+    if (mem == NULL) {
+        return EDS_CORE__ERROR__NO_RESOURCE;
+    }
+    l_event = eds_core__mem__allocate_from(mem, event_size);
+    if (l_event == NULL) {
+        return EDS_CORE__ERROR__NO_MEMORY;
+    }
+    eds_event__init(l_event, event_id, event_data_size, mem);
+    return EDS_CORE__ERROR__NONE;
+}
+
+eds_core__error
+eds_event__deallocate(const struct eds_object__event * event)
+{
+    struct eds_object__event * d_event;
+
+    d_event = eds_event__to_dynamic(event);
+    if (d_event == NULL)
+    {
+        return EDS_CORE__ERROR__NO_PERMISSION;
+    }
+    eds_event__ref_down(d_event);
+    if (eds_event__is_in_use(d_event) == false)
+    {
+        eds_event__term(d_event);
+        eds_core__mem__deallocate(eds_event__mem(d_event), d_event);
+    }
+    return EDS_CORE__ERROR__NONE;
+}
+
 void
 eds_event__init(struct eds_object__event *event,
     uint32_t event_id,
@@ -24,18 +65,12 @@ eds_event__init(struct eds_object__event *event,
 }
 
 void
-eds_event__term(const struct eds_object__event *event)
+eds_event__term(struct eds_object__event *d_event)
 {
-    /* See if this is a dynamic event */
-    if (event->p__mem != NULL) {
-        if (event->p__ref_count != 0u) {
-            /* At this point we now we are accessing a dynamic event. We are safe to cast away
-             * const-ness from pointer type.
-             */
-            struct eds_object__event *d_event = (struct eds_object__event*)(uintptr_t) event;
-            d_event->p__ref_count--;
-        }
-    }
+    d_event->p__id = EDS__EVENT__NULL;
+    d_event->p__size = 0u;
+    d_event->p__mem = NULL;
+    d_event->p__ref_count = 0u;
 }
 
 extern inline void
@@ -57,22 +92,20 @@ nk_eds_error
 nk_eds_event__create(uint32_t event_id, size_t event_data_size, nk_eds_event **event)
 {
     struct eds_object__event *l_event;
-    struct eds_object__mem *mem;
-    size_t event_size;
+    eds_core__error core_error;
 
     if ((event_id == 0) || (event == NULL)) {
         return NK_EDS_ERROR__INVLD_ARGUMENT;
     }
-    event_size = eds_event__calculate_bundle_size(event_data_size);
-    mem = eds_core__mem__select(event_size);
-    if (mem == NULL) {
-        return NK_EDS_ERROR__NO_RESOURCE;
+    core_error = eds_event__allocate(event_id, event_data_size, &l_event);
+    switch (core_error) {
+        case EDS_CORE__ERROR__NO_RESOURCE:
+            return NK_EDS_ERROR__NO_RESOURCE;
+        case EDS_CORE__ERROR__NO_MEMORY:
+            return NK_EDS_ERROR__NO_MEMORY;
+        default:
+            break;
     }
-    l_event = eds_core__mem__allocate(mem, event_size);
-    if (l_event == NULL) {
-        return NK_EDS_ERROR__NO_MEMORY;
-    }
-    eds_event__init(l_event, event_id, event_data_size, mem);
     *event = l_event;
     return NK_EDS_ERROR__NONE;
 }
@@ -86,10 +119,10 @@ nk_eds_event__cancel(nk_eds_event *event)
         return NK_EDS_ERROR__INVLD_ARGUMENT;
     }
     if (event->p__mem == NULL) {
-        return NK_EDS_ERROR__INVLD_USAGE;
+        return NK_EDS_ERROR__NO_PERMISSION;
     }
     eds_port__critical__lock(&critical);
-    if (event->p__ref_count != 0u) {
+    if (eds_event__is_in_use(event)) {
         event->p__id = EDS__EVENT__NULL;
     } else {
         eds_core__mem__deallocate(event->p__mem, event);

@@ -9,6 +9,7 @@
 #define NEON_KIT_GENERIC_SOURCE_EDS_EVENT_H_
 
 #include "eds_object.h"
+#include "eds_core.h"
 
 #include <stdint.h>
 #include <stddef.h>
@@ -17,6 +18,14 @@
 size_t
 eds_event__calculate_bundle_size(size_t event_data_size);
 
+eds_core__error
+eds_event__allocate(uint32_t event_id,
+    size_t event_data_size,
+    struct eds_object__event ** event);
+
+eds_core__error
+eds_event__deallocate(const struct eds_object__event * event);
+
 void
 eds_event__init(struct eds_object__event *event,
     uint32_t event_id,
@@ -24,7 +33,7 @@ eds_event__init(struct eds_object__event *event,
     struct eds_object__mem *mem);
 
 void
-eds_event__term(const struct eds_object__event *event);
+eds_event__term(struct eds_object__event *d_event);
 
 inline void
 eds_event__ref_up(struct eds_object__event *event)

@@ -14,6 +14,14 @@
 
 #define EDS_CORE__N_OF_EVENT_MEM            32u
 
+#define EDS_CORE__ERROR__NONE               0
+#define EDS_CORE__ERROR__NO_RESOURCE        0x1
+#define EDS_CORE__ERROR__NO_MEMORY          0x2
+#define EDS_CORE__ERROR__NO_PERMISSION      0x3
+#define EDS_CORE__ERROR__IN_USE             0x4
+
+typedef uint_fast8_t eds_core__error;
+
 extern struct eds_object__mem eds_core__p__event_mem[EDS_CORE__N_OF_EVENT_MEM];
 
 inline void
@@ -75,8 +83,11 @@ eds_core__mem__add(struct eds_object__mem *mem);
 struct eds_object__mem*
 eds_core__mem__select(size_t size);
 
+void
+eds_core__mem__allocate(size_t data_size, struct eds_object__mem **mem, void ** memory);
+
 void*
-eds_core__mem__allocate(struct eds_object__mem *mem, size_t size);
+eds_core__mem__allocate_from(struct eds_object__mem *mem, size_t size);
 
 void
 eds_core__mem__deallocate(struct eds_object__mem *mem, void *block);

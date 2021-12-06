@@ -13,7 +13,7 @@
 #include <stdbool.h>
 
 typedef struct eds_object__epa eds_epa;
-typedef struct eds_object__sm eds_sm;
+typedef struct eds_object__sm nk_eds_epa;
 typedef struct eds_object__event nk_eds_event;
 typedef uint32_t nk_eds_error;
 
@@ -21,16 +21,17 @@ typedef uint32_t nk_eds_error;
 #define EDS__ALLOCATOR__MIN_BYTES           16u
 
 #define EDS__SM__DEFAULT_QUEUE_N_OF_ENTRIES 16u
-#define EDS__SM__DEFAULT_PRIO               16u
-#define EDS__SM__DEFAULT_NAME               "nameless"
+#define EDS__EPA__DEFAULT_PRIO              16u
+#define EDS__EPA__DEFAULT_NAME              "nameless"
 
-#define NK_EDS_ERROR__NONE                     0
-#define NK_EDS_ERROR__INVLD_ARGUMENT           0x01
-#define NK_EDS_ERROR__NO_MEMORY                0x02
-#define NK_EDS_ERROR__NO_RESOURCE              0x03
-#define NK_EDS_ERROR__EXISTS                   0x04
-#define NK_EDS_ERROR__INVLD_CONFIGURATION      0x05
-#define NK_EDS_ERROR__INVLD_USAGE              0x06
+#define NK_EDS_ERROR__NONE                  0
+#define NK_EDS_ERROR__INVLD_ARGUMENT        0x01
+#define NK_EDS_ERROR__NO_MEMORY             0x02
+#define NK_EDS_ERROR__NO_RESOURCE           0x03
+#define NK_EDS_ERROR__NO_PERMISSION         0x04
+#define NK_EDS_ERROR__EXISTS                0x05
+#define NK_EDS_ERROR__INVLD_CONFIGURATION   0x06
+#define NK_EDS_ERROR__INVLD_USAGE           0x07
 
 
 typedef void*
@@ -177,6 +178,7 @@ size_t
 nk_eds_event__size(const nk_eds_event *event);
 
 struct eds_object__mem;
+typedef struct eds_object__sm nk_eds_sm;
 
 /**
  * @brief       Returned action enumerator
@@ -201,15 +203,15 @@ typedef enum eds_sm__action
 #define EDS__EVENT__USER                    64
 
 typedef nk_eds_sm__action
-(eds_sm__state_fn)(eds_sm*, void *workspace, const nk_eds_event *event);
+(nk_eds_sm__state_fn)(nk_eds_sm*, void *workspace, const nk_eds_event *event);
 
-typedef uint_fast8_t eds_sm__prio;
+typedef uint_fast8_t nk_eds_epa__prio;
 
-struct eds_sm__attr
+struct nk_eds_epa__attr
 {
     const char *name;
-    eds_sm__prio prio;
-    eds_sm *instance;
+    nk_eds_epa__prio prio;
+    nk_eds_epa *instance;
     size_t equeue_size;
     nk_eds_event *equeue_storage;
 };
@@ -224,28 +226,28 @@ struct eds_sm__attr
  * @return eds_error
  */
 nk_eds_error
-eds_sm__create(eds_sm__state_fn *initial_state,
+nk_eds_epa__create(nk_eds_sm__state_fn *initial_state,
     void *sm_workspace,
-    const struct eds_sm__attr *attr,
-    eds_sm **sm);
+    const struct nk_eds_epa__attr *attr,
+    nk_eds_epa **sm);
 
 nk_eds_error
-eds_sm__delete(eds_sm *sm);
+eds_sm__delete(nk_eds_epa *sm);
 
 nk_eds_error
-eds_sm__send_signal(eds_sm *sm, uint32_t event_id, uint32_t timeout_ms);
+eds_sm__send_signal(nk_eds_epa *sm, uint32_t event_id);
 
 nk_eds_error
-eds_sm__send_event(eds_sm *sm, const nk_eds_event *event, uint32_t timeout_ms);
+nk_eds_sm__send_event(nk_eds_epa *sm, const nk_eds_event *event);
 
 nk_eds_error
-eds_sm__send_event_after(eds_sm *sm, const nk_eds_event *event, uint32_t after_ms);
+eds_sm__send_event_after(nk_eds_epa *sm, const nk_eds_event *event, uint32_t after_ms);
 
 nk_eds_error
-eds_sm__send_event_every(eds_sm *sm, const nk_eds_event *event, uint32_t every_ms);
+eds_sm__send_event_every(nk_eds_epa *sm, const nk_eds_event *event, uint32_t every_ms);
 
 eds_epa*
-eds_sm__get_epa(const eds_sm *sm);
+eds_sm__get_epa(const nk_eds_epa *sm);
 
 struct eds_epa__attr
 {
@@ -260,10 +262,10 @@ nk_eds_error
 eds_epa__delete(eds_epa *epa);
 
 nk_eds_error
-eds_epa__add(eds_epa *epa, eds_sm *sm);
+eds_epa__add(eds_epa *epa, nk_eds_epa *sm);
 
 nk_eds_error
-eds_epa__remove(eds_epa *epa, eds_sm *sm);
+eds_epa__remove(eds_epa *epa, nk_eds_epa *sm);
 
 nk_eds_error
 eds_epa__start_all(eds_epa *epa);
