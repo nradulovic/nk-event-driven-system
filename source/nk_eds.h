@@ -12,13 +12,14 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-typedef struct eds_object__epa eds_epa;
-typedef struct eds_object__sm nk_eds_epa;
 typedef struct eds_object__event nk_eds_event;
+typedef struct eds_object__sm nk_eds_sm;
+typedef struct eds_object__epa nk_eds_epa;
+typedef struct eds_object__epn nk_eds_epn;
 typedef uint32_t nk_eds_error;
 
-#define EDS__ALLOCATOR__N_OF_INSTANCES      16u
-#define EDS__ALLOCATOR__MIN_BYTES           16u
+#define NK_EDS__ALLOCATOR__N_OF_INSTANCES   16u
+#define NK_EDS__ALLOCATOR__MIN_BYTES        16u
 
 #define EDS__SM__DEFAULT_QUEUE_N_OF_ENTRIES 16u
 #define EDS__EPA__DEFAULT_PRIO              16u
@@ -35,9 +36,9 @@ typedef uint32_t nk_eds_error;
 
 
 typedef void*
-(eds__alloc__fn)(void*, size_t);
+(nk_eds__alloc_fn)(void*, size_t);
 typedef void
-(eds__dealloc__fn)(void*, void*);
+(nk_eds__dealloc_fn)(void*, void*);
 
 /**
  * @brief       Add memory allocator for EDS objects creation.
@@ -53,7 +54,7 @@ typedef void
  * Specify for each allocator malloc/free pair how big memory partitions it can handle. This adds
  * ability to use multiple memory pools of different sizes.
  *
- * EDS can accept up to @ref EDS__ALLOCATOR__N_OF_INSTANCES different allocators. It was shown in
+ * EDS can accept up to @ref NK_EDS__ALLOCATOR__N_OF_INSTANCES different allocators. It was shown in
  * practice that around 7 allocators of different sizes are needed for a typical application.
  *
  * @param       alloc is a pointer to function which allocates memory space. Allocator function
@@ -77,15 +78,15 @@ typedef void
  * @return      Operation status.
  * @retval      EDS_ERROR__NONE Operation completed successfully.
  * @retval      EDS_ERROR__INVLD_ARGUMENT Is returned when either @a alloc or @a dealloc arguments
- *              are NULL pointer or when @a max_size is less than @ref EDS__ALLOCATOR__MIN_BYTES
+ *              are NULL pointer or when @a max_size is less than @ref NK_EDS__ALLOCATOR__MIN_BYTES
  *              bytes.
  * @retval      EDS_ERROR__NO_RESOURCE Is returned when application tried to add more than
- *              @ref EDS__ALLOCATOR__N_OF_INSTANCES instances of memory allocator.
+ *              @ref NK_EDS__ALLOCATOR__N_OF_INSTANCES instances of memory allocator.
  * @retval      EDS_ERROR__EXISTS The allocator with @a max_size memory block was already added.
  */
 nk_eds_error
-nk_eds_mem__add_allocator(eds__alloc__fn *alloc,
-    eds__dealloc__fn *dealloc,
+nk_eds_mem__add_allocator(nk_eds__alloc_fn *alloc,
+    nk_eds__dealloc_fn *dealloc,
     void *context,
     size_t max_size);
 
@@ -222,55 +223,55 @@ struct nk_eds_epa__attr
  * @param       initial_state
  * @param       sm_workspace
  * @param       attr
- * @param [out] sm
+ * @param [out] epa
  * @return eds_error
  */
 nk_eds_error
 nk_eds_epa__create(nk_eds_sm__state_fn *initial_state,
     void *sm_workspace,
     const struct nk_eds_epa__attr *attr,
-    nk_eds_epa **sm);
+    nk_eds_epa **epa);
 
 nk_eds_error
-eds_sm__delete(nk_eds_epa *sm);
+nk_eds_epa__delete(nk_eds_epa *epa);
 
 nk_eds_error
-eds_sm__send_signal(nk_eds_epa *sm, uint32_t event_id);
+nk_eds_epa__send_signal(nk_eds_epa *epa, uint32_t event_id);
 
 nk_eds_error
-nk_eds_sm__send_event(nk_eds_epa *sm, const nk_eds_event *event);
+nk_eds_epa__send_event(nk_eds_epa *epa, const nk_eds_event *event);
 
 nk_eds_error
-eds_sm__send_event_after(nk_eds_epa *sm, const nk_eds_event *event, uint32_t after_ms);
+nk_eds_epa__send_event_after(nk_eds_epa *epa, const nk_eds_event *event, uint32_t after_ms);
 
 nk_eds_error
-eds_sm__send_event_every(nk_eds_epa *sm, const nk_eds_event *event, uint32_t every_ms);
+nk_eds_epa__send_event_every(nk_eds_epa *epa, const nk_eds_event *event, uint32_t every_ms);
 
-eds_epa*
-eds_sm__get_epa(const nk_eds_epa *sm);
+nk_eds_epn*
+nk_eds_epa__get_epn(const nk_eds_epa *epa);
 
-struct eds_epa__attr
+struct nk_eds_epn__attr
 {
     const char *name;
-    eds_epa *instance;
+    nk_eds_epn *instance;
 };
 
 nk_eds_error
-eds_epa__create(const struct eds_epa__attr *atrr, eds_epa **epa);
+nk_eds_epn__create(const struct nk_eds_epn__attr *atrr, nk_eds_epn **epn);
 
 nk_eds_error
-eds_epa__delete(eds_epa *epa);
+nk_eds_epn__delete(nk_eds_epn *epa);
 
 nk_eds_error
-eds_epa__add(eds_epa *epa, nk_eds_epa *sm);
+nk_eds_epn__add_epa(nk_eds_epn *epa, nk_eds_epa *sm);
 
 nk_eds_error
-eds_epa__remove(eds_epa *epa, nk_eds_epa *sm);
+nk_eds_epn__remove_epa(nk_eds_epn *epa, nk_eds_epa *sm);
 
 nk_eds_error
-eds_epa__start_all(eds_epa *epa);
+nk_eds_epn__start_all(nk_eds_epn *epa);
 
 nk_eds_error
-eds_epa__stop_all(eds_epa *epa);
+nk_eds_epn__stop_all(nk_eds_epn *epa);
 
 #endif /* NEON_KIT_GENERIC_SOURCE_NK_EDS_H_ */

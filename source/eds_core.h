@@ -12,8 +12,6 @@
 
 #include "eds_object.h"
 
-#define EDS_CORE__N_OF_EVENT_MEM            32u
-
 #define EDS_CORE__ERROR__NONE               0
 #define EDS_CORE__ERROR__NO_RESOURCE        0x1
 #define EDS_CORE__ERROR__NO_MEMORY          0x2
@@ -21,8 +19,6 @@
 #define EDS_CORE__ERROR__IN_USE             0x4
 
 typedef uint_fast8_t eds_core__error;
-
-extern struct eds_object__mem eds_core__p__event_mem[EDS_CORE__N_OF_EVENT_MEM];
 
 inline void
 eds_core__list__init(struct eds_object__list *self)
@@ -84,7 +80,7 @@ struct eds_object__mem*
 eds_core__mem__select(size_t size);
 
 void
-eds_core__mem__allocate(size_t data_size, struct eds_object__mem **mem, void ** memory);
+eds_core__mem__allocate(size_t data_size, struct eds_object__mem **mem, void **memory);
 
 void*
 eds_core__mem__allocate_from(struct eds_object__mem *mem, size_t size);
@@ -104,31 +100,33 @@ eds_core__equeue__init(struct eds_object__equeue *equeue,
     struct eds_object__event *storage);
 
 void
-eds_core__equeue__term(struct eds_object__equeue *equeue);
-
-void
-eds_core__equeue__push(struct eds_object__equeue *equeue, const struct eds_object__event *event);
-
-const struct eds_object__event*
-eds_core__equeue__pop(struct eds_object__equeue *equeue);
-
-bool
-eds_core__equeue__is_empty(const struct eds_object__equeue *equeue);
-
-void
-eds_core__sm_executor__init(struct eds_object__sm_executor *sm_executor,
-    eds_sm__state_fn *initial_state,
-    void *workspace);
-
-nk_eds_sm__action
-eds_core__sm_executor__dispatch(struct eds_object__sm_executor *sm_executor,
-    const struct eds_object__event *event);
+eds_core__escheduler__init(struct eds_object__escheduler *escheduler);
 
 void
 eds_core__escheduler__node_init(struct eds_object__escheduler_node *node, uint_fast8_t prio);
 
 void
+eds_core__escheduler__ready(struct eds_object__escheduler *escheduler,
+    struct eds_object__escheduler_node *node);
+
+void
 eds_core__escheduler__block(struct eds_object__escheduler *escheduler,
     struct eds_object__escheduler_node *node);
+
+void
+eds_core__vector__init(struct eds_object__vector *vector,
+    void *entries,
+    uint32_t * keys,
+    size_t item_size,
+    size_t size);
+
+inline size_t
+eds_core__vector__length(const struct eds_object__vector * vector)
+{
+    return vector->p__length;
+}
+
+void
+eds_core__vector__insert(struct eds_object__vector *vector, uint32_t index, const void * entry);
 
 #endif /* NEON_KIT_GENERIC_SOURCE_NK_EDS_CORE_H_ */
