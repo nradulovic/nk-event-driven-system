@@ -12,7 +12,7 @@
 #include <stddef.h>
 
 #include "nk_eds.h"
-#include "eds_port.h"
+#include "eds_port/eds_port_definition.h"
 
 struct eds_object__list
 {

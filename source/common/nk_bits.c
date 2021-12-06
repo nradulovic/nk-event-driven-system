@@ -5,7 +5,7 @@
  *      Author: nenad
  */
 
-#include "generic/common/nk_bits.h"
+#include "eds/source/common/nk_bits.h"
 
 
 

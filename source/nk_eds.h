@@ -14,15 +14,8 @@
 
 typedef struct eds_object__epa eds_epa;
 typedef struct eds_object__sm eds_sm;
-typedef struct eds_object__event eds_event;
-typedef uint32_t eds_error;
-
-#define EDS_ERROR__NONE                     0
-#define EDS_ERROR__INVLD_ARGUMENT           0x01
-#define EDS_ERROR__NO_MEMORY                0x02
-#define EDS_ERROR__NO_RESOURCE              0x03
-#define EDS_ERROR__EXISTS                   0x04
-#define EDS_ERROR__INVLD_CONFIGURATION      0x05
+typedef struct eds_object__event nk_eds_event;
+typedef uint32_t nk_eds_error;
 
 #define EDS__ALLOCATOR__N_OF_INSTANCES      16u
 #define EDS__ALLOCATOR__MIN_BYTES           16u
@@ -31,12 +24,26 @@ typedef uint32_t eds_error;
 #define EDS__SM__DEFAULT_PRIO               16u
 #define EDS__SM__DEFAULT_NAME               "nameless"
 
+#define NK_EDS_ERROR__NONE                     0
+#define NK_EDS_ERROR__INVLD_ARGUMENT           0x01
+#define NK_EDS_ERROR__NO_MEMORY                0x02
+#define NK_EDS_ERROR__NO_RESOURCE              0x03
+#define NK_EDS_ERROR__EXISTS                   0x04
+#define NK_EDS_ERROR__INVLD_CONFIGURATION      0x05
+#define NK_EDS_ERROR__INVLD_USAGE              0x06
+
+
+typedef void*
+(eds__alloc__fn)(void*, size_t);
+typedef void
+(eds__dealloc__fn)(void*, void*);
+
 /**
  * @brief       Add memory allocator for EDS objects creation.
  *
  * This functions needs to be called before any other function from EDS package. The function will
  * store the information about available allocators. Allocators are used by create functions of EDS
- * when creationg new objects. All objects used by EDS may be allocated dynamically or statically.
+ * when creating new objects. All objects used by EDS may be allocated dynamically or statically.
  * In order to create a static object use attribute structure `instance` pointer.
  *
  * If no allocators are provided EDS will not be able to create new objects and errors will be
@@ -57,14 +64,14 @@ typedef uint32_t eds_error;
  *              can not allocate memory it returns NULL pointer. Allocator function does not need
  *              handle zero allocations (size of allocation is equal to zero).
  * @param       dealloc is a pointer to function which receives the context structure and the
- *              previosly allocated block and it should recycle its space. This function does not
+ *              previously allocated block and it should recycle its space. This function does not
  *              need to handle NULL deallocations.
  * @param       context is pointer to allocator context structure if it needed by allocator. The
  *              structure needs to exist the whole time while allocator functions are being used.
  * @param       max_size is maximum size of block that can be allocated and freed by allocator. In
  *              case when a pool memory is used this argument will be equal to pool  memory block
  *              size. When this argument is set to zero or SIZE_MAX value then this allocator would
- *              be used in case no other allocator sattisifes required size.
+ *              be used in case no other allocator satisfies required size.
  *
  * @return      Operation status.
  * @retval      EDS_ERROR__NONE Operation completed successfully.
@@ -75,11 +82,11 @@ typedef uint32_t eds_error;
  *              @ref EDS__ALLOCATOR__N_OF_INSTANCES instances of memory allocator.
  * @retval      EDS_ERROR__EXISTS The allocator with @a max_size memory block was already added.
  */
-eds_error
-eds__add_allocator(void* (*alloc)(void *, size_t),
-                   void  (*dealloc)(void*, void*),
-                   void *  context,
-                   size_t  max_size);
+nk_eds_error
+nk_eds_mem__add_allocator(eds__alloc__fn *alloc,
+    eds__dealloc__fn *dealloc,
+    void *context,
+    size_t max_size);
 
 /**
  * @brief       Create an event and initialize it.
@@ -106,10 +113,11 @@ eds__add_allocator(void* (*alloc)(void *, size_t),
  * @retval      EDS_ERROR__NO_MEMORY When a suitable allocator was found but its memory reserves
  *              have depleted.
  */
-eds_error
-eds_event__create(uint32_t     event_id,
-                  size_t       event_data_size,
-                  eds_event ** event);
+nk_eds_error
+nk_eds_event__create(uint32_t event_id, size_t event_data_size, nk_eds_event **event);
+
+nk_eds_error
+nk_eds_event__cancel(nk_eds_event *event);
 
 /**
  * @brief       Initialize a static event.
@@ -130,73 +138,52 @@ eds_event__create(uint32_t     event_id,
  * @retval      EDS_ERROR__INVLD_ARGUMENT Is returned when either @a event_id is equal to zero or
  *              when @a event pointer is set to NULL.
  */
-eds_error
-eds_event__init(eds_event * event,
-                uint32_t    event_id,
-                size_t      event_data_size);
+nk_eds_error
+nk_eds_event__init(nk_eds_event *event, uint32_t event_id, size_t event_data_size);
 
 /**
  * @brief       Get event identification number from the event.
  *
- * @pre         Argument @a event must be a non-NULL pointer and pointing to a previosly initialized
+ * @pre         Argument @a event must be a non-NULL pointer and pointing to a previously initialized
  *              or created event.
  * @param       event Pointer to event.
  * @return      Event identification number (uint32_t).
  */
 uint32_t
-eds_event__id(const eds_event * event);
+nk_eds_event__id(const nk_eds_event *event);
 
 /**
  * @brief       Get attached data from the event.
  *
- * @pre         Argument @a event must be a non-NULL pointer and pointing to a previosly initialized
+ * @pre         Argument @a event must be a non-NULL pointer and pointing to a previously initialized
  *              or created event.
  * @param       event Pointer to event.
  * @return      Pointer to event data.
  * @retval      NULL The event has no attached data.
  */
-void *
-eds_event__data(eds_event * event);
+void*
+nk_eds_event__data(nk_eds_event *event);
 
 /**
  * @brief       Get event attached data size from the event.
  *
- * @pre         Argument @a event must be a non-NULL pointer and pointing to a previosly initialized
+ * @pre         Argument @a event must be a non-NULL pointer and pointing to a previously initialized
  *              or created event.
  * @param       event Pointer to event.
  * @return      Size of event attached data in bytes.
  * @retval      0 The event has no attached data.
  */
 size_t
-eds_event__size(const eds_event * event);
+nk_eds_event__size(const nk_eds_event *event);
 
 struct eds_object__mem;
 
-size_t
-eds__p__event__calculate_bundle_size(size_t event_data_size);
-
-struct eds_object__event *
-eds__p__event__allocate(size_t                  event_data_size,
-                        struct eds_object__mem *mem);
-
-void
-eds__p__event__deallocate(struct eds_object__event *event);
-
-void
-eds__p__event__init(struct eds_object__event *event,
-                    uint32_t                  event_id,
-                    size_t                    event_data_size,
-                    struct eds_object__mem *  mem);
-
-void
-eds__p__event__ref_up(struct eds_object__event * event);
-
-void
-eds__p__event__ref_down(struct eds_object__event * event);
-
-bool
-eds__p__event__is_in_use(const struct eds_object__event * event);
-
+/**
+ * @brief       Returned action enumerator
+ *
+ * The enumerator defines what action should state machine dispatcher execute for the given state
+ * machine.
+ */
 typedef enum eds_sm__action
 {
     EDS_SM__ACTION__SUPER,
@@ -204,12 +191,19 @@ typedef enum eds_sm__action
     EDS_SM__ACTION__IGNORED,
     EDS_SM__ACTION__PUSHED_BACK,
     EDS_SM__ACTION__TRANSIT
-} eds_sm__action;
+} nk_eds_sm__action;
 
-typedef eds_sm__action
-(eds_sm__state_fn)(eds_sm*, void *workspace, const eds_event *event);
+#define EDS__EVENT__INIT                    1
+#define EDS__EVENT__ENTER                   2
+#define EDS__EVENT__EXIT                    3
+#define EDS__EVENT__SUPER                   4
+#define EDS__EVENT__NULL                    0
+#define EDS__EVENT__USER                    64
 
-typedef uint32_t eds_sm__prio;
+typedef nk_eds_sm__action
+(eds_sm__state_fn)(eds_sm*, void *workspace, const nk_eds_event *event);
+
+typedef uint_fast8_t eds_sm__prio;
 
 struct eds_sm__attr
 {
@@ -217,7 +211,7 @@ struct eds_sm__attr
     eds_sm__prio prio;
     eds_sm *instance;
     size_t equeue_size;
-    eds_event *equeue_storage;
+    nk_eds_event *equeue_storage;
 };
 
 /**
@@ -229,34 +223,26 @@ struct eds_sm__attr
  * @param [out] sm
  * @return eds_error
  */
-eds_error
-eds_sm__create(eds_sm__state_fn *         initial_state,
-               void *                     sm_workspace,
-               const struct eds_sm__attr *attr,
-               eds_sm **                  sm);
+nk_eds_error
+eds_sm__create(eds_sm__state_fn *initial_state,
+    void *sm_workspace,
+    const struct eds_sm__attr *attr,
+    eds_sm **sm);
 
-eds_error
+nk_eds_error
 eds_sm__delete(eds_sm *sm);
 
-eds_error
-eds_sm__send_signal(eds_sm * sm,
-                    uint32_t event_id,
-                    uint32_t timeout_ms);
+nk_eds_error
+eds_sm__send_signal(eds_sm *sm, uint32_t event_id, uint32_t timeout_ms);
 
-eds_error
-eds_sm__send_event(eds_sm *         sm,
-                   const eds_event *event,
-                   uint32_t         timeout_ms);
+nk_eds_error
+eds_sm__send_event(eds_sm *sm, const nk_eds_event *event, uint32_t timeout_ms);
 
-eds_error
-eds_sm__send_event_after(eds_sm *         sm,
-                         const eds_event *event,
-                         uint32_t         after_ms);
+nk_eds_error
+eds_sm__send_event_after(eds_sm *sm, const nk_eds_event *event, uint32_t after_ms);
 
-eds_error
-eds_sm__send_event_every(eds_sm *         sm,
-                         const eds_event *event,
-                         uint32_t         every_ms);
+nk_eds_error
+eds_sm__send_event_every(eds_sm *sm, const nk_eds_event *event, uint32_t every_ms);
 
 eds_epa*
 eds_sm__get_epa(const eds_sm *sm);
@@ -267,22 +253,22 @@ struct eds_epa__attr
     eds_epa *instance;
 };
 
-eds_error
+nk_eds_error
 eds_epa__create(const struct eds_epa__attr *atrr, eds_epa **epa);
 
-eds_error
+nk_eds_error
 eds_epa__delete(eds_epa *epa);
 
-eds_error
+nk_eds_error
 eds_epa__add(eds_epa *epa, eds_sm *sm);
 
-eds_error
+nk_eds_error
 eds_epa__remove(eds_epa *epa, eds_sm *sm);
 
-eds_error
+nk_eds_error
 eds_epa__start_all(eds_epa *epa);
 
-eds_error
+nk_eds_error
 eds_epa__stop_all(eds_epa *epa);
 
 #endif /* NEON_KIT_GENERIC_SOURCE_NK_EDS_H_ */
