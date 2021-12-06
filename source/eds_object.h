@@ -19,7 +19,6 @@ struct eds_object__vector
     size_t p__length;
     size_t p__size;
     size_t p__item_size;
-    uint32_t * p__keys;
     void *p__entries;
 };
 
@@ -32,10 +31,11 @@ struct eds_object__list
 struct eds_object__mem
 {
     void*
-    (*alloc)(size_t);
+    (*alloc)(void *, size_t);
     void
-    (*dealloc)(void*);
+    (*dealloc)(void*, void*);
     void *context;
+    size_t p__max_size;
 };
 
 struct eds_object__equeue

@@ -12,6 +12,14 @@
 
 #include "eds_object.h"
 
+
+/** @brief      Determines the first dimension of an array.
+ *  @param      array
+ *              An array : type unspecified
+ *  @mseffect
+ */
+#define EDS_CORE__ARRAY_SIZE(array)         (sizeof(array) / sizeof(array[0]))
+
 #define EDS_CORE__ERROR__NONE               0
 #define EDS_CORE__ERROR__NO_RESOURCE        0x1
 #define EDS_CORE__ERROR__NO_MEMORY          0x2
@@ -71,35 +79,6 @@ eds_core__list__is_empty(const struct eds_object__list *self)
 }
 
 void
-eds_core__mem__init(void);
-
-void
-eds_core__mem__add(struct eds_object__mem *mem);
-
-struct eds_object__mem*
-eds_core__mem__select(size_t size);
-
-void
-eds_core__mem__allocate(size_t data_size, struct eds_object__mem **mem, void **memory);
-
-void*
-eds_core__mem__allocate_from(struct eds_object__mem *mem, size_t size);
-
-void
-eds_core__mem__deallocate(struct eds_object__mem *mem, void *block);
-
-inline size_t
-eds_core__equeue__calculate_storage_size(size_t entries)
-{
-    return sizeof(struct eds_object__event*) * entries;
-}
-
-void
-eds_core__equeue__init(struct eds_object__equeue *equeue,
-    size_t entries,
-    struct eds_object__event *storage);
-
-void
 eds_core__escheduler__init(struct eds_object__escheduler *escheduler);
 
 void
@@ -113,10 +92,18 @@ void
 eds_core__escheduler__block(struct eds_object__escheduler *escheduler,
     struct eds_object__escheduler_node *node);
 
+
+#define EDS_CORE__VECTOR__INITIALIZER(entries)                                                  \
+    {                                                                                           \
+        .p__entries = (entries),                                                                \
+        .p__item_size = sizeof((entries)[0]),                                                   \
+        .p__length = 0u,                                                                        \
+        .p__size = EDS_CORE__ARRAY_SIZE(entries),                                               \
+    }
+
 void
 eds_core__vector__init(struct eds_object__vector *vector,
     void *entries,
-    uint32_t * keys,
     size_t item_size,
     size_t size);
 
@@ -126,7 +113,28 @@ eds_core__vector__length(const struct eds_object__vector * vector)
     return vector->p__length;
 }
 
+inline size_t
+eds_core__vector__size(const struct eds_object__vector * vector)
+{
+    return vector->p__size;
+}
+
+inline bool
+eds_core__vector__is_full(const struct eds_object__vector * vector)
+{
+    return (vector->p__length == vector->p__size);
+}
+
+inline void *
+eds_core__vector__peek(const struct eds_object__vector * vector, uint32_t index)
+{
+    return (char *)vector->p__entries + (vector->p__item_size * index);
+}
+
 void
 eds_core__vector__insert(struct eds_object__vector *vector, uint32_t index, const void * entry);
+
+void
+eds_core__vector__remove(struct eds_object__vector *vector, uint32_t index);
 
 #endif /* NEON_KIT_GENERIC_SOURCE_NK_EDS_CORE_H_ */

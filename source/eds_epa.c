@@ -15,7 +15,7 @@ eds_epa__set_epn(struct eds_object__epa *epa, struct eds_object__epn *epn)
 nk_eds_sm__action
 eds_epa__dispatch(struct eds_object__epa *epa)
 {
-
+    return EDS_SM__ACTION__HANDLED;
 }
 
 nk_eds_error
