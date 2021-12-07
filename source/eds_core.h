@@ -14,11 +14,19 @@
 
 
 /** @brief      Determines the first dimension of an array.
- *  @param      array
- *              An array : type unspecified
+ *  @param      array An array : type unspecified
  *  @mseffect
  */
 #define EDS_CORE__ARRAY_SIZE(array)         (sizeof(array) / sizeof(array[0]))
+
+/**
+ * @brief       Cast a member of a structure out to the containing structure.
+ * @param       ptr the pointer to the member.
+ * @param       type the type of the container struct this is embedded in.
+ * @param       member the name of the member within the struct.
+ */
+#define EDS_CORE__CONTAINER_OF(ptr, type, member)                                               \
+    ((type *)((char *)(ptr) - offsetof(type, member)))
 
 #define EDS_CORE__ERROR__NONE               0
 #define EDS_CORE__ERROR__NO_RESOURCE        0x1
@@ -28,6 +36,12 @@
 #define EDS_CORE__ERROR__BAD_STATE          0x5
 
 typedef uint_fast8_t eds_core__error;
+
+#define EDS_CORE__LIST_INITIALIZER(list)                                                        \
+    {                                                                                           \
+        .p__next = (list),                                                                      \
+        .p__prev = (list)                                                                       \
+    }
 
 inline void
 eds_core__list__init(struct eds_object__list *self)

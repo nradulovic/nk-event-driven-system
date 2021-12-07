@@ -1,10 +1,10 @@
 #include "eds_epa.h"
 #include "eds.h"
-#include "eds_sm.h"
+#include "eds_smp.h"
 #include "eds_mem.h"
+#include "eds_evt.h"
 #include "eds_core.h"
 #include "eds_port.h"
-#include "eds_event.h"
 #include "eds_equeue.h"
 
 void
@@ -94,7 +94,7 @@ eds__agent_delete(eds__agent *agent)
         const struct eds_object__evt *event;
 
         event = eds_equeue__pop(&agent->p__equeue);
-        eds_event__deallocate(event);
+        eds_evt__deallocate(event);
     }
     /* If this SM was already added to EPA */
     if (agent->p__epn != NULL) {
@@ -139,7 +139,7 @@ eds__agent_send(eds__agent *agent, const eds__event *event)
         return EDS__ERROR_NO_PERMISSION;
     }
     eds_port__critical__lock(&critical);
-    eds_event__ref_up(event);
+    eds_evt__ref_up(event);
     eds_equeue__push_back(&agent->p__equeue, event);
     eds_core__escheduler__ready(&agent->p__epn->p__scheduler, &agent->p__etask);
     eds_port__critical__unlock(&critical);

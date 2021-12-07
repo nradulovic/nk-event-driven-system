@@ -17,7 +17,9 @@ size_t
 eds_equeue__calculate_storage_size(size_t n_entries);
 
 void
-eds_equeue__init(struct eds_object__equeue *self, size_t n_entries, struct eds_object__evt *storage);
+eds_equeue__init(struct eds_object__equeue *self,
+    size_t n_entries,
+    struct eds_object__evt *storage);
 
 void
 eds_equeue__term(struct eds_object__equeue *self);
@@ -41,7 +43,7 @@ eds_equeue__push_front(struct eds_object__equeue *self, const struct eds_object_
      * NOTE:
      * The same note applies here as well, as in previous function.
      */
-    eds_core__queue_put_lifo(&self->queue, event);
+    eds_core__queue_put_lifo(&self->queue, (struct eds_object__evt *) (uintptr_t) event);
 }
 
 inline const struct eds_object__evt*

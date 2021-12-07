@@ -15,32 +15,32 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#define EDS_EVENT__INITIALIZER(event_id, event_data_size)                                       \
+#define EDS_EVT__INITIALIZER(event_id, event_data_size)                                         \
         {                                                                                       \
             .p__id = (event_id),                                                                \
             .p__size = (event_data_size),                                                       \
         }
 
 size_t
-eds_event__calculate_bundle_size(size_t event_data_size);
+eds_evt__calculate_bundle_size(size_t event_data_size);
 
 eds_core__error
-eds_event__allocate(uint32_t event_id, size_t event_data_size, struct eds_object__evt **event);
+eds_evt__allocate(uint32_t event_id, size_t event_data_size, struct eds_object__evt **event);
 
 eds_core__error
-eds_event__deallocate(const struct eds_object__evt *event);
+eds_evt__deallocate(const struct eds_object__evt *event);
 
 void
-eds_event__init(struct eds_object__evt *event,
+eds_evt__init(struct eds_object__evt *event,
     uint32_t event_id,
     size_t event_data_size,
     struct eds_object__mem *mem);
 
 void
-eds_event__term(struct eds_object__evt *d_event);
+eds_evt__term(struct eds_object__evt *d_event);
 
 inline struct eds_object__evt*
-eds_event__to_dynamic(const struct eds_object__evt *event)
+eds_evt__to_dynamic(const struct eds_object__evt *event)
 {
     if (event->p__mem != NULL) {
         /*
@@ -54,36 +54,36 @@ eds_event__to_dynamic(const struct eds_object__evt *event)
 }
 
 inline void
-eds_event__ref_up(const struct eds_object__evt *event)
+eds_evt__ref_up(const struct eds_object__evt *event)
 {
     struct eds_object__evt *d_event;
 
-    d_event = eds_event__to_dynamic(event);
+    d_event = eds_evt__to_dynamic(event);
     if (d_event != NULL) {
         d_event->p__ref_count++;
     }
 }
 
 inline void
-eds_event__ref_down(struct eds_object__evt *event)
+eds_evt__ref_down(struct eds_object__evt *event)
 {
     event->p__ref_count--;
 }
 
 inline bool
-eds_event__is_in_use(const struct eds_object__evt *event)
+eds_evt__is_in_use(const struct eds_object__evt *event)
 {
     return (event->p__ref_count == 0u);
 }
 
 inline bool
-eds_event__is_dynamic(const struct eds_object__evt *event)
+eds_evt__is_dynamic(const struct eds_object__evt *event)
 {
     return (event->p__mem != NULL);
 }
 
 inline struct eds_object__mem*
-eds_event__mem(const struct eds_object__evt *event)
+eds_evt__mem(const struct eds_object__evt *event)
 {
     return event->p__mem;
 }

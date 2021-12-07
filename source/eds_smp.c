@@ -1,15 +1,15 @@
 
-#include "eds_sm.h"
+#include "eds_smp.h"
+#include "eds_evt.h"
 #include "eds_core.h"
-#include "eds_event.h"
 #include "eds_port.h"
 
 static const struct eds_object__evt g__smp_events[] =
 {
-    [EDS__SM_EVENT__INIT] = EDS_EVENT__INITIALIZER(EDS__SM_EVENT__INIT, 0),
-    [EDS__SM_EVENT__ENTER] = EDS_EVENT__INITIALIZER(EDS__SM_EVENT__ENTER, 0),
-    [EDS__SM_EVENT__EXIT] = EDS_EVENT__INITIALIZER(EDS__SM_EVENT__EXIT, 0),
-    [EDS__SM_EVENT__SUPER] = EDS_EVENT__INITIALIZER(EDS__SM_EVENT__SUPER, 0),
+    [EDS__SM_EVENT__INIT] = EDS_EVT__INITIALIZER(EDS__SM_EVENT__INIT, 0),
+    [EDS__SM_EVENT__ENTER] = EDS_EVT__INITIALIZER(EDS__SM_EVENT__ENTER, 0),
+    [EDS__SM_EVENT__EXIT] = EDS_EVT__INITIALIZER(EDS__SM_EVENT__EXIT, 0),
+    [EDS__SM_EVENT__SUPER] = EDS_EVT__INITIALIZER(EDS__SM_EVENT__SUPER, 0),
 };
 
 void

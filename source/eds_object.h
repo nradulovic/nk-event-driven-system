@@ -55,6 +55,20 @@ struct eds_object__equeue
     struct eds_object__queue queue;
 };
 
+/**
+ * @brief       Virtual timer structure
+ *
+ * @note        All elements of this structure are private members. This implementation detail is
+ *              only exposed so the structure can be allocated.
+ */
+struct eds_object__tmr
+{
+    struct eds_object__list p__list;                        ///< Linked list entry.
+    uint32_t p__n_rtick;                                    ///< Relative ticks.
+    uint32_t p__n_itick;                                    ///< Initial ticks.
+    void (*p__fn)(struct eds_object__tmr *);                ///< Callback function.
+};
+
 struct eds_object__escheduler
 {
     uint32_t p__prio_group;
