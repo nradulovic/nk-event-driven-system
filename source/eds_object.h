@@ -11,13 +11,16 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "nk_eds.h"
+/* Include port specific type definitions */
 #include "eds_port/eds_port_definition.h"
+
+/* Include NK EDS API integral types */
+#include "eds.h"
 
 struct eds_object__vector
 {
-    size_t p__length;
-    size_t p__size;
+    uint32_t p__n_entries;
+    uint32_t p__n_size;
     size_t p__item_size;
     void *p__entries;
 };
@@ -38,12 +41,18 @@ struct eds_object__mem
     size_t p__max_size;
 };
 
+struct eds_object__queue
+{
+    uint32_t p__head;
+    uint32_t p__tail;
+    uint32_t p__n_entries;
+    uint32_t p__n_free;
+    void **p__storage;
+};
+
 struct eds_object__equeue
 {
-    uint32_t head;
-    uint32_t tail;
-    uint32_t size;
-    struct eds_object__event *storage;
+    struct eds_object__queue queue;
 };
 
 struct eds_object__escheduler
@@ -52,13 +61,13 @@ struct eds_object__escheduler
     struct eds_object__list p__prio_groups[32];
 };
 
-struct eds_object__escheduler_node
+struct eds_object__etask
 {
     struct eds_object__list p__entry;
-    nk_eds_epa__prio p__prio;
+    uint_fast8_t p__prio;
 };
 
-struct eds_object__event
+struct eds_object__evt
 {
     uint32_t p__id;
     size_t p__size;
@@ -66,17 +75,23 @@ struct eds_object__event
     uint32_t p__ref_count;
 };
 
-struct eds_object__sm
+typedef eds__sm_action eds_object__smp_action;
+/**
+ * @brief       SMP state function type
+ */
+typedef eds__sm_state eds_object__smp_state;
+
+struct eds_object__smp
 {
-    nk_eds_sm__state_fn *p__current;
+    eds_object__smp_state *p__state;
     void *p__workspace;
 };
 
 struct eds_object__epa
 {
-    struct eds_object__sm p__sm;
+    struct eds_object__smp p__sm;
     struct eds_object__equeue p__equeue;
-    struct eds_object__escheduler_node p__node;
+    struct eds_object__etask p__etask;
     struct eds_object__mem *p__mem;
     struct eds_object__epn *p__epn;
     const char *p__name;

@@ -25,6 +25,7 @@
 #define EDS_CORE__ERROR__NO_MEMORY          0x2
 #define EDS_CORE__ERROR__NO_PERMISSION      0x3
 #define EDS_CORE__ERROR__IN_USE             0x4
+#define EDS_CORE__ERROR__BAD_STATE          0x5
 
 typedef uint_fast8_t eds_core__error;
 
@@ -79,62 +80,107 @@ eds_core__list__is_empty(const struct eds_object__list *self)
 }
 
 void
-eds_core__escheduler__init(struct eds_object__escheduler *escheduler);
+eds_core__escheduler__init(struct eds_object__escheduler *self);
 
 void
-eds_core__escheduler__node_init(struct eds_object__escheduler_node *node, uint_fast8_t prio);
+eds_core__etask_init(struct eds_object__etask *self, uint_fast8_t prio);
 
 void
-eds_core__escheduler__ready(struct eds_object__escheduler *escheduler,
-    struct eds_object__escheduler_node *node);
+eds_core__escheduler__ready(struct eds_object__escheduler *self,
+    struct eds_object__etask *task);
 
 void
-eds_core__escheduler__block(struct eds_object__escheduler *escheduler,
-    struct eds_object__escheduler_node *node);
+eds_core__escheduler__block(struct eds_object__escheduler *self,
+    struct eds_object__etask *task);
 
 
 #define EDS_CORE__VECTOR__INITIALIZER(entries)                                                  \
     {                                                                                           \
         .p__entries = (entries),                                                                \
         .p__item_size = sizeof((entries)[0]),                                                   \
-        .p__length = 0u,                                                                        \
-        .p__size = EDS_CORE__ARRAY_SIZE(entries),                                               \
+        .p__n_entries = 0u,                                                                      \
+        .p__n_size = EDS_CORE__ARRAY_SIZE(entries),                                             \
     }
 
 void
-eds_core__vector__init(struct eds_object__vector *vector,
+eds_core__vector_init(struct eds_object__vector *self,
     void *entries,
     size_t item_size,
     size_t size);
 
 inline size_t
-eds_core__vector__length(const struct eds_object__vector * vector)
+eds_core__vector_n_entries(const struct eds_object__vector * self)
 {
-    return vector->p__length;
+    return self->p__n_entries;
 }
 
 inline size_t
-eds_core__vector__size(const struct eds_object__vector * vector)
+eds_core__vector_n_size(const struct eds_object__vector * self)
 {
-    return vector->p__size;
+    return self->p__n_size;
 }
 
 inline bool
-eds_core__vector__is_full(const struct eds_object__vector * vector)
+eds_core__vector_is_full(const struct eds_object__vector * self)
 {
-    return (vector->p__length == vector->p__size);
+    return (self->p__n_entries == self->p__n_size);
 }
 
 inline void *
-eds_core__vector__peek(const struct eds_object__vector * vector, uint32_t index)
+eds_core__vector_peek(const struct eds_object__vector * self, uint32_t index)
 {
-    return (char *)vector->p__entries + (vector->p__item_size * index);
+    return (char *)self->p__entries + (self->p__item_size * index);
 }
 
 void
-eds_core__vector__insert(struct eds_object__vector *vector, uint32_t index, const void * entry);
+eds_core__vector_insert(struct eds_object__vector *self, uint32_t index, const void * entry);
 
 void
-eds_core__vector__remove(struct eds_object__vector *vector, uint32_t index);
+eds_core__vector_remove(struct eds_object__vector *self, uint32_t index);
+
+void
+eds_core__queue_init(struct eds_object__queue * self, uint32_t n_entries, void * storage);
+
+void
+eds_core__queue_term(struct eds_object__queue * self);
+
+void
+eds_core__queue_put_fifo(struct eds_object__queue * self, void * item);
+
+void
+eds_core__queue_put_lifo(struct eds_object__queue * self, void * item);
+
+void *
+eds_core__queue_get(struct eds_object__queue *self);
+
+void *
+eds_core__queue_head(const struct eds_object__queue * self);
+
+void *
+eds_core__queue_tail(const struct eds_object__queue * self);
+
+inline uint32_t
+eds_core__queue_n_entries(const struct eds_object__queue * self)
+{
+    return self->p__n_entries;
+}
+
+inline uint32_t
+eds_core__queue_n_free(const struct eds_object__queue * self)
+{
+    return self->p__n_free;
+}
+
+inline bool
+eds_core__queue_is_empty(const struct eds_object__queue * self)
+{
+    return self->p__n_free == self->p__n_entries;
+}
+
+inline bool
+eds_core__queue_is_full(const struct eds_object__queue *self)
+{
+    return self->p__n_free == 0u;
+}
 
 #endif /* NEON_KIT_GENERIC_SOURCE_NK_EDS_CORE_H_ */

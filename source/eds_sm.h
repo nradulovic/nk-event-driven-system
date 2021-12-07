@@ -9,24 +9,37 @@
 #define NEON_KIT_GENERIC_SOURCE_EDS_SM_H_
 
 #include "eds_object.h"
+#include "eds_core.h"
+
+#define EDS__SM__ACTION__HANDLED            0
+#define EDS__SM__ACTION__IGNORED            1
+#define EDS__SM__ACTION__SUPER              2
+#define EDS__SM__ACTION__PUSHED_BACK        3
+#define EDS__SM__ACTION__TRANSIT            4
 
 void
-eds_sm__init(struct eds_object__sm *sm, nk_eds_sm__state_fn *initial_state, void *workspace);
+eds_smp__init(struct eds_object__smp *sm, eds_object__smp_state *initial_state, void *workspace);
 
-nk_eds_sm__action
-eds_sm__dispatch(struct eds_object__sm *sm, const struct eds_object__event *event);
+eds_core__error
+eds_smp__dispatch(struct eds_object__smp *sm, const struct eds_object__evt *event);
 
-inline nk_eds_sm__action
-eds_sm__action_handled(struct eds_object__sm *sm)
+inline eds__sm_action
+eds_smp__action_handled(struct eds_object__smp *sm)
 {
-    return EDS_SM__ACTION__HANDLED;
+    return EDS__SM__ACTION__HANDLED;
 }
 
-inline nk_eds_sm__action
-eds_sm__action_transit(struct eds_object__sm *sm, nk_eds_sm__state_fn * next_state)
+inline eds__sm_action
+eds_smp__action_ignored(struct eds_object__smp *sm)
 {
-    sm->p__current = next_state;
-    return EDS_SM__ACTION__TRANSIT;
+    return EDS__SM__ACTION__IGNORED;
+}
+
+inline eds__sm_action
+eds_smp__action_transit(struct eds_object__smp *sm, eds_object__smp_state * next_state)
+{
+    sm->p__state = next_state;
+    return EDS__SM__ACTION__TRANSIT;
 }
 
 #endif /* NEON_KIT_GENERIC_SOURCE_EDS_SM_H_ */

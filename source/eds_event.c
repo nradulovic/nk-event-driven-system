@@ -9,16 +9,16 @@
 size_t
 eds_event__calculate_bundle_size(size_t event_data_size)
 {
-    return sizeof(struct eds_object__event) + eds_port__align_up(event_data_size);
+    return sizeof(struct eds_object__evt) + eds_port__align_up(event_data_size);
 }
 
-eds_event__error
+eds_core__error
 eds_event__allocate(uint32_t event_id,
     size_t event_data_size,
-    struct eds_object__event ** event)
+    struct eds_object__evt ** event)
 {
     struct eds_object__mem * mem;
-    struct eds_object__event * l_event;
+    struct eds_object__evt * l_event;
     size_t event_size;
 
     event_size = eds_event__calculate_bundle_size(event_data_size);
@@ -35,10 +35,10 @@ eds_event__allocate(uint32_t event_id,
     return EDS_CORE__ERROR__NONE;
 }
 
-eds_event__error
-eds_event__deallocate(const struct eds_object__event * event)
+eds_core__error
+eds_event__deallocate(const struct eds_object__evt * event)
 {
-    struct eds_object__event * d_event;
+    struct eds_object__evt * d_event;
 
     d_event = eds_event__to_dynamic(event);
     if (d_event == NULL)
@@ -55,7 +55,7 @@ eds_event__deallocate(const struct eds_object__event * event)
 }
 
 void
-eds_event__init(struct eds_object__event *event,
+eds_event__init(struct eds_object__evt *event,
     uint32_t event_id,
     size_t event_data_size,
     struct eds_object__mem *mem)
@@ -67,7 +67,7 @@ eds_event__init(struct eds_object__event *event,
 }
 
 void
-eds_event__term(struct eds_object__event *d_event)
+eds_event__term(struct eds_object__evt *d_event)
 {
     d_event->p__id = EDS__EVENT__NULL;
     d_event->p__size = 0u;
@@ -76,52 +76,52 @@ eds_event__term(struct eds_object__event *d_event)
 }
 
 extern inline void
-eds_event__ref_up(const struct eds_object__event *event);
+eds_event__ref_up(const struct eds_object__evt *event);
 
 extern inline void
-eds_event__ref_down(struct eds_object__event *event);
+eds_event__ref_down(struct eds_object__evt *event);
 
 extern inline bool
-eds_event__is_in_use(const struct eds_object__event *event);
+eds_event__is_in_use(const struct eds_object__evt *event);
 
 extern inline bool
-eds_event__is_dynamic(const struct eds_object__event *event);
+eds_event__is_dynamic(const struct eds_object__evt *event);
 
 extern inline struct eds_object__mem*
-eds_event__mem(const struct eds_object__event *event);
+eds_event__mem(const struct eds_object__evt *event);
 
-nk_eds_error
-nk_eds_event__create(uint32_t event_id, size_t event_data_size, nk_eds_event **event)
+eds__error
+eds__event_create(uint32_t event_id, size_t event_data_size, eds__event **event)
 {
-    struct eds_object__event *l_event;
-    eds_event__error core_error;
+    struct eds_object__evt *l_event;
+    eds_core__error core_error;
 
     if ((event_id == 0) || (event == NULL)) {
-        return NK_EDS_ERROR__INVLD_ARGUMENT;
+        return EDS__ERROR_INVALID_ARGUMENT;
     }
     core_error = eds_event__allocate(event_id, event_data_size, &l_event);
     switch (core_error) {
         case EDS_CORE__ERROR__NO_RESOURCE:
-            return NK_EDS_ERROR__NO_RESOURCE;
+            return EDS__ERROR_NO_RESOURCE;
         case EDS_CORE__ERROR__NO_MEMORY:
-            return NK_EDS_ERROR__NO_MEMORY;
+            return EDS__ERROR_NO_MEMORY;
         default:
             break;
     }
     *event = l_event;
-    return NK_EDS_ERROR__NONE;
+    return EDS__ERROR_NONE;
 }
 
-nk_eds_error
-nk_eds_event__cancel(nk_eds_event *event)
+eds__error
+eds__event_cancel(eds__event *event)
 {
     struct eds_port__critical critical;
 
     if (event == NULL) {
-        return NK_EDS_ERROR__INVLD_ARGUMENT;
+        return EDS__ERROR_INVALID_ARGUMENT;
     }
     if (event->p__mem == NULL) {
-        return NK_EDS_ERROR__NO_PERMISSION;
+        return EDS__ERROR_NO_PERMISSION;
     }
     eds_port__critical__lock(&critical);
     if (eds_event__is_in_use(event)) {
@@ -131,29 +131,29 @@ nk_eds_event__cancel(nk_eds_event *event)
     }
     eds_port__critical__unlock(&critical);
 
-    return NK_EDS_ERROR__NONE;
+    return EDS__ERROR_NONE;
 }
 
-nk_eds_error
-nk_eds_event__init(nk_eds_event *event, uint32_t event_id, size_t event_data_size)
+eds__error
+eds__event_init(eds__event *event, uint32_t event_id, size_t event_data_size)
 {
     if ((event_id == 0) || (event == NULL)) {
-        return NK_EDS_ERROR__INVLD_ARGUMENT;
+        return EDS__ERROR_INVALID_ARGUMENT;
     }
     eds_event__init(event, event_id, event_data_size, NULL);
 
-    return NK_EDS_ERROR__NONE;
+    return EDS__ERROR_NONE;
 }
 
 uint32_t
-nk_eds_event__id(const nk_eds_event *event)
+eds__event_id(const eds__event *event)
 {
     assert(event != NULL);
     return event->p__id;
 }
 
 void*
-nk_eds_event__data(nk_eds_event *event)
+eds__event_data(eds__event *event)
 {
     assert(event != NULL);
     if (event->p__size != 0u) {
@@ -164,7 +164,7 @@ nk_eds_event__data(nk_eds_event *event)
 }
 
 size_t
-nk_eds_event__size(const nk_eds_event *event)
+eds__event_size(const eds__event *event)
 {
     assert(event != NULL);
     return event->p__size;
