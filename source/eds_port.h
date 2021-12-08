@@ -14,15 +14,15 @@
 
 struct eds_port__sleep;
 
-void eds_port__sleep__init(struct eds_port__sleep * sleep);
+void eds_port__sleep_init(struct eds_port__sleep * sleep);
 void eds_port__sleep__wait(struct eds_port__sleep * sleep);
 void eds_port__sleep__signal(struct eds_port__sleep * sleep);
 
 struct eds_port__critical;
 
 void eds_port__critical__init(struct eds_port__critical * critical);
-void eds_port__critical__lock(struct eds_port__critical * critical);
-void eds_port__critical__unlock(struct eds_port__critical * critical);
+void eds_port__critical_lock(struct eds_port__critical * critical);
+void eds_port__critical_unlock(struct eds_port__critical * critical);
 
 size_t eds_port__align_up(size_t non_aligned_value);
 

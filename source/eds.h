@@ -32,6 +32,8 @@ typedef struct eds_object__epn eds__network;
 #define EDS__DEFAULT_EPA_PRIO               16u
 #define EDS__DEFAULT_EPA_NAME               "nameless"
 
+#define EDS__DEFAULT_EPN_NAME               "nameless"
+
 /** @} *//**
  * @defgroup    errors Error code handling
  *

@@ -35,7 +35,7 @@ eds_evt__allocate(uint32_t event_id,
     return EDS_CORE__ERROR__NONE;
 }
 
-eds_core__error
+void
 eds_evt__deallocate(const struct eds_object__evt * event)
 {
     struct eds_object__evt * d_event;
@@ -43,15 +43,13 @@ eds_evt__deallocate(const struct eds_object__evt * event)
     d_event = eds_evt__to_dynamic(event);
     if (d_event == NULL)
     {
-        return EDS_CORE__ERROR__NO_PERMISSION;
+        eds_evt__ref_down(d_event);
+        if (eds_evt__is_in_use(d_event) == false)
+        {
+            eds_evt__term(d_event);
+            eds_mem__deallocate_to(eds_evt__mem(d_event), d_event);
+        }
     }
-    eds_evt__ref_down(d_event);
-    if (eds_evt__is_in_use(d_event) == false)
-    {
-        eds_evt__term(d_event);
-        eds_mem__deallocate_to(eds_evt__mem(d_event), d_event);
-    }
-    return EDS_CORE__ERROR__NONE;
 }
 
 void
@@ -123,13 +121,13 @@ eds__event_cancel(eds__event *event)
     if (event->p__mem == NULL) {
         return EDS__ERROR_NO_PERMISSION;
     }
-    eds_port__critical__lock(&critical);
+    eds_port__critical_lock(&critical);
     if (eds_evt__is_in_use(event)) {
         event->p__id = EDS__EVENT__NULL;
     } else {
         eds_mem__deallocate_to(event->p__mem, event);
     }
-    eds_port__critical__unlock(&critical);
+    eds_port__critical_unlock(&critical);
 
     return EDS__ERROR_NONE;
 }

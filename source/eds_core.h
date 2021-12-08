@@ -96,26 +96,26 @@ typedef uint_fast8_t eds_core__error;
     current = iterator, iterator = eds_core__list_next(iterator)
 
 inline void
-eds_core__list__init(struct eds_object__list *self)
+eds_core__list_init(struct eds_object__list *self)
 {
     self->p__next = self;
     self->p__prev = self;
 }
 
 inline struct eds_object__list*
-eds_core__list__next(struct eds_object__list *self)
+eds_core__list_next(struct eds_object__list *self)
 {
     return self->p__next;
 }
 
 inline struct eds_object__list*
-eds_core__list__prev(struct eds_object__list *self)
+eds_core__list_prev(struct eds_object__list *self)
 {
     return self->p__prev;
 }
 
 inline void
-eds_core__list__add_after(struct eds_object__list *self, struct eds_object__list *after)
+eds_core__list_add_after(struct eds_object__list *self, struct eds_object__list *after)
 {
     self->p__next = after->p__next;
     self->p__prev = after;
@@ -124,7 +124,7 @@ eds_core__list__add_after(struct eds_object__list *self, struct eds_object__list
 }
 
 inline void
-eds_core__list__add_before(struct eds_object__list *self, struct eds_object__list *before)
+eds_core__list_add_before(struct eds_object__list *self, struct eds_object__list *before)
 {
     self->p__next = before;
     self->p__prev = before->p__prev;
@@ -133,23 +133,35 @@ eds_core__list__add_before(struct eds_object__list *self, struct eds_object__lis
 }
 
 inline void
-eds_core__list__remove(struct eds_object__list *self)
+eds_core__list_remove(struct eds_object__list *self)
 {
     self->p__next->p__prev = self->p__prev;
     self->p__prev->p__next = self->p__next;
 }
 
 inline bool
-eds_core__list__is_empty(const struct eds_object__list *self)
+eds_core__list_is_empty(const struct eds_object__list *self)
 {
     return !!(self->p__next == self);
 }
 
 void
-eds_core__escheduler__init(struct eds_object__escheduler *self);
+eds_core__escheduler_init(struct eds_object__escheduler *self);
+
+void
+eds_core__escheduler_term(struct eds_object__escheduler *self);
+
+void
+eds_core__escheduler_export(struct eds_object__escheduler * self, struct eds_object__list * list);
 
 void
 eds_core__etask_init(struct eds_object__etask *self, uint_fast8_t prio);
+
+void
+eds_core__escheduler_start(struct eds_object__escheduler *self);
+
+void
+eds_core__escheduler_stop(struct eds_object__escheduler *self);
 
 void
 eds_core__escheduler__ready(struct eds_object__escheduler *self,

@@ -20,7 +20,10 @@ eds_tmr__cancel(struct eds_object__tmr *tmr);
 bool
 eds_tmr__is_running(const struct eds_object__tmr *tmr);
 
+bool
+eds_tmr__are_timers_pending(void);
+
 void
-eds_tmr__process_tick(void);
+eds_tmr__process_timers(void);
 
 #endif /* NEON_KIT_EDS_SOURCE_EDS_TMR_H_ */

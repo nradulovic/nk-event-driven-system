@@ -103,6 +103,7 @@ struct eds_object__smp
 
 struct eds_object__epa
 {
+    struct eds_object__list p__list;
     struct eds_object__smp p__sm;
     struct eds_object__equeue p__equeue;
     struct eds_object__etask p__etask;
@@ -115,6 +116,8 @@ struct eds_object__epn
 {
     struct eds_object__escheduler p__scheduler;
     struct eds_port__sleep p__sleep;
+    struct eds_object__mem *p__mem;
+    const char *p__name;
 };
 
 #endif /* NEON_KIT_GENERIC_SOURCE_NK_EDS_OBJECT_H_ */

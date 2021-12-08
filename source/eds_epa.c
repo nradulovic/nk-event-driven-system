@@ -19,6 +19,12 @@ eds_epa__dispatch(struct eds_object__epa *agent)
     return EDS__SM__ACTION__HANDLED;
 }
 
+void
+eds_epa__deallocate(struct eds_object__epa *epa)
+{
+
+}
+
 eds__error
 eds__agent_create(eds__sm_state *sm_initial_state,
     void *sm_workspace,
@@ -56,9 +62,9 @@ eds__agent_create(eds__sm_state *sm_initial_state,
         if (mem == NULL) {
             return EDS__ERROR_NO_RESOURCE;
         }
-        eds_port__critical__lock(&critical);
+        eds_port__critical_lock(&critical);
         epa = eds_mem__allocate_from(mem, sm_size_bytes);
-        eds_port__critical__unlock(&critical);
+        eds_port__critical_unlock(&critical);
         if (epa == NULL) {
             return EDS__ERROR_NO_MEMORY;
         }
@@ -88,7 +94,7 @@ eds__agent_delete(eds__agent *agent)
     if (agent == NULL) {
         return EDS__ERROR_INVALID_ARGUMENT;
     }
-    eds_port__critical__lock(&critical);
+    eds_port__critical_lock(&critical);
     /* Clear the queue */
     while (!eds_equeue__is_empty(&agent->p__equeue)) {
         const struct eds_object__evt *event;
@@ -103,7 +109,7 @@ eds__agent_delete(eds__agent *agent)
     if (agent->p__mem != NULL) {
         eds_mem__deallocate_to(agent->p__mem, agent);
     }
-    eds_port__critical__unlock(&critical);
+    eds_port__critical_unlock(&critical);
 
     return EDS__ERROR_NONE;
 }
@@ -138,11 +144,11 @@ eds__agent_send(eds__agent *agent, const eds__event *event)
     if (agent->p__epn == NULL) {
         return EDS__ERROR_NO_PERMISSION;
     }
-    eds_port__critical__lock(&critical);
+    eds_port__critical_lock(&critical);
     eds_evt__ref_up(event);
     eds_equeue__push_back(&agent->p__equeue, event);
     eds_core__escheduler__ready(&agent->p__epn->p__scheduler, &agent->p__etask);
-    eds_port__critical__unlock(&critical);
+    eds_port__critical_unlock(&critical);
     return EDS__ERROR_NONE;
 }
 

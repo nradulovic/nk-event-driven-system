@@ -16,4 +16,7 @@ struct eds_object__epn;
 void
 eds_epa__set_epn(struct eds_object__epa * epa, struct eds_object__epn * epn);
 
+void
+eds_epa__deallocate(struct eds_object__epa *epa);
+
 #endif /* NEON_KIT_GENERIC_SOURCE_EDS_EPA_H_ */

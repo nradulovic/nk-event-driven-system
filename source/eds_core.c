@@ -4,25 +4,25 @@
 #include <string.h>
 
 extern inline void
-eds_core__list__init(struct eds_object__list *self);
+eds_core__list_init(struct eds_object__list *self);
 
 extern inline struct eds_object__list *
-eds_core__list__next(struct eds_object__list *self);
+eds_core__list_next(struct eds_object__list *self);
 
 extern inline struct eds_object__list *
-eds_core__list__prev(struct eds_object__list *self);
+eds_core__list_prev(struct eds_object__list *self);
 
 extern inline void
-eds_core__list__add_after(struct eds_object__list *self, struct eds_object__list *after);
+eds_core__list_add_after(struct eds_object__list *self, struct eds_object__list *after);
 
 extern inline void
-eds_core__list__add_before(struct eds_object__list *self, struct eds_object__list *before);
+eds_core__list_add_before(struct eds_object__list *self, struct eds_object__list *before);
 
 extern inline void
-eds_core__list__remove(struct eds_object__list *self);
+eds_core__list_remove(struct eds_object__list *self);
 
 extern inline bool
-eds_core__list__is_empty(const struct eds_object__list *self);
+eds_core__list_is_empty(const struct eds_object__list *self);
 
 void
 eds_core__vector_init(struct eds_object__vector *self,
