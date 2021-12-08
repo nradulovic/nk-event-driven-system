@@ -79,35 +79,34 @@ void
 eds_tmr__process_tick(void)
 {
     struct eds_object__list * current;
-    struct eds_object__tmr * current_tmr;
+    struct eds_object__list * iterator;
     struct eds_object__list elapsed = EDS_CORE__LIST_INITIALIZER(&elapsed);
 
-    if (!eds_core__list__is_empty(&g__active_timers)) {
-        current = eds_core__list__next(&g__active_timers);
-        current_tmr = EDS_CORE__CONTAINER_OF(current, struct eds_object__tmr, p__list);
-        current_tmr->p__n_rtick--;
+    current = eds_core__list__next(&g__active_timers);
+    /* Decrement the first timer relative tick */
+    if (current != &g__active_timers) {
+        EDS_CORE__CONTAINER_OF(current, struct eds_object__tmr, p__list)->p__n_rtick--;
+        /* Move all zero relative timers to local elapsed list */
+        for (EDS_CORE__LIST_EACH_SAFE(current, iterator, &g__active_timers)) {
+            struct eds_object__tmr * current_tmr;
 
-        while (current != &g__active_timers) {
+            current_tmr = EDS_CORE__CONTAINER_OF(current, struct eds_object__tmr, p__list);
             if (current_tmr->p__n_rtick != 0u) {
                 break;
             }
             eds_core__list__remove(current);
             eds_core__list__add_after(current, &elapsed);
-            current = eds_core__list__next(current);
-            current_tmr = EDS_CORE__CONTAINER_OF(current, struct eds_object__tmr, p__list);
         }
-    }
-    current = eds_core__list__next(&elapsed);
-    while (current != &elapsed) {
-        struct eds_object__tmr * elapsed_tmr;
-        current_tmr = EDS_CORE__CONTAINER_OF(current, struct eds_object__tmr, p__list);
+        /* Execute all elapsed timers callbacks */
+        for (EDS_CORE__LIST_EACH(current, &elapsed)) {
+            struct eds_object__tmr * current_tmr;
 
-        if (current_tmr->p__n_itick != 0u) {
-            current_tmr->p__n_rtick = current_tmr->p__n_itick;
-            tmr_insert(current_tmr);
+            current_tmr = EDS_CORE__CONTAINER_OF(current, struct eds_object__tmr, p__list);
+            if (current_tmr->p__n_itick != 0u) {
+                current_tmr->p__n_rtick = current_tmr->p__n_itick;
+                tmr_insert(current_tmr);
+            }
+            current_tmr->p__fn(current_tmr);
         }
-        current_tmr->p__fn(current_tmr);
-        eds_core__list__remove(current);
-        current = eds_core__list__next(current);
     }
 }

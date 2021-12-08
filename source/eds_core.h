@@ -43,6 +43,58 @@ typedef uint_fast8_t eds_core__error;
         .p__prev = (list)                                                                       \
     }
 
+/**
+ * @brief      Construct for @a FOR loop to iterate over each element in a list.
+ *
+ *  @code
+ *  struct eds_object__list * current;
+ *  struct eds_object__list * sentinel = &g_list_sentinel.list;
+ *
+ *  for (EDS_CORE__LIST_EACH(current, sentinel)) {
+ *      ... do something with @a current (excluding remove)
+ *  }
+ *  @endcode
+ */
+#define EDS_CORE__LIST_EACH(current, sentinel)                                                  \
+    current = eds_core__list_next(sentinel);                                                    \
+    current != (sentinel);                                                                      \
+    current = eds_core__list_next(current)
+
+/** @brief      Construct for FOR loop to iterate over each element in list
+ *              backwards.
+ *
+ *  @code
+ *  struct eds_object__list * current;
+ *  struct eds_object__list * sentinel = &g_list_sentinel.list;
+ *
+ *  for (EDS_CORE__LIST_BACKWARDS(current, sentinel)) {
+ *      ... do something with current (excluding remove)
+ *  }
+ *  @endcode
+ */
+#define EDS_CORE__LIST_BACKWARDS(current, sentinel)                                             \
+    current = eds_core__list_prev(sentinel);                                                    \
+    current != (sentinel);                                                                      \
+    current = eds_core__list_prev(current)
+
+/** @brief      Construct for FOR loop to iterate over each element in list
+ *              which is safe against element removal.
+ *
+ *  @code
+ *  struct eds_object__list * current;
+ *  struct eds_object__list * iterator;
+ *  struct eds_object__list * sentinel = &g_list_sentinel.list;
+ *
+ *  for (nlist_dll_EACH_SAFE(current, iterator, sentinel)) {
+ *      ... do something with current (including remove)
+ *  }
+ *  @endcode
+ */
+#define EDS_CORE__LIST_EACH_SAFE(current, iterator, sentinel)                                   \
+    current = eds_core__list_next(sentinel), iterator = eds_core__list_next(current);           \
+    current != (sentinel);                                                                      \
+    current = iterator, iterator = eds_core__list_next(iterator)
+
 inline void
 eds_core__list__init(struct eds_object__list *self)
 {
