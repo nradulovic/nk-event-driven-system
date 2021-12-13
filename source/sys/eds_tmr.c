@@ -83,6 +83,7 @@ void
 eds_tmr__init(struct eds_object__tmr *tmr)
 {
     eds_core__list_init(&tmr->p__active);
+    eds_core__list_init(&tmr->p__pending);
 }
 
 bool

@@ -17,6 +17,8 @@ eds_epa__designation(const struct eds_object__epa *epa);
 extern inline bool
 eds_epa__is_designated(const struct eds_object__epa *epa);
 
+#include "configuration.h"
+
 eds__error
 eds_epa__create(eds__sm_state *sm_initial_state,
     void *sm_workspace,
@@ -52,31 +54,36 @@ eds_epa__create(eds__sm_state *sm_initial_state,
         l_epa = attr->static_instance;
         equeue_storage = attr->static_equeue_storage;
     }
+    LOG(W, "Initialize EPA: %s, %d, %d", attr->name, attr->equeue_entries, attr->prio);
     eds_smp__init(&l_epa->p__smp, sm_initial_state, sm_workspace);
     eds_equeue__init(&l_epa->p__equeue, attr->equeue_entries, equeue_storage);
     eds_core__tasker_node_init(&l_epa->p__task, attr->prio);
     l_epa->p__mem = mem;
     l_epa->p__name = attr->name != NULL ? attr->name : EDS__DEFAULT_EPA_NAME;
+    l_epa->p__epn = NULL;
     *epa = l_epa;
     return EDS__ERROR_NONE;
 }
 
-eds_core__error
+eds__error
 eds_epa__send(struct eds_object__epa *epa, const struct eds_object__evt *evt)
 {
     eds_core__error error;
 
-    if (eds_equeue__is_full(&epa->p__equeue)) {
+    if (eds_equeue__is_full(&epa->p__equeue) == false) {
         eds_evt__ref_up(evt);
         eds_equeue__push_back(&epa->p__equeue, evt);
+        assert(eds_epa__designation(epa));
         eds_core__tasker_run(eds_epn__tasker(eds_epa__designation(epa)), &epa->p__task);
         eds_epn__sleep_wake_up(eds_epa__designation(epa));
-        error = EDS_CORE__ERROR_NONE;
+        error = EDS__ERROR_NONE;
     } else {
-        error = EDS_CORE__ERROR__NO_SPACE;
+        error = EDS__ERROR_NO_SPACE;
     }
     return error;
 }
+
+#include "configuration.h"
 
 eds_core__error
 eds_epa__dispatch(struct eds_object__epa *epa, struct eds_port__critical *critical)
@@ -89,6 +96,7 @@ eds_epa__dispatch(struct eds_object__epa *epa, struct eds_port__critical *critic
         eds_core__tasker_pending_sleep(eds_epn__tasker(eds_epa__designation(epa)), &epa->p__task);
     }
     eds_port__critical_unlock(critical);
+    LOG(W, "EPA: processing %s", epa->p__name);
     core_error = eds_smp__dispatch(&epa->p__smp, evt);
     eds_port__critical_lock(critical);
     eds_evt__deallocate(evt);

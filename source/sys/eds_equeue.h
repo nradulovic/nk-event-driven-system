@@ -55,7 +55,7 @@ eds_equeue__pop(struct eds_object__equeue *self)
 inline bool
 eds_equeue__is_empty(const struct eds_object__equeue *self)
 {
-    return eds_core__queue_is_full(&self->queue);
+    return eds_core__queue_is_empty(&self->queue);
 }
 
 inline bool

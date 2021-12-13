@@ -41,7 +41,7 @@ eds_evt__deallocate(const struct eds_object__evt * event)
     struct eds_object__evt * d_event;
 
     d_event = eds_evt__to_dynamic(event);
-    if (d_event == NULL)
+    if (d_event != NULL)
     {
         eds_evt__ref_down(d_event);
         if (eds_evt__is_in_use(d_event) == false)

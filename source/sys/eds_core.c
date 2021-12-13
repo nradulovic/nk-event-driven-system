@@ -198,7 +198,9 @@ eds_core__tasker_init(struct eds_object__tasker *self)
 {
 
     self->p__pending_group = 0u;
-    memset(self->p__pending_groups, 0, sizeof(self->p__pending_groups));
+    for (uint32_t i = 0u; i < EDS_CORE__ARRAY_SIZE(self->p__pending_groups); i++) {
+        eds_core__list_init(&self->p__pending_groups[i]);
+    }
     self->current = NULL;
 }
 
@@ -214,8 +216,12 @@ eds_core__tasker_highest(const struct eds_object__tasker *self)
     uint_fast8_t highest_prio;
     const struct eds_object__list *highest_node;
 
-    highest_prio = eds_port__ffs(self->p__pending_group);
-    highest_node = eds_core__list_next(&self->p__pending_groups[highest_prio]);
-    return EDS_CORE__CONTAINER_OF(highest_node, struct eds_object__tasker_node, p__list);
+    if (self->p__pending_group != 0u) {
+        highest_prio = eds_port__ffs(self->p__pending_group);
+        highest_node = eds_core__list_next(&self->p__pending_groups[highest_prio]);
+        return EDS_CORE__CONTAINER_OF(highest_node, struct eds_object__tasker_node, p__list);
+    } else {
+        return NULL;
+    }
 }
 

@@ -39,7 +39,7 @@ eds_epa__create(eds__sm_state *sm_initial_state,
     const struct eds__agent_attr *attr,
     struct eds_object__epa **epa);
 
-eds_core__error
+eds__error
 eds_epa__send(struct eds_object__epa *epa, const struct eds_object__evt *evt);
 
 eds_core__error

@@ -4,7 +4,7 @@
 #include "sys/eds_core.h"
 #include "eds_port.h"
 
-static const struct eds_object__evt g__smp_events[] =
+const struct eds_object__evt g__smp_events[] =
 {
     [EDS__SM_EVENT__INIT] = EDS_EVT__INITIALIZER(EDS__SM_EVENT__INIT, 0),
     [EDS__SM_EVENT__ENTER] = EDS_EVT__INITIALIZER(EDS__SM_EVENT__ENTER, 0),
@@ -22,12 +22,15 @@ eds_smp__init(struct eds_object__smp * sm, eds_object__smp_state * initial_state
 #define SM__ACTION__HANDLED_OR_IGNORED(action)                                                  \
     ((action) < EDS__SM__ACTION__SUPER)
 
+#include "configuration.h"
+
 eds_core__error
 eds_smp__dispatch(struct eds_object__smp *sm, const struct eds_object__evt *event)
 {
     eds__sm_action action;
     eds__sm_state * current_state;
 
+    LOG(W, "SMP: %p %p", sm, event);
     current_state = sm->p__state;
 
     action = current_state(sm, sm->p__workspace, event);

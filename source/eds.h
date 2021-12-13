@@ -366,7 +366,7 @@ struct eds__epn_attr
 };
 
 eds__error
-eds__epn_create(const struct eds__epn_attr *atrr, eds__network **epn);
+eds__network_create(const struct eds__epn_attr *atrr, eds__network **epn);
 
 eds__error
 eds__epn_delete(eds__network *epn);

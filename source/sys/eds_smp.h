@@ -17,6 +17,8 @@
 #define EDS__SM__ACTION__PUSHED_BACK        3
 #define EDS__SM__ACTION__TRANSIT            4
 
+extern const struct eds_object__evt g__smp_events[];
+
 void
 eds_smp__init(struct eds_object__smp *sm, eds_object__smp_state *initial_state, void *workspace);
 

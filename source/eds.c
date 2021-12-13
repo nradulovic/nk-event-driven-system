@@ -115,6 +115,25 @@ eds__event_size(const eds__event *event)
     return event->p__size;
 }
 
+
+eds__sm_action
+eds__sm_event_handled(eds__sm *sm)
+{
+    return eds_smp__action_handled(sm);
+}
+
+eds__sm_action
+eds__sm_event_ignored(eds__sm *sm)
+{
+    return eds_smp__action_ignored(sm);
+}
+
+eds__sm_action
+eds__sm_transit_to(eds__sm *sm, eds__sm_state *new_state)
+{
+    return eds_smp__action_transit(sm, new_state);
+}
+
 eds__error
 eds__agent_create(eds__sm_state *sm_initial_state,
     void *sm_workspace,
@@ -123,8 +142,11 @@ eds__agent_create(eds__sm_state *sm_initial_state,
 {
     static const struct eds__agent_attr default_attr =
         {
-        .name = EDS__DEFAULT_EPA_NAME, .prio = EDS__DEFAULT_EPA_PRIO, .equeue_entries =
-        EDS__DEFAULT_EPA_QUEUE_ENTRIES, .static_instance = NULL, .static_equeue_storage = NULL
+            .name = EDS__DEFAULT_EPA_NAME,
+            .prio = EDS__DEFAULT_EPA_PRIO,
+            .equeue_entries = EDS__DEFAULT_EPA_QUEUE_ENTRIES,
+            .static_instance = NULL,
+            .static_equeue_storage = NULL
         };
     eds__error error;
 
@@ -344,7 +366,7 @@ eds__etimer_cancel(eds__etimer *etimer)
 }
 
 eds__error
-eds__epn_create(const struct eds__epn_attr *attr, eds__network **network)
+eds__network_create(const struct eds__epn_attr *attr, eds__network **network)
 {
     static const struct eds__epn_attr default_attr =
         {
@@ -410,14 +432,20 @@ eds__epn_delete(eds__network *epn)
 eds__error
 eds__epn_add_epa(eds__network *network, eds__agent *agent)
 {
+    struct eds_port__critical critical;
+    eds__error error;
+
     if ((network == NULL) || (agent == NULL)) {
         return EDS__ERROR_INVALID_ARGUMENT;
     }
-    if (eds_epa__is_designated(agent) == false) {
+    if (eds_epa__is_designated(agent) == true) {
         return EDS__ERROR_ALREADY_EXISTS;
     }
     eds_epa__designate(agent, network);
-    return EDS__ERROR_NONE;
+    eds_port__critical_lock(&critical);
+    error = eds_epa__send(agent, &g__smp_events[EDS__SM_EVENT__INIT]);
+    eds_port__critical_unlock(&critical);
+    return error;
 }
 
 eds__error
@@ -433,16 +461,21 @@ eds__epn_remove_epa(eds__network *network, eds__agent *agent)
     return EDS__ERROR_NONE;
 }
 
+#include "configuration.h"
+
 eds__error
 eds__epn_start(eds__network *network)
 {
     if (network == NULL) {
         return EDS__ERROR_INVALID_ARGUMENT;
     }
+    if (eds_core__tasker_highest(&network->p__tasker) == NULL) {
+        return EDS__ERROR_NOT_EXISTS;
+    }
     while (network->p__should_run) {
         struct eds_object__tasker_node *current;
         struct eds_port__critical critical;
-        eds_core__error core_error;
+        eds_core__error core_error = EDS_CORE__ERROR_NONE;
 
         eds_port__critical_lock(&critical);
         while ((current = eds_core__tasker_highest(&network->p__tasker)) != NULL) {
@@ -455,13 +488,16 @@ eds__epn_start(eds__network *network)
             }
         }
         eds_port__critical_unlock(&critical);
+        LOG(W, "EPN: Agent process error %d", core_error);
         switch (core_error) {
         case EDS_CORE__ERROR__BAD_STATE:
             return EDS__ERROR_MALFORMED_SM;
         default:
             break;
         }
+    	LOG(W, "EPN: going to sleep");
         eds_epn__sleep_wait(network);
+    	LOG(W, "EPN: wake up");
     }
     return EDS__ERROR_NONE;
 }
