@@ -9,7 +9,7 @@
 #define NEON_KIT_GENERIC_SOURCE_EDS_EVENT_H_
 
 #include "eds_object.h"
-#include "eds_core.h"
+#include "sys/eds_core.h"
 
 #include <stdint.h>
 #include <stddef.h>

@@ -9,17 +9,17 @@
 #define NEON_KIT_GENERIC_SOURCE_EDS_EQUEUE_H_
 
 #include "eds_object.h"
-#include "eds_core.h"
+#include "sys/eds_core.h"
 
-#include <stddef.h>
+#include <stdint.h>
 
 size_t
 eds_equeue__calculate_storage_size(size_t n_entries);
 
 void
 eds_equeue__init(struct eds_object__equeue *self,
-    size_t n_entries,
-    struct eds_object__evt *storage);
+    uint32_t n_entries,
+    struct eds_object__evt **storage);
 
 void
 eds_equeue__term(struct eds_object__equeue *self);

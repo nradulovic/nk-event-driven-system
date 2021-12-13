@@ -1,6 +1,6 @@
 #include "eds_evt.h"
 
-#include "eds_mem.h"
+#include "sys/eds_mem.h"
 #include "eds_port.h"
 
 #include <assert.h>
@@ -32,7 +32,7 @@ eds_evt__allocate(uint32_t event_id,
     }
     eds_evt__init(l_event, event_id, event_data_size, mem);
     *event = l_event;
-    return EDS_CORE__ERROR__NONE;
+    return EDS_CORE__ERROR_NONE;
 }
 
 void
@@ -87,83 +87,3 @@ eds_evt__is_dynamic(const struct eds_object__evt *event);
 
 extern inline struct eds_object__mem*
 eds_evt__mem(const struct eds_object__evt *event);
-
-eds__error
-eds__event_create(uint32_t event_id, size_t event_data_size, eds__event **event)
-{
-    struct eds_object__evt *l_event;
-    eds_core__error core_error;
-
-    if ((event_id == 0) || (event == NULL)) {
-        return EDS__ERROR_INVALID_ARGUMENT;
-    }
-    core_error = eds_evt__allocate(event_id, event_data_size, &l_event);
-    switch (core_error) {
-        case EDS_CORE__ERROR__NO_RESOURCE:
-            return EDS__ERROR_NO_RESOURCE;
-        case EDS_CORE__ERROR__NO_MEMORY:
-            return EDS__ERROR_NO_MEMORY;
-        default:
-            break;
-    }
-    *event = l_event;
-    return EDS__ERROR_NONE;
-}
-
-eds__error
-eds__event_cancel(eds__event *event)
-{
-    struct eds_port__critical critical;
-
-    if (event == NULL) {
-        return EDS__ERROR_INVALID_ARGUMENT;
-    }
-    if (event->p__mem == NULL) {
-        return EDS__ERROR_NO_PERMISSION;
-    }
-    eds_port__critical_lock(&critical);
-    if (eds_evt__is_in_use(event)) {
-        event->p__id = EDS__EVENT__NULL;
-    } else {
-        eds_mem__deallocate_to(event->p__mem, event);
-    }
-    eds_port__critical_unlock(&critical);
-
-    return EDS__ERROR_NONE;
-}
-
-eds__error
-eds__event_init(eds__event *event, uint32_t event_id, size_t event_data_size)
-{
-    if ((event_id == 0) || (event == NULL)) {
-        return EDS__ERROR_INVALID_ARGUMENT;
-    }
-    eds_evt__init(event, event_id, event_data_size, NULL);
-
-    return EDS__ERROR_NONE;
-}
-
-uint32_t
-eds__event_id(const eds__event *event)
-{
-    assert(event != NULL);
-    return event->p__id;
-}
-
-void*
-eds__event_data(eds__event *event)
-{
-    assert(event != NULL);
-    if (event->p__size != 0u) {
-        return event + 1u;
-    } else {
-        return NULL;
-    }
-}
-
-size_t
-eds__event_size(const eds__event *event)
-{
-    assert(event != NULL);
-    return event->p__size;
-}

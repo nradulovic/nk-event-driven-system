@@ -5,19 +5,21 @@
  *      Author: nenad
  */
 
-#include "eds_equeue.h"
+#include "sys/eds_equeue.h"
 #include "eds_port.h"
 
 size_t
 eds_equeue__calculate_storage_size(size_t n_entries)
 {
-    return eds_port__align_up(sizeof(struct eds_object__evt *)) * n_entries;
+    return eds_port__align_up(sizeof(struct eds_object__evt*)) * n_entries;
 }
 
 void
-eds_equeue__init(struct eds_object__equeue *self, size_t n_entries, struct eds_object__evt *storage)
+eds_equeue__init(struct eds_object__equeue *self,
+    uint32_t n_entries,
+    struct eds_object__evt **storage)
 {
-    eds_core__queue_init(&self->queue, n_entries, storage);
+    eds_core__queue_init(&self->queue, n_entries, (void**)storage);
 }
 
 void

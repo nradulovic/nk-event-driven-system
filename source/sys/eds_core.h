@@ -12,7 +12,6 @@
 
 #include "eds_object.h"
 
-
 /** @brief      Determines the first dimension of an array.
  *  @param      array An array : type unspecified
  *  @mseffect
@@ -26,14 +25,15 @@
  * @param       member the name of the member within the struct.
  */
 #define EDS_CORE__CONTAINER_OF(ptr, type, member)                                               \
-    ((type *)((char *)(ptr) - offsetof(type, member)))
+    ((type *)((char *)(uintptr_t)(ptr) - offsetof(type, member)))
 
-#define EDS_CORE__ERROR__NONE               0
+#define EDS_CORE__ERROR_NONE               0
 #define EDS_CORE__ERROR__NO_RESOURCE        0x1
 #define EDS_CORE__ERROR__NO_MEMORY          0x2
 #define EDS_CORE__ERROR__NO_PERMISSION      0x3
 #define EDS_CORE__ERROR__IN_USE             0x4
 #define EDS_CORE__ERROR__BAD_STATE          0x5
+#define EDS_CORE__ERROR__NO_SPACE           0x6
 
 typedef uint_fast8_t eds_core__error;
 
@@ -103,7 +103,7 @@ eds_core__list_init(struct eds_object__list *self)
 }
 
 inline struct eds_object__list*
-eds_core__list_next(struct eds_object__list *self)
+eds_core__list_next(const struct eds_object__list *self)
 {
     return self->p__next;
 }
@@ -137,6 +137,13 @@ eds_core__list_remove(struct eds_object__list *self)
 {
     self->p__next->p__prev = self->p__prev;
     self->p__prev->p__next = self->p__next;
+    /* The following `self` initialization code is necessary:
+     * - since we want to support calling this function multiple times over the same list node that
+     *   was already removed from a list.
+     * - since we want to support querying if a list is empty or not.
+     */
+    self->p__next = self;
+    self->p__prev = self;
 }
 
 inline bool
@@ -145,32 +152,11 @@ eds_core__list_is_empty(const struct eds_object__list *self)
     return !!(self->p__next == self);
 }
 
-void
-eds_core__escheduler_init(struct eds_object__escheduler *self);
-
-void
-eds_core__escheduler_term(struct eds_object__escheduler *self);
-
-void
-eds_core__escheduler_export(struct eds_object__escheduler * self, struct eds_object__list * list);
-
-void
-eds_core__etask_init(struct eds_object__etask *self, uint_fast8_t prio);
-
-void
-eds_core__escheduler_start(struct eds_object__escheduler *self);
-
-void
-eds_core__escheduler_stop(struct eds_object__escheduler *self);
-
-void
-eds_core__escheduler__ready(struct eds_object__escheduler *self,
-    struct eds_object__etask *task);
-
-void
-eds_core__escheduler__block(struct eds_object__escheduler *self,
-    struct eds_object__etask *task);
-
+inline bool
+eds_core__list_is_singular(const struct eds_object__list *self)
+{
+    return !!((self->p__next != self) && (self->p__next == self->p__prev));
+}
 
 #define EDS_CORE__VECTOR__INITIALIZER(entries)                                                  \
     {                                                                                           \
@@ -184,73 +170,73 @@ void
 eds_core__vector_init(struct eds_object__vector *self,
     void *entries,
     size_t item_size,
-    size_t size);
+    uint32_t n_size);
 
-inline size_t
-eds_core__vector_n_entries(const struct eds_object__vector * self)
+inline uint32_t
+eds_core__vector_n_entries(const struct eds_object__vector *self)
 {
     return self->p__n_entries;
 }
 
-inline size_t
-eds_core__vector_n_size(const struct eds_object__vector * self)
+inline uint32_t
+eds_core__vector_n_size(const struct eds_object__vector *self)
 {
     return self->p__n_size;
 }
 
 inline bool
-eds_core__vector_is_full(const struct eds_object__vector * self)
+eds_core__vector_is_full(const struct eds_object__vector *self)
 {
     return (self->p__n_entries == self->p__n_size);
 }
 
-inline void *
-eds_core__vector_peek(const struct eds_object__vector * self, uint32_t index)
+inline void*
+eds_core__vector_peek(const struct eds_object__vector *self, uint32_t index)
 {
-    return (char *)self->p__entries + (self->p__item_size * index);
+    return (char*) self->p__entries + (self->p__item_size * index);
 }
 
 void
-eds_core__vector_insert(struct eds_object__vector *self, uint32_t index, const void * entry);
+eds_core__vector_insert(struct eds_object__vector *self, uint32_t index, const void *entry);
 
 void
 eds_core__vector_remove(struct eds_object__vector *self, uint32_t index);
 
 void
-eds_core__queue_init(struct eds_object__queue * self, uint32_t n_entries, void * storage);
+eds_core__queue_init(struct eds_object__queue *self, uint32_t n_entries, void **storage);
 
 void
-eds_core__queue_term(struct eds_object__queue * self);
+eds_core__queue_term(struct eds_object__queue *self);
 
 void
-eds_core__queue_put_fifo(struct eds_object__queue * self, void * item);
+eds_core__queue_put_fifo(struct eds_object__queue *self, void *item);
 
 void
-eds_core__queue_put_lifo(struct eds_object__queue * self, void * item);
+eds_core__queue_put_lifo(struct eds_object__queue *self, void *item);
 
-void *
+void*
 eds_core__queue_get(struct eds_object__queue *self);
 
-void *
-eds_core__queue_head(const struct eds_object__queue * self);
+void*
+eds_core__queue_head(const struct eds_object__queue *self);
 
-void *
-eds_core__queue_tail(const struct eds_object__queue * self);
+void*
+eds_core__queue_tail(const struct eds_object__queue *self);
 
 inline uint32_t
-eds_core__queue_n_entries(const struct eds_object__queue * self)
+eds_core__queue_n_entries(const struct eds_object__queue *self)
 {
     return self->p__n_entries;
 }
 
 inline uint32_t
-eds_core__queue_n_free(const struct eds_object__queue * self)
+eds_core__queue_n_free(const struct eds_object__queue *self)
 {
     return self->p__n_free;
 }
 
 inline bool
-eds_core__queue_is_empty(const struct eds_object__queue * self)
+eds_core__queue_is_empty(const struct eds_object__queue *self)
 {
     return self->p__n_free == self->p__n_entries;
 }
@@ -260,5 +246,27 @@ eds_core__queue_is_full(const struct eds_object__queue *self)
 {
     return self->p__n_free == 0u;
 }
+
+void
+eds_core__tasker_node_init(struct eds_object__tasker_node *self, uint_fast8_t prio);
+
+void
+eds_core__tasker_run(struct eds_object__tasker *self, struct eds_object__tasker_node *task);
+
+void
+eds_core__tasker_pending_sleep(struct eds_object__tasker *self,
+    struct eds_object__tasker_node *task);
+
+void
+eds_core__tasker_init(struct eds_object__tasker *self);
+
+void
+eds_core__tasker_term(struct eds_object__tasker *self);
+
+struct eds_object__tasker_node*
+eds_core__tasker_highest(const struct eds_object__tasker *self);
+
+bool
+eds_core__tasker_is_running(const struct eds_object__tasker *self);
 
 #endif /* NEON_KIT_GENERIC_SOURCE_NK_EDS_CORE_H_ */

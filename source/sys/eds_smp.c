@@ -1,7 +1,7 @@
 
-#include "eds_smp.h"
-#include "eds_evt.h"
-#include "eds_core.h"
+#include "sys/eds_smp.h"
+#include "sys/eds_evt.h"
+#include "sys/eds_core.h"
 #include "eds_port.h"
 
 static const struct eds_object__evt g__smp_events[] =
@@ -48,7 +48,7 @@ eds_smp__dispatch(struct eds_object__smp *sm, const struct eds_object__evt *even
         return EDS_CORE__ERROR__BAD_STATE;
     }
     sm->p__state = current_state;
-    return EDS_CORE__ERROR__NONE;
+    return EDS_CORE__ERROR_NONE;
 }
 
 extern inline eds__sm_action

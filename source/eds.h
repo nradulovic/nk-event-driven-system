@@ -16,6 +16,7 @@ typedef struct eds_object__mem eds__mem;
 typedef struct eds_object__evt eds__event;
 typedef struct eds_object__smp eds__sm;
 typedef struct eds_object__epa eds__agent;
+typedef struct eds_object__etm_node eds__etimer;
 typedef struct eds_object__epc eds__channel;
 typedef struct eds_object__epn eds__network;
 
@@ -48,6 +49,10 @@ typedef uint_fast8_t eds__error;
 #define EDS__ERROR_NO_PERMISSION            0x04
 #define EDS__ERROR_ALREADY_EXISTS           0x05
 #define EDS__ERROR_INVALID_CONFIGURATION    0x06
+#define EDS__ERROR_NOT_EXISTS               0x07
+#define EDS__ERROR_MALFORMED_SM             0x08
+#define EDS__ERROR_NO_SPACE                 0x09
+#define EDS__ERROR_OUT_OF_RANGE             0x0a
 
 /** @} *//**
  * @defgroup    mem Memory allocator
@@ -125,6 +130,12 @@ eds__mem_add_allocator(eds__mem_alloc_fn *alloc,
 #define EDS__EVENT__USER                    64
 
 /** @} */
+
+struct eds__event_attr
+{
+    eds__event *static_instance;
+};
+
 /**
  * @brief       Create an event and initialize it.
  *
@@ -242,48 +253,47 @@ eds__sm_transit_to(eds__sm *sm, eds__sm_state *new_state);
 
 typedef enum eds_object__epa_prio
 {
-    EDS__EPA_PRIO__IDLE                     = 0,            ///< Reserved for Idle EPA.
-    EDS__EPA_PRIO__LOW                      = 1,            ///< Priority: low
-    EDS__EPA_PRIO__LOW_1                    = 1 + 1,        ///< Priority: low + 1
-    EDS__EPA_PRIO__LOW_2                    = 1 + 2,        ///< Priority: low + 2
-    EDS__EPA_PRIO__LOW_3                    = 1 + 3,        ///< Priority: low + 3
-    EDS__EPA_PRIO__LOW_4                    = 1 + 4,        ///< Priority: low + 4
-    EDS__EPA_PRIO__BELOW_NORMAL             = 6,            ///< Priority: below normal
-    EDS__EPA_PRIO__BELOW_NORMAL_1           = 6 + 1,        ///< Priority: below normal + 1
-    EDS__EPA_PRIO__BELOW_NORMAL_2           = 6 + 2,        ///< Priority: below normal + 2
-    EDS__EPA_PRIO__BELOW_NORMAL_3           = 6 + 3,        ///< Priority: below normal + 3
-    EDS__EPA_PRIO__BELOW_NORMAL_4           = 6 + 4,        ///< Priority: below normal + 4
-    EDS__EPA_PRIO__NORMAL                   = 11,           ///< Priority: normal
-    EDS__EPA_PRIO__NORMAL_1                 = 11 + 1,       ///< Priority: normal + 1
-    EDS__EPA_PRIO__NORMAL_2                 = 11 + 2,       ///< Priority: normal + 2
-    EDS__EPA_PRIO__NORMAL_3                 = 11 + 3,       ///< Priority: normal + 3
-    EDS__EPA_PRIO__NORMAL_4                 = 11 + 4,       ///< Priority: normal + 4
-    EDS__EPA_PRIO__NORMAL_5                 = 11 + 5,       ///< Priority: normal + 5
-    EDS__EPA_PRIO__NORMAL_6                 = 11 + 6,       ///< Priority: normal + 6
-    EDS__EPA_PRIO__ABOVE_NORMAL             = 18,           ///< Priority: above normal
-    EDS__EPA_PRIO__ABOVE_NORMAL_1           = 18 + 1,       ///< Priority: above normal + 1
-    EDS__EPA_PRIO__ABOVE_NORMAL_2           = 18 + 2,       ///< Priority: above normal + 2
-    EDS__EPA_PRIO__ABOVE_NORMAL_3           = 18 + 3,       ///< Priority: above normal + 3
-    EDS__EPA_PRIO__ABOVE_NORMAL_4           = 18 + 4,       ///< Priority: above normal + 4
-    EDS__EPA_PRIO__HIGH                     = 23,           ///< Priority: high
-    EDS__EPA_PRIO__HIGH_1                   = 23 + 1,       ///< Priority: high + 1
-    EDS__EPA_PRIO__HIGH_2                   = 23 + 2,       ///< Priority: high + 2
-    EDS__EPA_PRIO__HIGH_3                   = 23 + 3,       ///< Priority: high + 3
-    EDS__EPA_PRIO__HIGH_4                   = 23 + 4,       ///< Priority: high + 4
-    EDS__EPA_PRIO__REALTIME                 = 28,           ///< Priority: realtime
-    EDS__EPA_PRIO__REALTIME_1               = 28 + 1,       ///< Priority: realtime + 1
-    EDS__EPA_PRIO__REALTIME_2               = 28 + 2,       ///< Priority: realtime + 2
-    EDS__EPA_PRIO__REALTIME_3               = 28 + 3,       ///< Priority: realtime + 3
-    EDS__EPA_PRIO__REALTIME_4               = 28 + 4,       ///< Priority: realtime + 4
+    EDS__EPA_PRIO__IDLE = 0,            ///< Reserved for Idle EPA.
+    EDS__EPA_PRIO__LOW = 1,            ///< Priority: low
+    EDS__EPA_PRIO__LOW_1 = 1 + 1,        ///< Priority: low + 1
+    EDS__EPA_PRIO__LOW_2 = 1 + 2,        ///< Priority: low + 2
+    EDS__EPA_PRIO__LOW_3 = 1 + 3,        ///< Priority: low + 3
+    EDS__EPA_PRIO__LOW_4 = 1 + 4,        ///< Priority: low + 4
+    EDS__EPA_PRIO__BELOW_NORMAL = 6,            ///< Priority: below normal
+    EDS__EPA_PRIO__BELOW_NORMAL_1 = 6 + 1,        ///< Priority: below normal + 1
+    EDS__EPA_PRIO__BELOW_NORMAL_2 = 6 + 2,        ///< Priority: below normal + 2
+    EDS__EPA_PRIO__BELOW_NORMAL_3 = 6 + 3,        ///< Priority: below normal + 3
+    EDS__EPA_PRIO__BELOW_NORMAL_4 = 6 + 4,        ///< Priority: below normal + 4
+    EDS__EPA_PRIO__NORMAL = 11,           ///< Priority: normal
+    EDS__EPA_PRIO__NORMAL_1 = 11 + 1,       ///< Priority: normal + 1
+    EDS__EPA_PRIO__NORMAL_2 = 11 + 2,       ///< Priority: normal + 2
+    EDS__EPA_PRIO__NORMAL_3 = 11 + 3,       ///< Priority: normal + 3
+    EDS__EPA_PRIO__NORMAL_4 = 11 + 4,       ///< Priority: normal + 4
+    EDS__EPA_PRIO__NORMAL_5 = 11 + 5,       ///< Priority: normal + 5
+    EDS__EPA_PRIO__ABOVE_NORMAL = 17,           ///< Priority: above normal
+    EDS__EPA_PRIO__ABOVE_NORMAL_1 = 17 + 1,       ///< Priority: above normal + 1
+    EDS__EPA_PRIO__ABOVE_NORMAL_2 = 17 + 2,       ///< Priority: above normal + 2
+    EDS__EPA_PRIO__ABOVE_NORMAL_3 = 17 + 3,       ///< Priority: above normal + 3
+    EDS__EPA_PRIO__ABOVE_NORMAL_4 = 17 + 4,       ///< Priority: above normal + 4
+    EDS__EPA_PRIO__HIGH = 22,           ///< Priority: high
+    EDS__EPA_PRIO__HIGH_1 = 22 + 1,       ///< Priority: high + 1
+    EDS__EPA_PRIO__HIGH_2 = 22 + 2,       ///< Priority: high + 2
+    EDS__EPA_PRIO__HIGH_3 = 22 + 3,       ///< Priority: high + 3
+    EDS__EPA_PRIO__HIGH_4 = 22 + 4,       ///< Priority: high + 4
+    EDS__EPA_PRIO__REALTIME = 27,           ///< Priority: realtime
+    EDS__EPA_PRIO__REALTIME_1 = 27 + 1,       ///< Priority: realtime + 1
+    EDS__EPA_PRIO__REALTIME_2 = 27 + 2,       ///< Priority: realtime + 2
+    EDS__EPA_PRIO__REALTIME_3 = 27 + 3,       ///< Priority: realtime + 3
+    EDS__EPA_PRIO__REALTIME_4 = 27 + 4,       ///< Priority: realtime + 4
 } eds__epa_prio;
 
 struct eds__agent_attr
 {
     const char *name;
     eds__epa_prio prio;
-    size_t equeue_entries;
+    uint32_t equeue_entries;
     eds__agent *static_instance;
-    eds__event *static_equeue_storage;
+    eds__event **static_equeue_storage;
 };
 
 /**
@@ -305,9 +315,6 @@ eds__error
 eds__agent_delete(eds__agent *agent);
 
 eds__error
-eds__agent_signal(eds__agent *agent, uint32_t event_id);
-
-eds__error
 eds__agent_send(eds__agent *agent, const eds__event *event);
 
 eds__error
@@ -316,8 +323,41 @@ eds__agent_send_after(eds__agent *agent, const eds__event *event, uint32_t after
 eds__error
 eds__agent_send_every(eds__agent *agent, const eds__event *event, uint32_t every_ms);
 
+eds__agent*
+eds__agent_from_sm(eds__sm *sm);
+
 eds__network*
 eds__agent_network(const eds__agent *agent);
+
+#define EDS__ETIMER_FLAG__UP_TO             0x1
+#define EDS__ETIMER_FLAG__AT_LEAST          0x2
+
+struct eds__etimer_attr
+{
+    eds__etimer *static_instance;
+    uint32_t flags;
+};
+
+eds__error
+eds__etimer_create(const struct eds__etimer_attr *attr, eds__etimer **etimer);
+
+eds__error
+eds__etimer_delete(eds__etimer *etimer);
+
+eds__error
+eds__etimer_send_after(eds__etimer *etimer,
+    eds__agent *agent,
+    const eds__event *event,
+    uint32_t after_ms);
+
+eds__error
+eds__etimer_send_every(eds__etimer *etimer,
+    eds__agent *agent,
+    const eds__event *event,
+    uint32_t every_ms);
+
+eds__error
+eds__etimer_cancel(eds__etimer *etimer);
 
 struct eds__epn_attr
 {
@@ -342,5 +382,8 @@ eds__epn_start(eds__network *epn);
 
 eds__error
 eds__epn_stop(eds__network *epn);
+
+eds__error
+eds__epn_process_tick(void);
 
 #endif /* NEON_KIT_GENERIC_SOURCE_NK_EDS_H_ */

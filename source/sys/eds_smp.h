@@ -9,7 +9,7 @@
 #define NEON_KIT_GENERIC_SOURCE_EDS_SM_H_
 
 #include "eds_object.h"
-#include "eds_core.h"
+#include "sys/eds_core.h"
 
 #define EDS__SM__ACTION__HANDLED            0
 #define EDS__SM__ACTION__IGNORED            1
@@ -26,12 +26,16 @@ eds_smp__dispatch(struct eds_object__smp *sm, const struct eds_object__evt *even
 inline eds__sm_action
 eds_smp__action_handled(struct eds_object__smp *sm)
 {
+    (void)sm;
+
     return EDS__SM__ACTION__HANDLED;
 }
 
 inline eds__sm_action
 eds_smp__action_ignored(struct eds_object__smp *sm)
 {
+    (void)sm;
+
     return EDS__SM__ACTION__IGNORED;
 }
 
