@@ -59,7 +59,7 @@ eds_evt__ref_up(const struct eds_object__evt *event)
     struct eds_object__evt *d_event;
 
     d_event = eds_evt__to_dynamic(event);
-    if (d_event != NULL) {
+    if ((d_event != NULL) && (d_event->p__ref_count < UINT32_MAX)) {
         d_event->p__ref_count++;
     }
 }
@@ -67,7 +67,12 @@ eds_evt__ref_up(const struct eds_object__evt *event)
 inline void
 eds_evt__ref_down(struct eds_object__evt *event)
 {
-    event->p__ref_count--;
+    struct eds_object__evt *d_event;
+
+    d_event = eds_evt__to_dynamic(event);
+    if ((d_event != NULL) && (d_event->p__ref_count > 0u)){
+        d_event->p__ref_count--;
+    }
 }
 
 inline bool

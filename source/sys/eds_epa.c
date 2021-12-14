@@ -68,12 +68,11 @@ eds_epa__create(eds__sm_state *sm_initial_state,
 eds__error
 eds_epa__send(struct eds_object__epa *epa, const struct eds_object__evt *evt)
 {
-    eds_core__error error;
+    eds__error error;
 
     if (eds_equeue__is_full(&epa->p__equeue) == false) {
         eds_evt__ref_up(evt);
         eds_equeue__push_back(&epa->p__equeue, evt);
-        assert(eds_epa__designation(epa));
         eds_core__tasker_run(eds_epn__tasker(eds_epa__designation(epa)), &epa->p__task);
         eds_epn__sleep_wake_up(eds_epa__designation(epa));
         error = EDS__ERROR_NONE;

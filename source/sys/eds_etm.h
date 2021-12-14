@@ -26,6 +26,12 @@ eds_etm__is_designated(const struct eds_object__etm_node *etm)
     return etm->p__epa != NULL;
 }
 
+inline void
+eds_etm__set_event(struct eds_object__etm_node *etm, const struct eds_object__evt *evt)
+{
+    etm->p__evt = evt;
+}
+
 eds__error
 eds_etm__create(const struct eds__etimer_attr *attr, eds__etimer **etimer);
 

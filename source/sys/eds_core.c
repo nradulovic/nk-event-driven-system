@@ -178,8 +178,11 @@ eds_core__tasker_node_init(struct eds_object__tasker_node *self, uint_fast8_t pr
 void
 eds_core__tasker_run(struct eds_object__tasker *self, struct eds_object__tasker_node *task)
 {
-    eds_core__list_add_after(&task->p__list, &self->p__pending_groups[task->p__prio]);
-    self->p__pending_group |= (0x1u << task->p__prio);
+    /* Add the task to pending list only if the task is not already in it */
+    if (eds_core__list_is_empty(&task->p__list)) {
+        eds_core__list_add_after(&task->p__list, &self->p__pending_groups[task->p__prio]);
+        self->p__pending_group |= (0x1u << task->p__prio);
+    }
 }
 
 void

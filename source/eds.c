@@ -304,6 +304,8 @@ eds__etimer_send_after(eds__etimer *etimer,
     }
     epn = eds_epa__designation(agent);
     eds_etm__designate(etimer, agent); /* Designate that this timer is owned by the agent */
+    eds_etm__set_event(etimer, event);
+    eds_evt__ref_up(event);
     eds_etm_service__start_once(eds_epn__etm_service(epn), etimer, eds_port__tick_from_ms(after_ms));
     eds_port__critical_unlock(&critical);
     return EDS__ERROR_NONE;
@@ -335,6 +337,8 @@ eds__etimer_send_every(eds__etimer *etimer,
     }
     epn = eds_epa__designation(agent);
     eds_etm__designate(etimer, agent); /* Designate that this timer is owned by the agent */
+    eds_etm__set_event(etimer, event);
+    eds_evt__ref_up(event);
     eds_etm_service__start_periodic(eds_epn__etm_service(epn), etimer, eds_port__tick_from_ms(every_ms));
     eds_port__critical_unlock(&critical);
     return EDS__ERROR_NONE;
@@ -361,6 +365,7 @@ eds__etimer_cancel(eds__etimer *etimer)
     epn = eds_epa__designation(etimer->p__epa);
     eds_etm_service__cancel(eds_epn__etm_service(epn), etimer);
     eds_etm__designate(etimer, NULL); /* Designate that the timer is not owned by any agent */
+    eds_evt__deallocate(etimer->p__evt); /* Dispose of event as well */
     eds_port__critical_unlock(&critical);
     return EDS__ERROR_NONE;
 }

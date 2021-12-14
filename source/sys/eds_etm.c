@@ -32,6 +32,9 @@ eds_etm__designate(struct eds_object__etm_node *etm, struct eds_object__epa *epa
 extern inline bool
 eds_etm__is_designated(const struct eds_object__etm_node *etm);
 
+extern inline void
+eds_etm__set_event(struct eds_object__etm_node *etm, const struct eds_object__evt *evt);
+
 eds__error
 eds_etm__create(const struct eds__etimer_attr *attr, eds__etimer **etm)
 {

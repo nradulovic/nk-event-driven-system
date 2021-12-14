@@ -43,11 +43,11 @@ eds_evt__deallocate(const struct eds_object__evt * event)
     d_event = eds_evt__to_dynamic(event);
     if (d_event != NULL)
     {
-        eds_evt__ref_down(d_event);
-        if (eds_evt__is_in_use(d_event) == false)
+        d_event->p__ref_count--;
+        if (d_event->p__ref_count == 0u)
         {
             eds_evt__term(d_event);
-            eds_mem__deallocate_to(eds_evt__mem(d_event), d_event);
+            eds_mem__deallocate_to(d_event->p__mem, d_event);
         }
     }
 }
