@@ -17,8 +17,6 @@ eds_epa__designation(const struct eds_object__epa *epa);
 extern inline bool
 eds_epa__is_designated(const struct eds_object__epa *epa);
 
-#include "configuration.h"
-
 eds__error
 eds_epa__create(eds__sm_state *sm_initial_state,
     void *sm_workspace,
@@ -54,7 +52,6 @@ eds_epa__create(eds__sm_state *sm_initial_state,
         l_epa = attr->static_instance;
         equeue_storage = attr->static_equeue_storage;
     }
-    LOG(W, "Initialize EPA: %s, %d, %d", attr->name, attr->equeue_entries, attr->prio);
     eds_smp__init(&l_epa->p__smp, sm_initial_state, sm_workspace);
     eds_equeue__init(&l_epa->p__equeue, attr->equeue_entries, equeue_storage);
     eds_core__tasker_node_init(&l_epa->p__task, attr->prio);
@@ -82,8 +79,6 @@ eds_epa__send(struct eds_object__epa *epa, const struct eds_object__evt *evt)
     return error;
 }
 
-#include "configuration.h"
-
 eds_core__error
 eds_epa__dispatch(struct eds_object__epa *epa, struct eds_port__critical *critical)
 {
@@ -95,7 +90,6 @@ eds_epa__dispatch(struct eds_object__epa *epa, struct eds_port__critical *critic
         eds_core__tasker_pending_sleep(eds_epn__tasker(eds_epa__designation(epa)), &epa->p__task);
     }
     eds_port__critical_unlock(critical);
-    LOG(W, "EPA: processing %s", epa->p__name);
     core_error = eds_smp__dispatch(&epa->p__smp, evt);
     eds_port__critical_lock(critical);
     eds_evt__deallocate(evt);

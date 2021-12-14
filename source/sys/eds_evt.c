@@ -73,6 +73,9 @@ eds_evt__term(struct eds_object__evt *d_event)
     d_event->p__ref_count = 0u;
 }
 
+extern inline struct eds_object__evt*
+eds_evt__to_dynamic(const struct eds_object__evt *event);
+
 extern inline void
 eds_evt__ref_up(const struct eds_object__evt *event);
 

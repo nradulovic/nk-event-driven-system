@@ -379,7 +379,6 @@ eds__network_create(const struct eds__epn_attr *attr, eds__network **network)
         };
     struct eds_object__epn *epn;
     struct eds_object__mem *mem;
-    struct eds_port__critical critical;
 
     if (network == NULL) {
         return EDS__ERROR_INVALID_ARGUMENT;
@@ -388,6 +387,8 @@ eds__network_create(const struct eds__epn_attr *attr, eds__network **network)
         attr = &default_attr;
     }
     if (attr->instance == NULL) {
+        struct eds_port__critical critical;
+
         mem = eds_mem__select(sizeof(*epn));
         if (mem == NULL) {
             return EDS__ERROR_NO_RESOURCE;
@@ -409,27 +410,19 @@ eds__network_create(const struct eds__epn_attr *attr, eds__network **network)
     epn->p__mem = mem;
     epn->p__name = attr->name != NULL ? attr->name : EDS__DEFAULT_EPN_NAME;
     *network = epn;
-    eds_port__critical_lock(&critical);
-    eds_core__list_add_after(&epn->p__list, &eds__epn_list);
-    eds_port__critical_unlock(&critical);
+
     return EDS__ERROR_NONE;
 }
 
 eds__error
 eds__epn_delete(eds__network *epn)
 {
-    struct eds_port__critical critical;
-
     if (epn == NULL) {
         return EDS__ERROR_INVALID_ARGUMENT;
     }
     if (epn->p__mem == NULL) {
         return EDS__ERROR_NO_PERMISSION;
     }
-    eds_port__critical_lock(&critical);
-    eds_core__list_remove(&epn->p__list);
-    // TODO
-    eds_port__critical_unlock(&critical);
 
     return EDS__ERROR_NONE;
 }
@@ -466,20 +459,22 @@ eds__epn_remove_epa(eds__network *network, eds__agent *agent)
     return EDS__ERROR_NONE;
 }
 
-#include "configuration.h"
-
 eds__error
 eds__epn_start(eds__network *network)
 {
+    struct eds_port__critical critical;
     if (network == NULL) {
         return EDS__ERROR_INVALID_ARGUMENT;
     }
     if (eds_core__tasker_highest(&network->p__tasker) == NULL) {
         return EDS__ERROR_NOT_EXISTS;
     }
+    eds_port__critical_lock(&critical);
+    eds_core__list_add_after(&network->p__list, &eds__epn_list);
+    eds_port__critical_unlock(&critical);
     while (network->p__should_run) {
         struct eds_object__tasker_node *current;
-        struct eds_port__critical critical;
+
         eds_core__error core_error = EDS_CORE__ERROR_NONE;
 
         eds_port__critical_lock(&critical);
@@ -493,17 +488,17 @@ eds__epn_start(eds__network *network)
             }
         }
         eds_port__critical_unlock(&critical);
-        LOG(W, "EPN: Agent process error %d", core_error);
         switch (core_error) {
         case EDS_CORE__ERROR__BAD_STATE:
             return EDS__ERROR_MALFORMED_SM;
         default:
             break;
         }
-    	LOG(W, "EPN: going to sleep");
         eds_epn__sleep_wait(network);
-    	LOG(W, "EPN: wake up");
     }
+    eds_port__critical_lock(&critical);
+    eds_core__list_remove(&network->p__list);
+    eds_port__critical_unlock(&critical);
     return EDS__ERROR_NONE;
 }
 

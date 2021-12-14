@@ -25,8 +25,6 @@ eds_port__sleep_signal(struct eds_port__sleep *sleep);
 struct eds_port__critical;
 
 void
-eds_port__critical__init(struct eds_port__critical *critical);
-void
 eds_port__critical_lock(struct eds_port__critical *critical);
 void
 eds_port__critical_unlock(struct eds_port__critical *critical);

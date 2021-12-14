@@ -133,12 +133,13 @@ eds_tmr__process_timers(struct eds_object__tmr *tmr)
             eds_core__list_add_after(current, &elapsed_timers);
         }
         /* Execute all elapsed timers callbacks */
-        for (EDS_CORE__LIST_EACH(current, &elapsed_timers)) {
+        for (EDS_CORE__LIST_EACH_SAFE(current, iterator, &elapsed_timers)) {
             struct eds_object__tmr_node *current_node;
 
             current_node = EDS_CORE__CONTAINER_OF(current, struct eds_object__tmr_node, p__list);
             if (current_node->p__n_itick != 0u) {
                 current_node->p__n_rtick = current_node->p__n_itick;
+                eds_core__list_remove(current);
                 tmr_sentinel_insert(tmr, current_node);
             } else {
                 current_node->p__state = EDS_OBJECT__TMR_STATE__DORMENT;
