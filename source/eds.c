@@ -462,12 +462,18 @@ eds__epn_remove_epa(eds__network *network, eds__agent *agent)
 eds__error
 eds__epn_start(eds__network *network)
 {
+    static bool is_port_initialized;
     struct eds_port__critical critical;
+
     if (network == NULL) {
         return EDS__ERROR_INVALID_ARGUMENT;
     }
     if (eds_core__tasker_highest(&network->p__tasker) == NULL) {
         return EDS__ERROR_NOT_EXISTS;
+    }
+    if (is_port_initialized == false) {
+        is_port_initialized = true;
+        eds_port__init();
     }
     eds_port__critical_lock(&critical);
     eds_core__list_add_after(&network->p__list, &eds__epn_list);

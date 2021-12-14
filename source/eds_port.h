@@ -41,4 +41,7 @@ eds_port__tick_duration_ms(void);
 uint32_t
 eds_port__tick_from_ms(uint32_t ms);
 
+void
+eds_port__init(void);
+
 #endif /* NEON_KIT_GENERIC_SOURCE_NK_EDS_PORT_H_ */
