@@ -46,10 +46,20 @@ eds_evt__deallocate(const struct eds_object__evt * event)
         d_event->p__ref_count--;
         if (d_event->p__ref_count == 0u)
         {
+            struct eds_object__mem * mem;
+
+            mem = eds_evt__mem(d_event);
             eds_evt__term(d_event);
-            eds_mem__deallocate_to(d_event->p__mem, d_event);
+            eds_mem__deallocate_to(mem, d_event);
         }
     }
+}
+
+void
+eds_evt__null(struct eds_object__evt * event)
+{
+    event->p__id = EDS__EVENT__NULL;
+    event->p__size = 0u;
 }
 
 void

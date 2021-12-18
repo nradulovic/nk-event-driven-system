@@ -29,17 +29,17 @@ eds_epa__create(eds__sm_state *sm_initial_state,
 
     if (attr->static_instance == NULL) {
         struct eds_port__critical critical;
-        size_t sm_size_bytes;
+        size_t epa_size_bytes;
 
-        sm_size_bytes = sizeof(struct eds_object__epa)
+        epa_size_bytes = sizeof(struct eds_object__epa)
             + eds_equeue__calculate_storage_size(attr->equeue_entries);
 
-        mem = eds_mem__select(sm_size_bytes);
+        mem = eds_mem__select(epa_size_bytes);
         if (mem == NULL) {
             return EDS__ERROR_NO_RESOURCE;
         }
         eds_port__critical_lock(&critical);
-        l_epa = eds_mem__allocate_from(mem, sm_size_bytes);
+        l_epa = eds_mem__allocate_from(mem, epa_size_bytes);
         eds_port__critical_unlock(&critical);
         if (l_epa == NULL) {
             return EDS__ERROR_NO_MEMORY;

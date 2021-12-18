@@ -97,8 +97,19 @@ eds__event_id(const eds__event *event)
     return event->p__id;
 }
 
-void*
-eds__event_data(eds__event *event)
+void *
+eds__event_put_data(eds__event * event)
+{
+    assert(event != NULL);
+    if (event->p__size != 0u) {
+        return event + 1u;
+    } else {
+        return NULL;
+    }
+}
+
+const void*
+eds__event_data(const eds__event *event)
 {
     assert(event != NULL);
     if (event->p__size != 0u) {
@@ -365,6 +376,7 @@ eds__etimer_cancel(eds__etimer *etimer)
     epn = eds_epa__designation(etimer->p__epa);
     eds_etm_service__cancel(eds_epn__etm_service(epn), etimer);
     eds_etm__designate(etimer, NULL); /* Designate that the timer is not owned by any agent */
+    eds_evt__null(etimer->p__evt); /* We want to null-ify this event for all receivers */
     eds_evt__deallocate(etimer->p__evt); /* Dispose of event as well */
     eds_port__critical_unlock(&critical);
     return EDS__ERROR_NONE;
@@ -428,7 +440,7 @@ eds__epn_delete(eds__network *epn)
 }
 
 eds__error
-eds__epn_add_epa(eds__network *network, eds__agent *agent)
+eds__network_add_agent(eds__network *network, eds__agent *agent)
 {
     struct eds_port__critical critical;
     eds__error error;
@@ -460,16 +472,13 @@ eds__epn_remove_epa(eds__network *network, eds__agent *agent)
 }
 
 eds__error
-eds__epn_start(eds__network *network)
+eds__network_start(eds__network *network)
 {
     static bool is_port_initialized;
     struct eds_port__critical critical;
 
     if (network == NULL) {
         return EDS__ERROR_INVALID_ARGUMENT;
-    }
-    if (eds_core__tasker_highest(&network->p__tasker) == NULL) {
-        return EDS__ERROR_NOT_EXISTS;
     }
     if (is_port_initialized == false) {
         is_port_initialized = true;

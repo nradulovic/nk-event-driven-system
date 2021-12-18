@@ -164,6 +164,9 @@ struct eds__event_attr
 eds__error
 eds__event_create(uint32_t event_id, size_t event_data_size, eds__event **event);
 
+void *
+eds__event_put_data(eds__event * event);
+
 eds__error
 eds__event_cancel(eds__event *event);
 
@@ -209,8 +212,8 @@ eds__event_id(const eds__event *event);
  * @return      Pointer to event data.
  * @retval      NULL The event has no attached data.
  */
-void*
-eds__event_data(eds__event *event);
+const void*
+eds__event_data(const eds__event *event);
 
 /**
  * @brief       Get event attached data size from the event.
@@ -372,13 +375,13 @@ eds__error
 eds__epn_delete(eds__network *epn);
 
 eds__error
-eds__epn_add_epa(eds__network *epn, eds__agent *sm);
+eds__network_add_agent(eds__network *epn, eds__agent *sm);
 
 eds__error
 eds__epn_remove_epa(eds__network *epn, eds__agent *sm);
 
 eds__error
-eds__epn_start(eds__network *epn);
+eds__network_start(eds__network *epn);
 
 eds__error
 eds__epn_stop(eds__network *epn);

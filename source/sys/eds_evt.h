@@ -31,6 +31,9 @@ void
 eds_evt__deallocate(const struct eds_object__evt *event);
 
 void
+eds_evt__null(struct eds_object__evt * event);
+
+void
 eds_evt__init(struct eds_object__evt *event,
     uint32_t event_id,
     size_t event_data_size,
