@@ -182,10 +182,10 @@ main(void)
     error = eds__network_create(NULL, &network);
     assert(error == EDS__ERROR_NONE);
 
-    error = eds__epn_add_epa(network, sm_blink_agent);
+    error = eds__network_add_agent(network, sm_blink_agent);
     assert(error == EDS__ERROR_NONE);
 
-    error = eds__epn_start(network);
+    error = eds__network_start(network);
     assert(error == EDS__ERROR_NONE);
 
     return 0;
