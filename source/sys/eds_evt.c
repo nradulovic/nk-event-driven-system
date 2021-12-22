@@ -41,25 +41,25 @@ eds_evt__deallocate(const struct eds_object__evt * event)
     struct eds_object__evt * d_event;
 
     d_event = eds_evt__to_dynamic(event);
-    if (d_event != NULL)
-    {
-        d_event->p__ref_count--;
-        if (d_event->p__ref_count == 0u)
-        {
-            struct eds_object__mem * mem;
+    if ((d_event != NULL) && (d_event->p__ref_count == 0u)) {
+        struct eds_object__mem * mem;
 
-            mem = eds_evt__mem(d_event);
-            eds_evt__term(d_event);
-            eds_mem__deallocate_to(mem, d_event);
-        }
+        mem = eds_evt__mem(d_event);
+        eds_evt__term(d_event);
+        eds_mem__deallocate_to(mem, d_event);
     }
 }
 
 void
-eds_evt__null(struct eds_object__evt * event)
+eds_evt__null(const struct eds_object__evt * event)
 {
-    event->p__id = EDS__EVENT__NULL;
-    event->p__size = 0u;
+    struct eds_object__evt * d_event;
+
+    d_event = eds_evt__to_dynamic(event);
+    if (d_event != NULL) {
+        d_event->p__id = EDS__EVENT__NULL;
+        d_event->p__size = 0u;
+    }
 }
 
 void
@@ -90,7 +90,7 @@ extern inline void
 eds_evt__ref_up(const struct eds_object__evt *event);
 
 extern inline void
-eds_evt__ref_down(struct eds_object__evt *event);
+eds_evt__ref_down(const struct eds_object__evt *event);
 
 extern inline bool
 eds_evt__is_in_use(const struct eds_object__evt *event);

@@ -7,6 +7,7 @@
 #include "eds.h"
 #include "eds_object.h"
 #include "eds_port.h"
+#include "eds_trace.h"
 #include "sys/eds_epa.h"
 #include "sys/eds_epn.h"
 #include "sys/eds_equeue.h"
@@ -162,12 +163,25 @@ eds__agent_create(eds__sm_state *sm_initial_state,
     eds__error error;
 
     if ((sm_initial_state == NULL) || (agent == NULL)) {
+        EDS_TRACE__ERROR(
+                EDS_TRACE__SOURCE_AGENT_CREATE,
+                EDS__ERROR_INVALID_ARGUMENT,
+                "sm_initial_state, agent = (%p, %p)",
+                sm_initial_state,
+                agent);
         return EDS__ERROR_INVALID_ARGUMENT;
     }
     attr = attr != NULL ? attr : &default_attr;
     if ((attr->equeue_entries == 0u)
         || ((attr->static_instance != NULL) && (attr->static_equeue_storage == NULL))
         || ((attr->static_instance == NULL) && (attr->static_equeue_storage != NULL))) {
+        EDS_TRACE__ERROR(
+                EDS_TRACE__SOURCE_AGENT_CREATE,
+                EDS__ERROR_INVALID_CONFIGURATION,
+                "equeue_entries, static_instance, static_equeue_storage = (%u, %p, %p)",
+                attr->equeue_entries,
+                attr->static_instance,
+                attr->static_equeue_storage);
         return EDS__ERROR_INVALID_CONFIGURATION;
     }
     error = eds_epa__create(sm_initial_state, sm_workspace, attr, agent);
@@ -191,6 +205,7 @@ eds__agent_delete(eds__agent *agent)
         const struct eds_object__evt *event;
 
         event = eds_equeue__pop(&agent->p__equeue);
+        eds_evt__ref_down(event);
         eds_evt__deallocate(event);
     }
     if (agent->p__mem != NULL) {
@@ -226,21 +241,6 @@ eds__agent_send(eds__agent *agent, const eds__event *event)
         break;
     }
     return error;
-}
-
-eds__error
-eds__agent_send_after(eds__agent *agent, const eds__event *event, uint32_t after_ms)
-{
-    if ((agent == NULL) || (event == NULL)) {
-        return EDS__ERROR_INVALID_ARGUMENT;
-    }
-    return EDS__ERROR_NONE;
-}
-
-eds__error
-eds__agent_send_every(eds__agent *agent, const eds__event *event, uint32_t every_ms)
-{
-    return EDS__ERROR_NONE;
 }
 
 eds__agent*
@@ -377,6 +377,7 @@ eds__etimer_cancel(eds__etimer *etimer)
     eds_etm_service__cancel(eds_epn__etm_service(epn), etimer);
     eds_etm__designate(etimer, NULL); /* Designate that the timer is not owned by any agent */
     eds_evt__null(etimer->p__evt); /* We want to null-ify this event for all receivers */
+    eds_evt__ref_down(etimer->p__evt);
     eds_evt__deallocate(etimer->p__evt); /* Dispose of event as well */
     eds_port__critical_unlock(&critical);
     return EDS__ERROR_NONE;

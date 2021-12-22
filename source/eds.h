@@ -320,12 +320,6 @@ eds__agent_delete(eds__agent *agent);
 eds__error
 eds__agent_send(eds__agent *agent, const eds__event *event);
 
-eds__error
-eds__agent_send_after(eds__agent *agent, const eds__event *event, uint32_t after_ms);
-
-eds__error
-eds__agent_send_every(eds__agent *agent, const eds__event *event, uint32_t every_ms);
-
 eds__agent*
 eds__agent_from_sm(eds__sm *sm);
 

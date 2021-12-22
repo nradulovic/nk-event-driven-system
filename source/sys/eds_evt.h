@@ -31,7 +31,7 @@ void
 eds_evt__deallocate(const struct eds_object__evt *event);
 
 void
-eds_evt__null(struct eds_object__evt * event);
+eds_evt__null(const struct eds_object__evt * event);
 
 void
 eds_evt__init(struct eds_object__evt *event,
@@ -68,7 +68,7 @@ eds_evt__ref_up(const struct eds_object__evt *event)
 }
 
 inline void
-eds_evt__ref_down(struct eds_object__evt *event)
+eds_evt__ref_down(const struct eds_object__evt *event)
 {
     struct eds_object__evt *d_event;
 

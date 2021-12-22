@@ -1,6 +1,7 @@
 #include "sys/eds_epa.h"
 #include "eds.h"
 #include "eds_port.h"
+#include "eds_trace.h"
 #include "sys/eds_smp.h"
 #include "sys/eds_mem.h"
 #include "sys/eds_evt.h"
@@ -26,6 +27,13 @@ eds_epa__create(eds__sm_state *sm_initial_state,
     struct eds_object__epa *l_epa;
     struct eds_object__evt **equeue_storage;
     struct eds_object__mem *mem;
+
+    EDS_TRACE__INFO(
+            EDS_TRACE__SOURCE_AGENT_CREATE,
+            "name, equeue_entries, prio = (%s, %u, %u)",
+            attr->name,
+            attr->equeue_entries,
+            attr->prio);
 
     if (attr->static_instance == NULL) {
         struct eds_port__critical critical;
@@ -92,6 +100,7 @@ eds_epa__dispatch(struct eds_object__epa *epa, struct eds_port__critical *critic
     eds_port__critical_unlock(critical);
     core_error = eds_smp__dispatch(&epa->p__smp, evt);
     eds_port__critical_lock(critical);
+    eds_evt__ref_down(evt);
     eds_evt__deallocate(evt);
 
     return core_error;
