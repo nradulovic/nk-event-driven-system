@@ -164,11 +164,14 @@ struct eds__event_attr
 eds__error
 eds__event_create(uint32_t event_id, size_t event_data_size, eds__event **event);
 
-void *
-eds__event_put_data(eds__event * event);
-
 eds__error
 eds__event_cancel(eds__event *event);
+
+eds__error
+eds__event_keep(const eds__event *event);
+
+eds__error
+eds__event_toss(const eds__event *event);
 
 /**
  * @brief       Initialize a static event.
@@ -191,6 +194,10 @@ eds__event_cancel(eds__event *event);
  */
 eds__error
 eds__event_init(eds__event *event, uint32_t event_id, size_t event_data_size);
+
+
+void *
+eds__event_put_data(eds__event * event);
 
 /**
  * @brief       Get event identification number from the event.

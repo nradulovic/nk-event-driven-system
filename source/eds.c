@@ -81,6 +81,35 @@ eds__event_cancel(eds__event *event)
 }
 
 eds__error
+eds__event_keep(const eds__event *event)
+{
+    if (event == NULL) {
+        return EDS__ERROR_INVALID_ARGUMENT;
+    }
+    if (!eds_evt__is_dynamic(event)) {
+        return EDS__ERROR_NO_PERMISSION;
+    }
+    eds_evt__ref_up(event);
+    return EDS__ERROR_NONE;
+}
+
+eds__error
+eds__event_toss(const eds__event *event)
+{
+    if (event == NULL) {
+        return EDS__ERROR_INVALID_ARGUMENT;
+    }
+    if (!eds_evt__is_dynamic(event)) {
+        return EDS__ERROR_NO_PERMISSION;
+    }
+    if (!eds_evt__is_in_use(event)) {
+        return EDS__ERROR_NO_RESOURCE;
+    }
+    eds_evt__ref_down(event);
+    return EDS__ERROR_NONE;
+}
+
+eds__error
 eds__event_init(eds__event *event, uint32_t event_id, size_t event_data_size)
 {
     if ((event_id == 0) || (event == NULL)) {
@@ -89,13 +118,6 @@ eds__event_init(eds__event *event, uint32_t event_id, size_t event_data_size)
     eds_evt__init(event, event_id, event_data_size, NULL);
 
     return EDS__ERROR_NONE;
-}
-
-uint32_t
-eds__event_id(const eds__event *event)
-{
-    assert(event != NULL);
-    return event->p__id;
 }
 
 void *
@@ -107,6 +129,13 @@ eds__event_put_data(eds__event * event)
     } else {
         return NULL;
     }
+}
+
+uint32_t
+eds__event_id(const eds__event *event)
+{
+    assert(event != NULL);
+    return event->p__id;
 }
 
 const void*
