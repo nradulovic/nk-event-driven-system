@@ -471,6 +471,7 @@ eds__epn_remove_epa(eds__network *network, eds__agent *agent)
     eds_epa__designate(agent, NULL);
     return EDS__ERROR_NONE;
 }
+#include <stdio.h>
 
 eds__error
 eds__network_start(eds__network *network)
