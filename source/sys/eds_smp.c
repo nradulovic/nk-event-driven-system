@@ -26,6 +26,7 @@ const struct eds_object__evt g__smp_events[] =
     [EDS__SM_EVENT__SUPER] = EDS_EVT__INITIALIZER(EDS__SM_EVENT__SUPER, 0),
 };
 
+#if (EDS_CONFIG__SMP__ENABLE_HSM != 0)
 static eds__error
 hsm_get_state_super(struct eds_object__smp * sm, eds__sm_state * state)
 {
@@ -38,7 +39,9 @@ hsm_get_state_super(struct eds_object__smp * sm, eds__sm_state * state)
         return EDS__ERROR_NONE;
     }
 }
+#endif /* (EDS_CONFIG__SMP__ENABLE_HSM != 0) */
 
+#if (EDS_CONFIG__SMP__ENABLE_HSM != 0)
 static eds__error
 hsm_path_enter(struct eds_object__smp * sm, const struct hsm_path * entry)
 {
@@ -54,7 +57,9 @@ hsm_path_enter(struct eds_object__smp * sm, const struct hsm_path * entry)
     }
     return EDS__ERROR_NONE;
 }
+#endif /* (EDS_CONFIG__SMP__ENABLE_HSM != 0) */
 
+#if (EDS_CONFIG__SMP__ENABLE_HSM != 0)
 static eds__error
 hsm_path_exit(struct eds_object__smp * sm, const struct hsm_path * exit)
 {
@@ -136,6 +141,9 @@ hsm_path_build(struct eds_object__smp * sm, struct hsm_path * entry, struct hsm_
 
     for (;;) {
         error = hsm_get_state_super(sm, exit->buff[exit->index++]);
+        if (error) {
+            return EDS__ERROR_MALFORMED_SM;
+        }
         exit->buff[exit->index] = sm->p__state;
         entry->index = 0u;
 
@@ -146,7 +154,9 @@ hsm_path_build(struct eds_object__smp * sm, struct hsm_path * entry, struct hsm_
             }
         } while (entry->buff[entry->index] != &eds__sm_top_state);
     }
+    return EDS__ERROR_NONE;
 }
+#endif /* (EDS_CONFIG__SMP__ENABLE_HSM != 0) */
 
 void
 eds_smp__init(struct eds_object__smp * sm, eds_object__smp_state * initial_state, void * workspace)
@@ -195,9 +205,6 @@ eds_smp__dispatch(struct eds_object__smp *sm, const struct eds_object__evt *even
     do {
         exit.buff[exit.index++] = sm->p__state;
         action = sm->p__state(sm, sm->p__workspace, event);
-        if (!SM__ACTION__HANDLED_IGNORED_OR_SUPER(action)) {
-            return EDS_CORE__ERROR__BAD_STATE;
-        }
     } while (action == EDS__SM__ACTION__SUPER);
 
     while (action == EDS__SM__ACTION__TRANSIT) {
@@ -224,6 +231,9 @@ eds_smp__action_handled(struct eds_object__smp *sm);
 
 extern inline eds__sm_action
 eds_smp__action_ignored(struct eds_object__smp *sm);
+
+extern inline eds__sm_action
+eds_smp__action_super(struct eds_object__smp *sm, eds_object__smp_state * super_state);
 
 extern inline eds__sm_action
 eds_smp__action_transit(struct eds_object__smp *sm, eds_object__smp_state * next_state);

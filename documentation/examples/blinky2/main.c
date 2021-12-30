@@ -75,7 +75,7 @@ sm__blink_off(eds__sm *sm, void *workspace, const eds__event *event)
         printf("SM%u: blink_off: event_tick\n", ws->instance);
         return eds__sm_transit_to(sm, sm__blink_on);
     default:
-        return eds__sm_event_ignored(sm);
+        return eds__sm_super_state(sm, &eds__sm_top_state);
     }
 }
 
@@ -92,7 +92,7 @@ sm__blink_on(eds__sm *sm, void *workspace, const eds__event *event)
         printf("SM%u: blink_on: event_tick\n", ws->instance);
         return eds__sm_transit_to(sm, sm__blink_off);
     default:
-        return eds__sm_event_ignored(sm);
+        return eds__sm_super_state(sm, &eds__sm_top_state);
     }
 }
 
@@ -128,6 +128,9 @@ timer_handler(int sig_no)
     assert(error == 0);
 }
 
+#include <errno.h>
+#include <string.h>
+
 static void*
 tick_thread(void *arg)
 {
@@ -137,7 +140,9 @@ tick_thread(void *arg)
         int sem_error;
         eds__error error;
 
-        sem_error = sem_wait(&tick.timer_lock);
+        do {
+            sem_error = sem_wait(&tick.timer_lock);
+        } while ((sem_error == -1) && (errno == EINTR));
         assert(sem_error == 0);
         error = eds__epn_process_tick();
         assert(error == EDS__ERROR_NONE);

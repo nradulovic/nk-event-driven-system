@@ -176,6 +176,12 @@ eds__sm_transit_to(eds__sm *sm, eds__sm_state *new_state)
 }
 
 eds__sm_action
+eds__sm_super_state(eds__sm *sm, eds__sm_state *super_state)
+{
+    return eds_smp__action_super(sm, super_state);
+}
+
+eds__sm_action
 eds__sm_top_state(eds__sm *sm, void *workspace, const eds__event *event)
 {
     (void)sm;
