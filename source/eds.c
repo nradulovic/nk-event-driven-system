@@ -175,6 +175,16 @@ eds__sm_transit_to(eds__sm *sm, eds__sm_state *new_state)
     return eds_smp__action_transit(sm, new_state);
 }
 
+eds__sm_action
+eds__sm_top_state(eds__sm *sm, void *workspace, const eds__event *event)
+{
+    (void)sm;
+    (void)workspace;
+    (void)event;
+
+    return EDS__SM__ACTION__IGNORED;
+}
+
 eds__error
 eds__agent_create(eds__sm_state *sm_initial_state,
     void *sm_workspace,

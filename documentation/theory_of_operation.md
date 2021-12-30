@@ -43,8 +43,8 @@ The project contains the following folders:
   - Object naming prefix: `eds_object__`.
 
   __Restrictions:__
-  - Must not include any other header file except `eds.h`, `eds_port.h` and standard C library
-    header files.
+  - Must not include any other header file except `eds.h`, `eds_config.h`, `eds_port.h` and
+    standard C library header files.
 
   __Rationale:__
   - The cleanest approach would be that this header includes only standard C library header files.

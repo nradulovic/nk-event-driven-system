@@ -204,13 +204,12 @@ eds_core__tasker_init(struct eds_object__tasker *self)
     for (uint32_t i = 0u; i < EDS_CORE__ARRAY_SIZE(self->p__pending_groups); i++) {
         eds_core__list_init(&self->p__pending_groups[i]);
     }
-    self->current = NULL;
 }
 
 void
 eds_core__tasker_term(struct eds_object__tasker *self)
 {
-    self->current = NULL;
+    eds_core__tasker_init(self);
 }
 
 struct eds_object__tasker_node*

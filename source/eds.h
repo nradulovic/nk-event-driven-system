@@ -53,6 +53,10 @@ typedef uint_fast8_t eds__error;
 #define EDS__ERROR_MALFORMED_SM             0x08
 #define EDS__ERROR_NO_SPACE                 0x09
 #define EDS__ERROR_OUT_OF_RANGE             0x0a
+#define EDS__ERROR_SM_BAD_ENTER             0x0b
+#define EDS__ERROR_SM_BAD_EXIT              0x0c
+#define EDS__ERROR_SM_BAD_INIT              0x0d
+#define EDS__ERROR_SM_BAD_SUPER             0x0e
 
 /** @} *//**
  * @defgroup    mem Memory allocator
@@ -258,6 +262,12 @@ eds__sm_event_ignored(eds__sm *sm);
 
 eds__sm_action
 eds__sm_transit_to(eds__sm *sm, eds__sm_state *new_state);
+
+eds__sm_action
+eds__sm_super_state(eds__sm *sm, eds__sm_state *super_state);
+
+eds__sm_action
+eds__sm_top_state(eds__sm *sm, void *workspace, const eds__event *event);
 
 /** @} */
 

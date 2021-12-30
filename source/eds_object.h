@@ -14,6 +14,9 @@
 /* Include port specific type definitions */
 #include "eds_port/eds_port_definition.h"
 
+/* Include EDS configuration */
+#include "eds_config.h"
+
 /* Include NK EDS API integral types */
 #include "eds.h"
 
@@ -101,7 +104,6 @@ struct eds_object__tasker
 {
     uint32_t p__pending_group;
     struct eds_object__list p__pending_groups[32];
-    struct eds_object__tasker_node *current;
 };
 
 struct eds_object__tasker_node
@@ -138,7 +140,9 @@ struct eds_object__epa
     struct eds_object__equeue p__equeue;
     struct eds_object__epn *p__epn;
     struct eds_object__mem *p__mem;
+#if (EDS_CONFIG__AGENT__ENABLE_NAME != 0)
     const char *p__name;
+#endif
 };
 
 struct eds_object__epn
@@ -149,7 +153,9 @@ struct eds_object__epn
     bool p__should_run;
     struct eds_object__etm p__etm;
     struct eds_object__mem *p__mem;
+#if (EDS_CONFIG__NETWORK__ENABLE_NAME != 0)
     const char *p__name;
+#endif
 };
 
 #endif /* NEON_KIT_GENERIC_SOURCE_NK_EDS_OBJECT_H_ */
