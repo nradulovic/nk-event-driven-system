@@ -64,7 +64,9 @@ eds_epa__create(eds__sm_state *sm_initial_state,
     eds_equeue__init(&l_epa->p__equeue, attr->equeue_entries, equeue_storage);
     eds_core__tasker_node_init(&l_epa->p__task, attr->prio);
     l_epa->p__mem = mem;
+#if (EDS_CONFIG__AGENT__ENABLE_NAME != 0)
     l_epa->p__name = attr->name != NULL ? attr->name : EDS__DEFAULT_EPA_NAME;
+#endif
     l_epa->p__epn = NULL;
     *epa = l_epa;
     return EDS__ERROR_NONE;

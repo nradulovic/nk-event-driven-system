@@ -36,6 +36,14 @@ typedef struct eds_object__epn eds__network;
 #define EDS__DEFAULT_EPN_NAME               "nameless"
 
 /** @} *//**
+ * @defgroup    version Version information
+ *
+ * @{
+ */
+
+#define EDS__VERSION                        0x0300
+
+/** @} *//**
  * @defgroup    errors Error code handling
  *
  * @{
@@ -84,7 +92,7 @@ typedef void
  * ability to use multiple memory pools of different sizes.
  *
  * EDS can accept up to @ref EDS__DEFAULT_MEM_ENTRIES different allocators. It was shown in
- * practice that around 7 allocators of different sizes are needed for a typical application.
+ * practice that around 7 pool allocators of different sizes are needed for a typical application.
  *
  * @param       alloc is a pointer to function which allocates memory space. Allocator function
  *              receives the following arguments: first is the pointer to context structure, which
@@ -398,6 +406,6 @@ eds__error
 eds__epn_stop(eds__network *epn);
 
 eds__error
-eds__epn_process_tick(void);
+eds__tick_process_all(void);
 
 #endif /* NEON_KIT_GENERIC_SOURCE_NK_EDS_H_ */

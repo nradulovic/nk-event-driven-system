@@ -466,7 +466,9 @@ eds__network_create(const struct eds__epn_attr *attr, eds__network **network)
     eds_etm_service__init(&epn->p__etm);
     eds_port__sleep_init(&epn->p__sleep);
     epn->p__mem = mem;
+#if (EDS_CONFIG__NETWORK__ENABLE_NAME != 0)
     epn->p__name = attr->name != NULL ? attr->name : EDS__DEFAULT_EPN_NAME;
+#endif
     *network = epn;
 
     return EDS__ERROR_NONE;
@@ -516,7 +518,6 @@ eds__epn_remove_epa(eds__network *network, eds__agent *agent)
     eds_epa__designate(agent, NULL);
     return EDS__ERROR_NONE;
 }
-#include <stdio.h>
 
 eds__error
 eds__network_start(eds__network *network)
@@ -576,7 +577,7 @@ eds__epn_stop(eds__network *network)
 }
 
 eds__error
-eds__epn_process_tick(void)
+eds__tick_process_all(void)
 {
     struct eds_port__critical critical;
     struct eds_object__list * current;

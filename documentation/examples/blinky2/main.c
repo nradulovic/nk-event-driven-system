@@ -144,7 +144,7 @@ tick_thread(void *arg)
             sem_error = sem_wait(&tick.timer_lock);
         } while ((sem_error == -1) && (errno == EINTR));
         assert(sem_error == 0);
-        error = eds__epn_process_tick();
+        error = eds__tick_process_all();
         assert(error == EDS__ERROR_NONE);
     }
     return NULL;
