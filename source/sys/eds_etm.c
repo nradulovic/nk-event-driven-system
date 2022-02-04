@@ -13,6 +13,7 @@
 #include "sys/eds_tmr.h"
 #include "sys/eds_core.h"
 #include "eds_port.h"
+#include "eds_trace.h"
 
 static void
 etm__handler(struct eds_object__tmr_node *tmr)
@@ -46,12 +47,14 @@ eds_etm__create(const struct eds__etimer_attr *attr, eds__etimer **etm)
 
         mem = eds_mem__select(sizeof(*l_etm));
         if (mem == NULL) {
+            EDS_TRACE__EXIT(EDS_TRACE__SOURCE_ETIMER_CREATE, EDS__ERROR_NO_RESOURCE, "%u", sizeof(*l_etm));
             return EDS__ERROR_NO_RESOURCE;
         }
         eds_port__critical_lock(&critical);
         l_etm = eds_mem__allocate_from(mem, sizeof(*l_etm));
         eds_port__critical_unlock(&critical);
         if (l_etm == NULL) {
+            EDS_TRACE__EXIT(EDS_TRACE__SOURCE_ETIMER_CREATE, EDS__ERROR_NO_MEMORY, "%u from %p", sizeof(*l_etm), mem);
             return EDS__ERROR_NO_MEMORY;
         }
     } else {
@@ -63,6 +66,7 @@ eds_etm__create(const struct eds__etimer_attr *attr, eds__etimer **etm)
     l_etm->p__epa = NULL; /* No associated agent with this timer */
     l_etm->p__mem = mem;
     *etm = l_etm;
+    EDS_TRACE__EXIT(EDS_TRACE__SOURCE_ETIMER_CREATE, EDS__ERROR_NONE, "id = (%p)", l_etm);
     return EDS__ERROR_NONE;
 }
 

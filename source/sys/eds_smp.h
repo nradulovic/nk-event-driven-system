@@ -22,7 +22,7 @@ extern const struct eds_object__evt g__smp_events[];
 void
 eds_smp__init(struct eds_object__smp *sm, eds_object__smp_state *initial_state, void *workspace);
 
-eds_core__error
+eds__error
 eds_smp__dispatch(struct eds_object__smp *sm, const struct eds_object__evt *event);
 
 inline eds__sm_action

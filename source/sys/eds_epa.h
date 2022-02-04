@@ -42,7 +42,7 @@ eds_epa__create(eds__sm_state *sm_initial_state,
 eds__error
 eds_epa__send(struct eds_object__epa *epa, const struct eds_object__evt *evt);
 
-eds_core__error
+eds__error
 eds_epa__dispatch(struct eds_object__epa *agent, struct eds_port__critical *critical);
 
 #endif /* NEON_KIT_GENERIC_SOURCE_EDS_EPA_H_ */

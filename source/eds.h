@@ -66,6 +66,8 @@ typedef uint_fast8_t eds__error;
 #define EDS__ERROR_SM_BAD_INIT              0x0d
 #define EDS__ERROR_SM_BAD_SUPER             0x0e
 
+const char * eds__error_to_str(uint32_t error);
+
 /** @} *//**
  * @defgroup    mem Memory allocator
  *

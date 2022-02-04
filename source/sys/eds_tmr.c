@@ -1,6 +1,5 @@
 #include "sys/eds_tmr.h"
 #include "sys/eds_core.h"
-#include "eds_trace.h"
 
 static void
 tmr_sentinel_insert(struct eds_object__tmr *tmr, struct eds_object__tmr_node *node)
@@ -8,7 +7,6 @@ tmr_sentinel_insert(struct eds_object__tmr *tmr, struct eds_object__tmr_node *no
     struct eds_object__list *current;
     struct eds_object__tmr_node *current_tmr;
 
-    EDS_TRACE__INFO(EDS_TRACE__SOURCE_EDS_TMR, "insert %p (%u, %u)", node, node->p__n_itick, node->p__n_rtick);
     for (EDS_CORE__LIST_EACH(current, &tmr->p__active)) {
 
 
@@ -18,7 +16,6 @@ tmr_sentinel_insert(struct eds_object__tmr *tmr, struct eds_object__tmr_node *no
             break;
         }
         node->p__n_rtick -= current_tmr->p__n_rtick;
-        EDS_TRACE__INFO(EDS_TRACE__SOURCE_EDS_TMR, "insert adjust %p to %u", node, node->p__n_rtick);
     }
     eds_core__list_add_before(&node->p__list, current);
 }
@@ -117,7 +114,6 @@ eds_tmr__process_timers(struct eds_object__tmr *tmr)
         eds_core__list_remove(current);
         current_node = EDS_CORE__CONTAINER_OF(current, struct eds_object__tmr_node, p__list);
         current_node->p__state = EDS_OBJECT__TMR_STATE__ACTIVE;
-        EDS_TRACE__INFO(EDS_TRACE__SOURCE_EDS_TMR, "activate %p", current_node);
         tmr_sentinel_insert(tmr, current_node);
     }
     /* See if we have any active timers */
@@ -137,7 +133,6 @@ eds_tmr__process_timers(struct eds_object__tmr *tmr)
             if (current_node->p__n_rtick != 0u) {
                 break;
             }
-            EDS_TRACE__INFO(EDS_TRACE__SOURCE_EDS_TMR, "timer expired: %p", current_node);
             eds_core__list_remove(current);
             eds_core__list_add_after(current, &elapsed_timers);
         }
@@ -149,12 +144,10 @@ eds_tmr__process_timers(struct eds_object__tmr *tmr)
             if (current_node->p__n_itick != 0u) {
                 current_node->p__n_rtick = current_node->p__n_itick;
                 eds_core__list_remove(current);
-                EDS_TRACE__INFO(EDS_TRACE__SOURCE_EDS_TMR, "periodic %p", current_node);
                 tmr_sentinel_insert(tmr, current_node);
             } else {
                 current_node->p__state = EDS_OBJECT__TMR_STATE__DORMENT;
             }
-            EDS_TRACE__INFO(EDS_TRACE__SOURCE_EDS_TMR, "calling %p, %p", current_node, current_node->p__fn);
             current_node->p__fn(current_node);
         }
     }

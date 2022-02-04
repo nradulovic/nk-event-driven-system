@@ -28,33 +28,28 @@ eds_epa__create(eds__sm_state *sm_initial_state,
     struct eds_object__evt **equeue_storage;
     struct eds_object__mem *mem;
 
-    EDS_TRACE__INFO(
-            EDS_TRACE__SOURCE_AGENT_CREATE,
-            "name, equeue_entries, prio = (%s, %u, %u)",
-            attr->name,
-            attr->equeue_entries,
-            attr->prio);
-
     if (attr->static_instance == NULL) {
         struct eds_port__critical critical;
         size_t epa_size_bytes;
 
         epa_size_bytes = sizeof(struct eds_object__epa)
             + eds_equeue__calculate_storage_size(attr->equeue_entries);
-
         mem = eds_mem__select(epa_size_bytes);
         if (mem == NULL) {
+            EDS_TRACE__EXIT(EDS_TRACE__SOURCE_AGENT_CREATE, EDS__ERROR_NO_RESOURCE, "%u", epa_size_bytes);
             return EDS__ERROR_NO_RESOURCE;
         }
         eds_port__critical_lock(&critical);
         l_epa = eds_mem__allocate_from(mem, epa_size_bytes);
         eds_port__critical_unlock(&critical);
         if (l_epa == NULL) {
+            EDS_TRACE__EXIT(EDS_TRACE__SOURCE_AGENT_CREATE, EDS__ERROR_NO_MEMORY, "%u from %p", epa_size_bytes, mem);
             return EDS__ERROR_NO_MEMORY;
         }
         /* Put the queue storage directly above the SM structure
          */
         equeue_storage = (struct eds_object__evt**) (l_epa + 1u);
+        EDS_TRACE__INFO(EDS_TRACE__SOURCE_AGENT_CREATE, "allocated %u from %p", epa_size_bytes, mem);
     } else {
         mem = NULL;
         l_epa = attr->static_instance;
@@ -69,6 +64,13 @@ eds_epa__create(eds__sm_state *sm_initial_state,
 #endif
     l_epa->p__epn = NULL;
     *epa = l_epa;
+    EDS_TRACE__INFO(
+            EDS_TRACE__SOURCE_AGENT_CREATE,
+            "id, name, equeue_entries, prio = (%p, %s, %u, %u)",
+            l_epa,
+            attr->name,
+            attr->equeue_entries,
+            attr->prio);
     return EDS__ERROR_NONE;
 }
 
@@ -89,21 +91,21 @@ eds_epa__send(struct eds_object__epa *epa, const struct eds_object__evt *evt)
     return error;
 }
 
-eds_core__error
+eds__error
 eds_epa__dispatch(struct eds_object__epa *epa, struct eds_port__critical *critical)
 {
     const struct eds_object__evt *evt;
-    eds_core__error core_error;
+    eds__error error;
 
     evt = eds_equeue__pop(&epa->p__equeue);
     if (eds_equeue__is_empty(&epa->p__equeue)) {
         eds_core__tasker_pending_sleep(eds_epn__tasker(eds_epa__designation(epa)), &epa->p__task);
     }
     eds_port__critical_unlock(critical);
-    core_error = eds_smp__dispatch(&epa->p__smp, evt);
+    error = eds_smp__dispatch(&epa->p__smp, evt);
     eds_port__critical_lock(critical);
     eds_evt__ref_down(evt);
     eds_evt__deallocate(evt);
 
-    return core_error;
+    return error;
 }
