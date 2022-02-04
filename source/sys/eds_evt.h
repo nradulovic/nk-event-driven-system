@@ -81,7 +81,7 @@ eds_evt__ref_down(const struct eds_object__evt *event)
 inline bool
 eds_evt__is_in_use(const struct eds_object__evt *event)
 {
-    return (event->p__ref_count == 0u);
+    return (event->p__ref_count != 0u);
 }
 
 inline bool
