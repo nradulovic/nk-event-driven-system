@@ -157,6 +157,7 @@ eds__event_toss(const eds__event *event)
         return EDS__ERROR_NO_RESOURCE;
     }
     eds_evt__ref_down(event);
+    eds_evt__deallocate(event);
     EDS_TRACE__INFO(EDS_TRACE__SOURCE_EVENT_TOSS, "%p (%u, %u)", event, event->p__id, event->p__ref_count);
     return EDS__ERROR_NONE;
 }
