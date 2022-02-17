@@ -51,7 +51,6 @@ eds_etm_service__start_periodic(struct eds_object__etm *etm_service,
 void
 eds_etm_service__cancel(struct eds_object__etm *etm_service, struct eds_object__etm_node *etm);
 
-
 void
 eds_etm_service__tick(struct eds_object__etm *etm_service);
 

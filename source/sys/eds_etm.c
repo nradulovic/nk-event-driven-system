@@ -16,7 +16,7 @@
 #include "eds_trace.h"
 
 static void
-etm__handler(struct eds_object__tmr_node *tmr)
+etm__every_handler(struct eds_object__tmr_node *tmr)
 {
     struct eds_object__etm_node *etm;
 
@@ -24,6 +24,10 @@ etm__handler(struct eds_object__tmr_node *tmr)
     // TODO: Error handling when EPA queue is full
     if (eds_epa__is_designated(etm->p__epa) == true) {
         eds_epa__send(etm->p__epa, etm->p__evt);
+        if (!eds_tmr__node_is_periodic(tmr))
+        {
+            eds_etm__designate(etm, NULL);
+        }
     }
 }
 
@@ -61,7 +65,7 @@ eds_etm__create(const struct eds__etimer_attr *attr, eds__etimer **etm)
         mem = NULL;
         l_etm = attr->static_instance;
     }
-    eds_tmr__node_init(&l_etm->p__node, &etm__handler);
+    eds_tmr__node_init(&l_etm->p__node, &etm__every_handler);
     l_etm->p__evt = NULL; /* No associated event with this timer */
     l_etm->p__epa = NULL; /* No associated agent with this timer */
     l_etm->p__mem = mem;
