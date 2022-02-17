@@ -11,6 +11,9 @@ eds_tmr__node_init(struct eds_object__tmr_node *tmr, void
 bool
 eds_tmr__node_is_running(const struct eds_object__tmr_node *tmr);
 
+bool
+eds_tmr__node_is_periodic(const struct eds_object__tmr_node *tmr);
+
 void
 eds_tmr__start_once(struct eds_object__tmr *self, struct eds_object__tmr_node *node, uint32_t tick);
 

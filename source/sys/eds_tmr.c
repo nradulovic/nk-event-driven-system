@@ -42,6 +42,12 @@ eds_tmr__node_is_running(const struct eds_object__tmr_node *tmr)
     return eds_core__list_is_empty(&tmr->p__list) == false;
 }
 
+bool
+eds_tmr__node_is_periodic(const struct eds_object__tmr_node *tmr)
+{
+    return tmr->p__n_itick != 0u;
+}
+
 void
 eds_tmr__start_once(struct eds_object__tmr *self, struct eds_object__tmr_node *node, uint32_t ticks)
 {
