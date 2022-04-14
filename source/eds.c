@@ -297,18 +297,10 @@ eds__agent_delete(eds__agent *agent)
     if (agent == NULL) {
         return EDS__ERROR_INVALID_ARGUMENT;
     }
-    if (eds_epa__is_designated(agent) == false) {
+    if (eds_epa__is_designated(agent) == true) {
         return EDS__ERROR_NO_PERMISSION;
     }
     eds_port__critical_lock(&critical);
-    /* Clear the queue */
-    while (!eds_equeue__is_empty(&agent->p__equeue)) {
-        const struct eds_object__evt *event;
-
-        event = eds_equeue__pop(&agent->p__equeue);
-        eds_evt__ref_down(event);
-        eds_evt__deallocate(event);
-    }
     if (agent->p__mem != NULL) {
         eds_mem__deallocate_to(agent->p__mem, agent);
     }
@@ -591,15 +583,20 @@ eds__network_add_agent(eds__network *network, eds__agent *agent)
 }
 
 eds__error
-eds__epn_remove_epa(eds__network *network, eds__agent *agent)
+eds__network_remove_agent(eds__network *network, eds__agent *agent)
 {
+    struct eds_port__critical critical;
+
     if ((network == NULL) || (agent == NULL)) {
         return EDS__ERROR_INVALID_ARGUMENT;
     }
     if (eds_epa__is_designated(agent) == false) {
         return EDS__ERROR_NOT_EXISTS;
     }
+    eds_port__critical_lock(&critical);
+    eds_epa__terminate(agent);
     eds_epa__designate(agent, NULL);
+    eds_port__critical_unlock(&critical);
     return EDS__ERROR_NONE;
 }
 

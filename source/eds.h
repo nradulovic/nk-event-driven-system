@@ -398,8 +398,20 @@ eds__epn_delete(eds__network *epn);
 eds__error
 eds__network_add_agent(eds__network *epn, eds__agent *sm);
 
+/**
+ * @brief       Remove an agent from the network
+ *
+ * @param       network Pointer to event processing network.
+ * @param       agent Pointer to agent instance which is to be removed from the network.
+ * @return      Operation status.
+ * @retval      EDS__ERROR_NONE Operation completed successfully.
+ * @retval      EDS__ERROR_INVLD_ARGUMENT Is returned when @a network or @a agent pointer is set to
+ *              NULL.
+ * @retval      EDS__ERROR_NOT_EXISTS when the agent pointed by @a agent is not belonging to any
+ *              network.
+ */
 eds__error
-eds__epn_remove_epa(eds__network *epn, eds__agent *sm);
+eds__network_remove_agent(eds__network *network, eds__agent *agent);
 
 eds__error
 eds__network_start(eds__network *epn);

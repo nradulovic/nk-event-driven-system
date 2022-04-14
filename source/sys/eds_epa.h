@@ -45,4 +45,7 @@ eds_epa__send(struct eds_object__epa *epa, const struct eds_object__evt *evt);
 eds__error
 eds_epa__dispatch(struct eds_object__epa *agent, struct eds_port__critical *critical);
 
+void
+eds_epa__terminate(struct eds_object__epa *epa);
+
 #endif /* NEON_KIT_GENERIC_SOURCE_EDS_EPA_H_ */

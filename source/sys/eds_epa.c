@@ -109,3 +109,17 @@ eds_epa__dispatch(struct eds_object__epa *epa, struct eds_port__critical *critic
 
     return error;
 }
+
+void
+eds_epa__terminate(struct eds_object__epa *epa)
+{
+    /* Clear the queue */
+    while (eds_equeue__is_empty(&epa->p__equeue) == false) {
+        const struct eds_object__evt *event;
+
+        event = eds_equeue__pop(&epa->p__equeue);
+        eds_evt__ref_down(event);
+        eds_evt__deallocate(event);
+    }
+    eds_core__tasker_pending_sleep(eds_epn__tasker(eds_epa__designation(epa)), &epa->p__task);
+}
