@@ -13,7 +13,7 @@ which are prefixed with `nk_devel_` prefix:
 ---
 ## 2. Vision
 Some of key principles used in development of Neon Kit:
-- Do not offer a plenthora of source code configuration options. Offering to many options may 
+- Do not offer a plenthora of source code configuration options. Offering too many options may 
   confuse the user and bring in necessary burden on them to think about configuration (see 
   [wiki overchoice](https://en.wikipedia.org/wiki/Overchoice)). Always choose and hardcode the 
   options which will be of benefit to most of users.
