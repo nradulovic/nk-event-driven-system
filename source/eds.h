@@ -29,6 +29,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+/* Forward declarations of types */
 typedef struct eds_object__mem eds__mem;
 typedef struct eds_object__evt eds__event;
 typedef struct eds_object__smp eds__sm;
@@ -38,37 +39,113 @@ typedef struct eds_object__epc eds__channel;
 typedef struct eds_object__epn eds__network;
 
 /**
- * @defgroup    defaults Defaults
- *
+ * @defgroup    eds_defaults Defaults
+ * @brief       EDS Defaults interface.
  * @{
  */
 
+/**
+ * @brief       Default maximum memory entries that can be handled by EDS.
+ *
+ * This setting cannot be changed by global configuration (@ref eds_config).
+ *
+ * @see         eds_mem
+ */
 #define EDS__DEFAULT_MEM_ENTRIES            16u
+
+/**
+ * @brief       Default minimum bytes of a memory pool allocator.
+ *
+ * No memory pool allocator can be added if its allocation sizes are smaller than this macro.
+ *
+ * This setting cannot be changed by global configuration (@ref eds_config).
+ *
+ * @see         eds_mem
+ */
 #define EDS__DEFAULT_MEM_MIN_BYTES          16u
 
+/**
+ * @brief       Default number of events in event queue of event processing agent.
+ *
+ * This setting cannot be changed by global configuration (@ref eds_config), but for each created
+ * event processing agent you can tweak this setting by supplying the attribute structure
+ * (@ref eds__agent_attr) to @ref eds__agent_create function.
+ *
+ * @see         eds_agent
+ */
 #define EDS__DEFAULT_EPA_QUEUE_ENTRIES      16u
+
+/**
+ * @brief       Default event processing agent priority.
+ *
+ * This setting cannot be changed by global configuration (@ref eds_config), but for each created
+ * event processing agent you can tweak this setting by supplying the attribute structure
+ * (@ref eds__agent_attr) to @ref eds__agent_create function.
+ *
+ * @see         eds_agent
+ */
 #define EDS__DEFAULT_EPA_PRIO               16u
+
+/**
+ * @brief       Default event processing agent name.
+ *
+ * This setting cannot be changed by global configuration (@ref eds_config), but for each created
+ * event processing agent you can tweak this setting by supplying the attribute structure
+ * (@ref eds__agent_attr) to @ref eds__agent_create function.
+ *
+ * @see         eds_agent
+ */
 #define EDS__DEFAULT_EPA_NAME               "nameless"
 
+/**
+ * @brief       Default event processing network name.
+ *
+ * This setting cannot be changed by global configuration (@ref eds_config), but for each created
+ * event processing agent you can tweak this setting by supplying the attribute structure
+ * (@ref eds__agent_attr) to @ref eds__agent_create function.
+ *
+ * @see         eds_network
+ */
 #define EDS__DEFAULT_EPN_NAME               "nameless"
 
 /** @} *//**
- * @defgroup    version Version information
- *
+ * @defgroup    eds_version Version information
+ * @brief       Version information interface.
  * @{
  */
 
+/**
+ * @brief       Version identification macro
+ */
 #define EDS__VERSION                        0x0300
 
 /** @} *//**
- * @defgroup    errors Error code handling
- *
+ * @defgroup    eds_errors Error handling
+ * @brief       Error handling interface.
  * @{
  */
 
 typedef uint_fast8_t eds__error;
+
+/**
+ * @brief       No error has occurred.
+ */
 #define EDS__ERROR_NONE                     0
+
+/**
+ * @brief       Invalid argument is supplied to function.
+ *
+ * This usually means an argument pointer has a NULL value, but it might mean that pointed object
+ * has failed some internal cheks.
+ */
 #define EDS__ERROR_INVALID_ARGUMENT         0x01
+
+/**
+ * @brief       No available memory.
+ *
+ * This error happens during memory allocation of an object and when memory allocator returns NULL
+ * pointer.
+ */
 #define EDS__ERROR_NO_MEMORY                0x02
 #define EDS__ERROR_NO_RESOURCE              0x03
 #define EDS__ERROR_NO_PERMISSION            0x04
@@ -86,13 +163,44 @@ typedef uint_fast8_t eds__error;
 const char * eds__error_to_str(uint32_t error);
 
 /** @} *//**
- * @defgroup    mem Memory allocator
+ * @defgroup    eds_mem Memory allocator
+ * @brief       Memory allocator interface.
+ *
+ * Neon-Kit EDS does not support standard C use of heap memory allocation (using malloc and free)
+ * since many embedded projects and system impose a lot of restrictions on memory allocation
+ * methods. In order to support dynamic nature of events, Neon-Kit EDS still needs to have some
+ * support for dynamic memory allocation. Since the memory allocation restrictions change from
+ * application to application (or project to project) it was decided that memory allocation problem
+ * is pushed to the application writer.
+ *
+ * The application writer best knows what are circumstances where the application is going to be
+ * executed and he has the best view in order to decide on allocation algorithm. Whatever the
+ * application writer decides to use (memory pools or heap) all it needs to do is to tell to
+ * Neon-Kit which allocator to use, using @ref eds__mem_add_allocator function.
  *
  * @{
  */
 
+/**
+ * @brief       Allocator function type.
+ *
+ * This type defines pointer to function which receives the following arguments:
+ * - pointer to a context (which was supplied to @ref eds__mem_add_allocator function)
+ * - size of memory block which needs to be allocated.
+ *
+ * The method returns pointer to allocated memory section. If NULL pointer is returned then the
+ * allocation memory has been depleted.
+ */
 typedef void*
 (eds__mem_alloc_fn)(void*, size_t);
+
+/**
+ * @brief       Deallocator function type.
+ *
+ * Deallocator method receives two arguments:
+ * - pointer to a context (which was supplied to @ref eds__mem_add_allocator function)
+ * - pointer to a previously allocated memory by @ref eds__mem_alloc_fn function.
+ */
 typedef void
 (eds__mem_dealloc_fn)(void*, void*);
 
@@ -132,14 +240,14 @@ typedef void
  *              be used in case no other allocator satisfies required size.
  *
  * @return      Operation status.
- * @retval      EDS__ERROR_NONE Operation completed successfully.
- * @retval      EDS__ERROR_INVALID_ARGUMENT Is returned when either @a alloc or @a dealloc arguments
- *              are NULL pointer or when @a max_size is less than @ref EDS__DEFAULT_MEM_MIN_BYTES
- *              bytes.
- * @retval      EDS__ERROR_NO_RESOURCE Is returned when application tried to add more than
- *              @ref EDS__DEFAULT_MEM_ENTRIES instances of memory allocator.
- * @retval      EDS__ERROR_ALREADY_EXISTS The allocator with @a max_size memory block was already
- *              added.
+ * @retval      EDS__ERROR_NONE (@ref EDS__ERROR_NONE) Operation completed successfully.
+ * @retval      EDS__ERROR_INVALID_ARGUMENT (@ref EDS__ERROR_INVALID_ARGUMENT) Is returned when
+ *              either @a alloc or @a dealloc arguments are NULL pointer or when @a max_size is less
+ *              than @ref EDS__DEFAULT_MEM_MIN_BYTES bytes.
+ * @retval      EDS__ERROR_NO_RESOURCE (@ref EDS__ERROR_NO_RESOURCE) Is returned when application
+ *              tried to add more than @ref EDS__DEFAULT_MEM_ENTRIES instances of memory allocator.
+ * @retval      EDS__ERROR_ALREADY_EXISTS (@ref EDS__ERROR_ALREADY_EXISTS) The allocator with
+ *              @a max_size memory block was already added.
  */
 eds__error
 eds__mem_add_allocator(eds__mem_alloc_fn *alloc,
@@ -149,13 +257,12 @@ eds__mem_add_allocator(eds__mem_alloc_fn *alloc,
 
 /** @} *//**
  * @defgroup    event Events
- *
+ * @brief       Events interface.
  * @{
  */
 
 /**
- * @brief       Predefined event identifiers
- *
+ * @name       Predefined event identifiers
  */
 #define EDS__EVENT__NULL                    0
 #define EDS__EVENT__USER                    64
