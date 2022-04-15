@@ -1,10 +1,4 @@
 /**
- * nk_eds.h
- *
- *  Created on: Dec 2, 2021
- *      Author: nenad
- */
-/**
  * @file
  * @brief       Nano-Kit Event Driven System (EDS) interface header
  *
