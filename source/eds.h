@@ -168,12 +168,12 @@ struct eds__event_attr
  * @return      Operation status.
  * @retval      EDS__ERROR_NONE Operation completed successfully.
  * @retval      EDS__ERROR_INVALID_ARGUMENT Is returned when either @a event_id is equal to zero or
- *              when @a event pointer is set to NULL.
- * @retval      EDS__ERROR_NO_RESOURCE When no suitable allocator was added with
- *              @ref eds__add_allocator function and EDS is then unable to allocate memory space for
- *              the event.
- * @retval      EDS_ERROR__NO_MEMORY When a suitable allocator was found but its memory reserves
- *              have depleted.
+ *              when @a event pointer is NULL pointer.
+ * @retval      EDS__ERROR_NO_RESOURCE When no suitable allocator was found and EDS is then unable
+ *              to allocate memory space for the event. To add allocators use
+ *              @ref eds__add_allocator function.
+ * @retval      EDS__ERROR_NO_MEMORY When a suitable allocator was found but its memory reserves
+ *              have been depleted.
  */
 eds__error
 eds__event_create(uint32_t event_id, size_t event_data_size, eds__event **event);
@@ -202,9 +202,9 @@ eds__event_toss(const eds__event *event);
  *              the size of attached data in bytes. When event does not have any data put this
  *              argument to zero.
  * @return      Operation status.
- * @retval      EDS_ERROR__NONE Operation completed successfully.
- * @retval      EDS_ERROR__INVLD_ARGUMENT Is returned when either @a event_id is equal to zero or
- *              when @a event pointer is set to NULL.
+ * @retval      EDS__ERRROR_NONE Operation completed successfully.
+ * @retval      EDS__ERROR_INVLD_ARGUMENT Is returned when either @a event_id is equal to zero or
+ *              when @a event pointer is NULL pointer.
  */
 eds__error
 eds__event_init(eds__event *event, uint32_t event_id, size_t event_data_size);
@@ -317,6 +317,13 @@ typedef enum eds_object__epa_prio
     EDS__EPA_PRIO__REALTIME_4 = 27 + 4,       ///< Priority: realtime + 4
 } eds__epa_prio;
 
+/**
+ * @brief       Agent attribute structure
+ *
+ * Attribute structure describes in greater details an agent. When no attribute is being used,
+ * agents are created using default values specified in @ref defaults. Use this structure to
+ * override and customize an agent instance.
+ */
 struct eds__agent_attr
 {
     const char *name;
@@ -327,13 +334,30 @@ struct eds__agent_attr
 };
 
 /**
- * @brief       Create and initialize an Agent (Event Processing Agent).
+ * @brief       Create and initialize an agent (Event Processing Agent).
  *
- * @param       sm_initial_state
- * @param       sm_workspace
- * @param       attr
- * @param [out] agent
- * @return eds_error
+ * @param       sm_initial_state Pointer to initial state function of state machine.
+ * @param       sm_workspace Pointer to an allocated memory space reserved for state machine
+ *              operation. Use this argument to pass pointer to structure instances which then can
+ *              be used by state machine code.
+ * @param       attr Use @a attr pointer to pass attribute structure. Use attribute structure to
+ *              customize agent instance. Pass NULL pointer to use defaults specified in
+ *              @ref defaults.
+ * @param [out] agent Pointer to pointer to agent. The pointer to agent will be filled after
+ *              successful creation of the agent.
+ * @return      Operation status.
+ * @retval      EDS__ERROR_NONE Operation completed successfully.
+ * @retval      EDS__ERROR_INVALID_ARGUMENT Is returned when @a sm_initial_state or @a agent pointer
+ *              is NULL pointer.
+ * @retval      EDS__ERROR_INVALID_CONFIGURATION Is returned when:
+ *              1. The member `equeue_entries` in @a attr attribute structure is zero.
+ *              2. Not both members `static_instance` and `static_equeue_storage` are set to
+ *              non-NULL value. See the valid case examples in @ref eds__agent_attr description.
+ * @retval      EDS__ERROR_NO_RESOURCE When no suitable allocator was found and EDS is then unable
+ *              to allocate memory space for the agent. To add allocators use
+ *              @ref eds__add_allocator function.
+ * @retval      EDS__ERROR_NO_MEMORY When a suitable allocator was found but its memory reserves
+ *              have been depleted.
  */
 eds__error
 eds__agent_create(eds__sm_state *sm_initial_state,
@@ -350,6 +374,14 @@ eds__agent_send(eds__agent *agent, const eds__event *event);
 eds__agent*
 eds__agent_from_sm(eds__sm *sm);
 
+/**
+ * @brief       Get the network this agent belongs to
+ *
+ * @param       agent Pointer to agent
+ * @return      Pointer to network this agent belongs to.
+ * @retval      NULL this agent does not belong to any network (undesignated agent) or @a agent
+ *              pointer is NULL pointer.
+ */
 eds__network*
 eds__agent_network(const eds__agent *agent);
 
@@ -405,8 +437,8 @@ eds__network_add_agent(eds__network *epn, eds__agent *sm);
  * @param       agent Pointer to agent instance which is to be removed from the network.
  * @return      Operation status.
  * @retval      EDS__ERROR_NONE Operation completed successfully.
- * @retval      EDS__ERROR_INVLD_ARGUMENT Is returned when @a network or @a agent pointer is set to
- *              NULL.
+ * @retval      EDS__ERROR_INVLD_ARGUMENT Is returned when @a network or @a agent pointer is NULL
+ *              pointer.
  * @retval      EDS__ERROR_NOT_EXISTS when the agent pointed by @a agent is not belonging to any
  *              network.
  */
