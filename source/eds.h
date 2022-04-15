@@ -1,8 +1,31 @@
-/*
+/**
  * nk_eds.h
  *
  *  Created on: Dec 2, 2021
  *      Author: nenad
+ */
+/**
+ * @file
+ * @brief       Nano-Kit Event Driven System (EDS) interface header
+ *
+ * Main API header file. This is usually the only needed header file for application to use the
+ * Event Driven System. It does not include additional header files besides standard C files. All types
+ * defined in this header are opaque types to objects. The application uses
+ * `eds__<object>_create` functions to allocate objects.
+ *
+ * This header defines:
+ * - Public API macros
+ * - Public API integral types
+ * - Public API opaque types
+ * - Public API functions
+ *
+ * @author      Nenad Radulovic (nenad.b.radulovic@gmail.com)
+ * @authors     Nenad Radulovic (nenad.b.radulovic@gmail.com)
+ *
+ * @defgroup    eds_intf Event Driven System (EDS)
+ * @brief       Event Driven System (EDS) interface
+ *
+ * @{
  */
 
 #ifndef NEON_KIT_GENERIC_SOURCE_NK_EDS_H_
@@ -143,7 +166,11 @@ eds__mem_add_allocator(eds__mem_alloc_fn *alloc,
 #define EDS__EVENT__NULL                    0
 #define EDS__EVENT__USER                    64
 
-/** @} */
+/** @} *//**
+ * @defgroup    eds_event Event handling
+ *
+ * @{
+ */
 
 struct eds__event_attr
 {
@@ -279,7 +306,11 @@ eds__sm_super_state(eds__sm *sm, eds__sm_state *super_state);
 eds__sm_action
 eds__sm_top_state(eds__sm *sm, void *workspace, const eds__event *event);
 
-/** @} */
+/** @} *//**
+ * @defgroup    eds_agent Event Processing Agent (EPA)
+ *
+ * @{
+ */
 
 typedef enum eds_object__epa_prio
 {
@@ -385,6 +416,7 @@ eds__agent_from_sm(eds__sm *sm);
 eds__network*
 eds__agent_network(const eds__agent *agent);
 
+/** @} */
 #define EDS__ETIMER_FLAG__UP_TO             0x1
 #define EDS__ETIMER_FLAG__AT_LEAST          0x2
 
@@ -455,3 +487,4 @@ eds__error
 eds__tick_process_all(void);
 
 #endif /* NEON_KIT_GENERIC_SOURCE_NK_EDS_H_ */
+/** @} */
