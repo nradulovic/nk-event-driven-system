@@ -22,7 +22,7 @@ eds_evt__allocate(uint32_t event_id,
     size_t event_size;
 
     event_size = eds_evt__calculate_bundle_size(event_data_size);
-    mem = eds_mem__select(event_size);
+    mem = eds_mem__find(&mem__instances, event_size);
     if (mem == NULL) {
         return EDS_CORE__ERROR__NO_RESOURCE;
     }

@@ -51,18 +51,27 @@ const char * eds__error_to_str(uint32_t error)
 }
 
 eds__error
-eds__mem_add_allocator(eds__mem_alloc_fn *alloc,
-    eds__mem_dealloc_fn *dealloc,
-    void *context,
+eds__mem_add_allocator(eds__mem_alloc_fn * alloc,
+    eds__mem_dealloc_fn * dealloc,
+    void * context,
     size_t max_size)
 {
+    struct eds_object__mem * existing_mem;
+    struct eds_object__mem new_entry;
+
     if ((alloc == NULL) || (dealloc == NULL) || (max_size < EDS__DEFAULT_MEM_MIN_BYTES)) {
         return EDS__ERROR_INVALID_ARGUMENT;
     }
     if (eds_core__vector_is_full(&mem__instances) == true) {
         return EDS__ERROR_NO_RESOURCE;
     }
-    return eds_mem__add_allocator(alloc, dealloc, context, max_size);
+    existing_mem = eds_mem__find(&mem__instances, max_size);
+    if (existing_mem != NULL) {
+        return EDS__ERROR_ALREADY_EXISTS;
+    }
+    eds_mem__init(&new_entry, alloc, dealloc, context, max_size);
+    eds_mem__add(&mem__instances, &new_entry);
+    return EDS__ERROR_NONE;
 }
 
 eds__error
@@ -500,7 +509,7 @@ eds__network_create(const struct eds__epn_attr *attr, eds__network **network)
     if (attr->instance == NULL) {
         struct eds_port__critical critical;
 
-        mem = eds_mem__select(sizeof(*epn));
+        mem = eds_mem__find(&mem__instances, sizeof(*epn));
         if (mem == NULL) {
             return EDS__ERROR_NO_RESOURCE;
         }

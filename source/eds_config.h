@@ -1,8 +1,17 @@
 /*
- * eds_config.h
+ * @file
  *
- *  Created on: Dec 29, 2021
- *      Author: nenad
+ * @date        Dec 29, 2021
+ * @author      Nenad Radulovic (NBR) nenad.b.radulovic@gmail.com
+ */
+/**
+ * @file
+ * @defgroup    eds_config EDS Configuration
+ * @brief       EDS Configuration interface
+ *
+ * This module contains macros for global compile-time EDS configuration.
+ *
+ * @{
  */
 
 #ifndef NEON_KIT_EDS_SOURCE_EDS_CONFIG_H_

@@ -34,7 +34,7 @@ eds_epa__create(eds__sm_state *sm_initial_state,
 
         epa_size_bytes = sizeof(struct eds_object__epa)
             + eds_equeue__calculate_storage_size(attr->equeue_entries);
-        mem = eds_mem__select(epa_size_bytes);
+        mem = eds_mem__find(&mem__instances, epa_size_bytes);
         if (mem == NULL) {
             EDS_TRACE__EXIT(EDS_TRACE__SOURCE_AGENT_CREATE, EDS__ERROR_NO_RESOURCE, "%u", epa_size_bytes);
             return EDS__ERROR_NO_RESOURCE;
