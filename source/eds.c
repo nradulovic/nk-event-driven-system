@@ -21,22 +21,6 @@
 
 static struct eds_object__list eds__epn_list = EDS_CORE__LIST_INITIALIZER(&eds__epn_list);
 
-#define EDS__ERROR_NONE                     0
-#define EDS__ERROR_INVALID_ARGUMENT         0x01
-#define EDS__ERROR_NO_MEMORY                0x02
-#define EDS__ERROR_NO_RESOURCE              0x03
-#define EDS__ERROR_NO_PERMISSION            0x04
-#define EDS__ERROR_ALREADY_EXISTS           0x05
-#define EDS__ERROR_INVALID_CONFIGURATION    0x06
-#define EDS__ERROR_NOT_EXISTS               0x07
-#define EDS__ERROR_MALFORMED_SM             0x08
-#define EDS__ERROR_NO_SPACE                 0x09
-#define EDS__ERROR_OUT_OF_RANGE             0x0a
-#define EDS__ERROR_SM_BAD_ENTER             0x0b
-#define EDS__ERROR_SM_BAD_EXIT              0x0c
-#define EDS__ERROR_SM_BAD_INIT              0x0d
-#define EDS__ERROR_SM_BAD_SUPER             0x0e
-
 const char * eds__error_to_str(uint32_t error)
 {
     static const char * error_texts[] =
