@@ -51,11 +51,23 @@ The following are needed to be configured in application project:
 - include path should have the following entries:
   - directory where all Neon Kit projects are located in `$NEON_KIT_ROOT`.
   - directory where a specific Neon Kit component is located. In this case the path would be 
-    `$NEON_KIT_ROOT/eds`.
-  - directory where application defined header `eds_port_definition.h` is located.
+    `$NEON_KIT_ROOT/[component]/source`.
+  - directory where portable definition header `[component]_port_definition.h` is located.
 - no defined macros are needed except when a custom component configuration is needed which is 
   explained below.
 - compile all sources under `source` directory, in this case `$NEON_KIT_ROOT/eds/source`.
+
+### Example
+
+Lets say that we have a firmware application called `application_1` with the following structure:
+1. The firmware application is located in `firmware/application_1` folder.
+2. In this application Neon Kit EDS component is used and is located in `firmware/application_1/lib/neon-kit/eds` folder.
+3. The portable definition header `eds_port_definition.h` is located in `firmware/application_1/eds_port/`. 
+
+With this setup we would need the following additional include paths:
+- `firmware/application_1/lib/neon-kit`
+- `firmware/application_1/lib/neon-kit/eds/source`
+- `firmware/application_1/eds_port/`
 
 ## Building Event Driven System with custom configuration
 
