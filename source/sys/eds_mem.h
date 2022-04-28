@@ -24,6 +24,30 @@ eds_mem__init(struct eds_object__mem * mem,
     void * context,
     size_t max_size);
 
+inline void *
+eds_mem__context(const struct eds_object__mem * mem)
+{
+    return mem->p__context;
+}
+
+inline size_t
+eds_mem__max_size(const struct eds_object__mem * mem)
+{
+    return mem->p__max_size;
+}
+
+inline eds__mem_alloc_fn *
+eds_mem__alloc_fn(const struct eds_object__mem * mem)
+{
+    return mem->p__alloc;
+}
+
+inline eds__mem_dealloc_fn *
+eds_mem__dealloc_fn(const struct eds_object__mem * mem)
+{
+    return mem->p__dealloc;
+}
+
 struct eds_object__mem *
 eds_mem__find(const struct eds_object__vector * vector, size_t size);
 
