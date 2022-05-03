@@ -9,7 +9,6 @@
 #define NEON_KIT_GENERIC_SOURCE_EDS_MEM_H_
 
 #include "eds_object.h"
-#include "eds_core.h"
 #include "eds.h"
 
 #include <stdint.h>
@@ -54,11 +53,8 @@ eds_mem__find(const struct eds_object__vector * vector, size_t size);
 void
 eds_mem__add(struct eds_object__vector * vector, const struct eds_object__mem *mem);
 
-inline uint32_t
-eds_mem__instance_count(const struct eds_object__vector * vector)
-{
-    return eds_core__vector_n_entries(vector);
-}
+uint32_t
+eds_mem__instance_count(const struct eds_object__vector * vector);
 
 inline void *
 eds_mem__allocate_from(struct eds_object__mem *mem, size_t size)

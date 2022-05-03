@@ -41,11 +41,12 @@ eds_mem__dealloc_fn(const struct eds_object__mem * mem);
 struct eds_object__mem *
 eds_mem__find(const struct eds_object__vector * vector, size_t size)
 {
-    for (uint32_t i = 0u; i < eds_core__vector_n_entries(vector); i++) {
+    uint32_t entries = eds_core__vector_n_entries(vector);
+    for (uint32_t i = 0u; i < entries; i++) {
         struct eds_object__mem *mem;
 
         mem = eds_core__vector_peek(vector, i);
-        if (mem->p__max_size == size) {
+        if (mem->p__max_size >= size) {
             return mem;
         }
     }
@@ -69,8 +70,11 @@ eds_mem__add(struct eds_object__vector * vector, const struct eds_object__mem * 
     eds_core__vector_insert(vector, index, mem);
 }
 
-extern inline uint32_t
-eds_mem__instance_count(const struct eds_object__vector * vector);
+uint32_t
+eds_mem__instance_count(const struct eds_object__vector * vector)
+{
+    return eds_core__vector_n_entries(vector);
+}
 
 extern inline void *
 eds_mem__allocate_from(struct eds_object__mem * mem, size_t size);
