@@ -18,6 +18,9 @@ eds_epa__designation(const struct eds_object__epa *epa);
 extern inline bool
 eds_epa__is_designated(const struct eds_object__epa *epa);
 
+extern inline const struct eds_object__smp*
+eds_epa__smp(const struct eds_object__epa *epa);
+
 eds__error
 eds_epa__create(eds__sm_state *sm_initial_state,
     void *sm_workspace,

@@ -517,6 +517,16 @@ eds__agent_from_sm(eds__sm *sm);
 eds__network*
 eds__agent_network(const eds__agent *agent);
 
+/**
+ * @brief       Get the workspace of this agent
+ *
+ * @param       agent Pointer to agent
+ * @return      void* Pointer to agent workspace which was passed to @ref eds__agent_create function
+ *              during the creation of the agent.
+ */
+void*
+eds__agent_workspace(const eds__agent *agent);
+
 /** @} */
 #define EDS__ETIMER_FLAG__UP_TO             0x1
 #define EDS__ETIMER_FLAG__AT_LEAST          0x2

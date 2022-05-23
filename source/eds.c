@@ -344,6 +344,12 @@ eds__agent_network(const eds__agent *agent)
     return eds_epa__designation(agent);
 }
 
+void*
+eds__agent_workspace(const eds__agent *agent)
+{
+    return eds_smp__workspace(&agent->p__smp);
+}
+
 eds__error
 eds__etimer_create(const struct eds__etimer_attr *attr, eds__etimer **etimer)
 {
