@@ -347,7 +347,7 @@ eds__agent_network(const eds__agent *agent)
 void*
 eds__agent_workspace(const eds__agent *agent)
 {
-    return eds_smp__workspace(&agent->p__smp);
+    return eds_smp__workspace(eds_epa__smp(agent));
 }
 
 eds__error
