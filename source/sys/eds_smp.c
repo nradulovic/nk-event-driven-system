@@ -255,3 +255,6 @@ eds_smp__action_super(struct eds_object__smp *sm, eds_object__smp_state * super_
 
 extern inline eds__sm_action
 eds_smp__action_transit(struct eds_object__smp *sm, eds_object__smp_state * next_state);
+
+extern inline void*
+eds_smp__workspace(const struct eds_object__smp *sm);

@@ -33,6 +33,12 @@ eds_epa__is_designated(const struct eds_object__epa *epa)
     return epa->p__epn != NULL;
 }
 
+inline const struct eds_object__smp*
+eds_epa__smp(const struct eds_object__epa *epa)
+{
+    return &epa->p__smp;
+}
+
 eds__error
 eds_epa__create(eds__sm_state *sm_initial_state,
     void *sm_workspace,

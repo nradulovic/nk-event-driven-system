@@ -56,4 +56,10 @@ eds_smp__action_transit(struct eds_object__smp *sm, eds_object__smp_state * next
     return EDS__SM__ACTION__TRANSIT;
 }
 
+inline void*
+eds_smp__workspace(const struct eds_object__smp *sm)
+{
+    return sm->p__workspace;
+}
+
 #endif /* NEON_KIT_GENERIC_SOURCE_EDS_SM_H_ */
