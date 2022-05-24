@@ -34,4 +34,7 @@ eds_tmr__are_timers_pending(const struct eds_object__tmr *self);
 void
 eds_tmr__process_timers(struct eds_object__tmr *self);
 
+void
+eds_tmr__for_each_node(struct eds_object__tmr *self, void (*map)(struct eds_object__tmr_node*, void *), void * arg);
+
 #endif /* NEON_KIT_EDS_SOURCE_EDS_TMR_H_ */

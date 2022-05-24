@@ -368,21 +368,10 @@ eds__etimer_create(const struct eds__etimer_attr *attr, eds__etimer **etimer)
 eds__error
 eds__etimer_delete(eds__etimer *etimer)
 {
-    struct eds_port__critical critical;
-
     if (etimer == NULL) {
         return EDS__ERROR_INVALID_ARGUMENT;
     }
-    eds_port__critical_lock(&critical);
-    if (eds_etm__is_designated(etimer) == false) {
-        eds_port__critical_unlock(&critical);
-        return EDS__ERROR_NOT_EXISTS;
-    }
-    if (etimer->p__mem != NULL) {
-        eds_mem__deallocate_to(etimer->p__mem, etimer);
-    }
-    eds_port__critical_unlock(&critical);
-    return EDS__ERROR_NONE;
+    return eds_etm__delete(etimer);
 }
 
 eds__error
@@ -593,6 +582,7 @@ eds__network_remove_agent(eds__network *network, eds__agent *agent)
         return EDS__ERROR_NOT_EXISTS;
     }
     eds_port__critical_lock(&critical);
+    eds_etm_service__delete_all(&network->p__etm, agent);
     eds_epa__terminate(agent);
     eds_epa__designate(agent, NULL);
     eds_port__critical_unlock(&critical);

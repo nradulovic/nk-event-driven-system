@@ -74,6 +74,53 @@ eds_etm__create(const struct eds__etimer_attr *attr, eds__etimer **etm)
     return EDS__ERROR_NONE;
 }
 
+eds__error
+eds_etm__delete(eds__etimer * etimer)
+{
+    struct eds_port__critical critical;
+
+    eds_port__critical_lock(&critical);
+    if (eds_etm__is_designated(etimer) == false) {
+        eds_port__critical_unlock(&critical);
+        return EDS__ERROR_NOT_EXISTS;
+    }
+    if (etimer->p__mem != NULL) {
+        eds_mem__deallocate_to(etimer->p__mem, etimer);
+    }
+    eds_port__critical_unlock(&critical);
+    return EDS__ERROR_NONE;
+}
+
+struct tuple_service_epa
+{
+    struct eds_object__epa * epa;
+    struct eds_object__etm * etm_service;
+};
+
+static void match_and_delete(struct eds_object__tmr_node * tmr_node, void * arg)
+{
+    struct tuple_service_epa * tuple_service_epa = arg;
+    struct eds_object__etm_node *etm;
+
+    etm = EDS_CORE__CONTAINER_OF(tmr_node, struct eds_object__etm_node, p__node);
+    if (tuple_service_epa->epa == etm->p__epa) {
+        eds_tmr__cancel(&tuple_service_epa->etm_service->p__tmr, &etm->p__node);
+        if (etm->p__mem != NULL) {
+            eds_mem__deallocate_to(etm->p__mem, etm);
+        }
+    }
+}
+
+void
+eds_etm_service__delete_all(struct eds_object__etm *etm_service, struct eds_object__epa *epa)
+{
+    struct tuple_service_epa tuple_service_epa = {
+        .epa = epa,
+        .etm_service = etm_service
+    };
+    eds_tmr__for_each_node(&etm_service->p__tmr, match_and_delete, &tuple_service_epa);
+}
+
 void
 eds_etm_service__init(struct eds_object__etm *etm_service)
 {

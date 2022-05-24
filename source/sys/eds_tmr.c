@@ -158,3 +158,25 @@ eds_tmr__process_timers(struct eds_object__tmr *tmr)
         }
     }
 }
+
+void
+eds_tmr__for_each_node(struct eds_object__tmr *self, void (*map)(struct eds_object__tmr_node*, void *), void * arg)
+{
+    struct eds_object__list *iterator;
+    struct eds_object__list *current;
+
+    /* Map the active timers */
+    for (EDS_CORE__LIST_EACH_SAFE(current, iterator, &self->p__active)) {
+        struct eds_object__tmr_node *current_node;
+
+        current_node = EDS_CORE__CONTAINER_OF(current, struct eds_object__tmr_node, p__list);
+        map(current_node, arg);
+    }
+    /* Map the pending timers */
+    for (EDS_CORE__LIST_EACH_SAFE(current, iterator, &self->p__pending)) {
+        struct eds_object__tmr_node *current_node;
+
+        current_node = EDS_CORE__CONTAINER_OF(current, struct eds_object__tmr_node, p__list);
+        map(current_node, arg);
+    }
+}

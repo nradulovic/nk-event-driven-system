@@ -35,6 +35,12 @@ eds_etm__set_event(struct eds_object__etm_node *etm, const struct eds_object__ev
 eds__error
 eds_etm__create(const struct eds__etimer_attr *attr, eds__etimer **etimer);
 
+eds__error
+eds_etm__delete(eds__etimer * etimer);
+
+void
+eds_etm_service__delete_all(struct eds_object__etm *etm_service, struct eds_object__epa *epa);
+
 void
 eds_etm_service__init(struct eds_object__etm *etm_service);
 
