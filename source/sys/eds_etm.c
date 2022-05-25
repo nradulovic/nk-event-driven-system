@@ -16,35 +16,34 @@
 #include "eds_trace.h"
 
 static void
-etm__every_handler(struct eds_object__tmr_node *tmr)
+etm__every_handler(struct eds_object__tmr_node * tmr)
 {
-    struct eds_object__etm_node *etm;
+    struct eds_object__etm_node * etm;
 
     etm = EDS_CORE__CONTAINER_OF(tmr, struct eds_object__etm_node, p__node);
     // TODO: Error handling when EPA queue is full
     if (eds_epa__is_designated(etm->p__epa) == true) {
         eds_epa__send(etm->p__epa, etm->p__evt);
-        if (!eds_tmr__node_is_periodic(tmr))
-        {
+        if (!eds_tmr__node_is_periodic(tmr)) {
             eds_etm__designate(etm, NULL);
         }
     }
 }
 
 extern inline void
-eds_etm__designate(struct eds_object__etm_node *etm, struct eds_object__epa *epa);
+eds_etm__designate(struct eds_object__etm_node * etm, struct eds_object__epa * epa);
 
 extern inline bool
-eds_etm__is_designated(const struct eds_object__etm_node *etm);
+eds_etm__is_designated(const struct eds_object__etm_node * etm);
 
 extern inline void
-eds_etm__set_event(struct eds_object__etm_node *etm, const struct eds_object__evt *evt);
+eds_etm__set_event(struct eds_object__etm_node * etm, const struct eds_object__evt * evt);
 
 eds__error
-eds_etm__create(const struct eds__etimer_attr *attr, eds__etimer **etm)
+eds_etm__create(const struct eds__etimer_attr * attr, eds__etimer ** etm)
 {
-    struct eds_object__mem *mem;
-    struct eds_object__etm_node *l_etm;
+    struct eds_object__mem * mem;
+    struct eds_object__etm_node * l_etm;
 
     if (attr->static_instance == NULL) {
         struct eds_port__critical critical;
@@ -97,10 +96,11 @@ struct tuple_service_epa
     struct eds_object__etm * etm_service;
 };
 
-static void match_and_delete(struct eds_object__tmr_node * tmr_node, void * arg)
+static void
+match_and_delete(struct eds_object__tmr_node * tmr_node, void * arg)
 {
     struct tuple_service_epa * tuple_service_epa = arg;
-    struct eds_object__etm_node *etm;
+    struct eds_object__etm_node * etm;
 
     etm = EDS_CORE__CONTAINER_OF(tmr_node, struct eds_object__etm_node, p__node);
     if (tuple_service_epa->epa == etm->p__epa) {
@@ -112,45 +112,45 @@ static void match_and_delete(struct eds_object__tmr_node * tmr_node, void * arg)
 }
 
 void
-eds_etm_service__delete_all(struct eds_object__etm *etm_service, struct eds_object__epa *epa)
+eds_etm_service__delete_all(struct eds_object__etm * etm_service, struct eds_object__epa * epa)
 {
-    struct tuple_service_epa tuple_service_epa = {
-        .epa = epa,
-        .etm_service = etm_service
-    };
+    struct tuple_service_epa tuple_service_epa =
+        {
+        .epa = epa, .etm_service = etm_service
+        };
     eds_tmr__for_each_node(&etm_service->p__tmr, match_and_delete, &tuple_service_epa);
 }
 
 void
-eds_etm_service__init(struct eds_object__etm *etm_service)
+eds_etm_service__init(struct eds_object__etm * etm_service)
 {
     eds_tmr__init(&etm_service->p__tmr);
 }
 
 void
-eds_etm_service__start_once(struct eds_object__etm *etm_service,
-    struct eds_object__etm_node *etm,
+eds_etm_service__start_once(struct eds_object__etm * etm_service,
+    struct eds_object__etm_node * etm,
     uint32_t ms)
 {
     eds_tmr__start_once(&etm_service->p__tmr, &etm->p__node, ms);
 }
 
 void
-eds_etm_service__start_periodic(struct eds_object__etm *etm_service,
-    struct eds_object__etm_node *etm,
+eds_etm_service__start_periodic(struct eds_object__etm * etm_service,
+    struct eds_object__etm_node * etm,
     uint32_t ms)
 {
     eds_tmr__start_periodic(&etm_service->p__tmr, &etm->p__node, ms);
 }
 
 void
-eds_etm_service__cancel(struct eds_object__etm *etm_service, struct eds_object__etm_node *etm)
+eds_etm_service__cancel(struct eds_object__etm * etm_service, struct eds_object__etm_node * etm)
 {
     eds_tmr__cancel(&etm_service->p__tmr, &etm->p__node);
 }
 
 void
-eds_etm_service__tick(struct eds_object__etm *etm_service)
+eds_etm_service__tick(struct eds_object__etm * etm_service)
 {
     eds_tmr__process_timers(&etm_service->p__tmr);
 }

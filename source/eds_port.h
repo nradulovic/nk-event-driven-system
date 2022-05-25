@@ -16,18 +16,18 @@
 struct eds_port__sleep;
 
 void
-eds_port__sleep_init(struct eds_port__sleep *sleep);
+eds_port__sleep_init(struct eds_port__sleep * sleep);
 void
-eds_port__sleep_wait(struct eds_port__sleep *sleep);
+eds_port__sleep_wait(struct eds_port__sleep * sleep);
 void
-eds_port__sleep_signal(struct eds_port__sleep *sleep);
+eds_port__sleep_signal(struct eds_port__sleep * sleep);
 
 struct eds_port__critical;
 
 void
-eds_port__critical_lock(struct eds_port__critical *critical);
+eds_port__critical_lock(struct eds_port__critical * critical);
 void
-eds_port__critical_unlock(struct eds_port__critical *critical);
+eds_port__critical_unlock(struct eds_port__critical * critical);
 
 uint_fast8_t
 eds_port__ffs(uint32_t value);

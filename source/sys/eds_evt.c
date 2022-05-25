@@ -13,9 +13,7 @@ eds_evt__calculate_bundle_size(size_t event_data_size)
 }
 
 eds_core__error
-eds_evt__allocate(uint32_t event_id,
-    size_t event_data_size,
-    struct eds_object__evt ** event)
+eds_evt__allocate(uint32_t event_id, size_t event_data_size, struct eds_object__evt ** event)
 {
     struct eds_object__mem * mem;
     struct eds_object__evt * l_event;
@@ -63,10 +61,10 @@ eds_evt__null(const struct eds_object__evt * event)
 }
 
 void
-eds_evt__init(struct eds_object__evt *event,
+eds_evt__init(struct eds_object__evt * event,
     uint32_t event_id,
     size_t event_data_size,
-    struct eds_object__mem *mem)
+    struct eds_object__mem * mem)
 {
     event->p__id = event_id;
     event->p__size = event_data_size;
@@ -75,7 +73,7 @@ eds_evt__init(struct eds_object__evt *event,
 }
 
 void
-eds_evt__term(struct eds_object__evt *d_event)
+eds_evt__term(struct eds_object__evt * d_event)
 {
     d_event->p__id = EDS__EVENT__NULL;
     d_event->p__size = 0u;
@@ -84,19 +82,19 @@ eds_evt__term(struct eds_object__evt *d_event)
 }
 
 extern inline struct eds_object__evt*
-eds_evt__to_dynamic(const struct eds_object__evt *event);
+eds_evt__to_dynamic(const struct eds_object__evt * event);
 
 extern inline void
-eds_evt__ref_up(const struct eds_object__evt *event);
+eds_evt__ref_up(const struct eds_object__evt * event);
 
 extern inline void
-eds_evt__ref_down(const struct eds_object__evt *event);
+eds_evt__ref_down(const struct eds_object__evt * event);
 
 extern inline bool
-eds_evt__is_in_use(const struct eds_object__evt *event);
+eds_evt__is_in_use(const struct eds_object__evt * event);
 
 extern inline bool
-eds_evt__is_dynamic(const struct eds_object__evt *event);
+eds_evt__is_dynamic(const struct eds_object__evt * event);
 
 extern inline struct eds_object__mem*
-eds_evt__mem(const struct eds_object__evt *event);
+eds_evt__mem(const struct eds_object__evt * event);

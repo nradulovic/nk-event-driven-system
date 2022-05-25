@@ -39,9 +39,9 @@
 extern const char * eds_trace__g__sources[];
 
 extern void
-eds_trace__error(uint32_t, uint32_t, const char * , ...);
+eds_trace__error(uint32_t, uint32_t, const char*, ...);
 
 extern void
-eds_trace__info(uint32_t, const char *, ...);
+eds_trace__info(uint32_t, const char*, ...);
 
 #endif /* NEON_KIT_EDS_SOURCE_EDS_TRACE_H_ */

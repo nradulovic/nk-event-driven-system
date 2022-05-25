@@ -1,4 +1,3 @@
-
 #include "sys/eds_smp.h"
 #include "sys/eds_evt.h"
 #include "sys/eds_core.h"
@@ -14,18 +13,19 @@
 #if (EDS_CONFIG__SMP__ENABLE_HSM != 0)
 struct hsm_path
 {
-    eds_object__smp_state *buff[EDS_CONFIG__SMP__HSM_LEVELS];
+    eds_object__smp_state * buff[EDS_CONFIG__SMP__HSM_LEVELS];
     uint_fast8_t index;
 };
 #endif
 
 const struct eds_object__evt g__smp_events[] =
-{
+    {
     [EDS__SM_EVENT__INIT] = EDS_EVT__INITIALIZER(EDS__SM_EVENT__INIT, 0),
     [EDS__SM_EVENT__ENTER] = EDS_EVT__INITIALIZER(EDS__SM_EVENT__ENTER, 0),
     [EDS__SM_EVENT__EXIT] = EDS_EVT__INITIALIZER(EDS__SM_EVENT__EXIT, 0),
     [EDS__SM_EVENT__SUPER] = EDS_EVT__INITIALIZER(EDS__SM_EVENT__SUPER, 0),
-};
+    }
+;
 
 #if (EDS_CONFIG__SMP__ENABLE_HSM != 0)
 static eds__error
@@ -55,12 +55,12 @@ hsm_path_enter(struct eds_object__smp * sm, const struct hsm_path * entry)
         action = entry->buff[index](sm, sm->p__workspace, &g__smp_events[EDS__SM_EVENT__ENTER]);
         if (!SM__ACTION__HANDLED_IGNORED_OR_SUPER(action)) {
             EDS_TRACE__EXIT(
-                EDS_TRACE__SOURCE_EDS_SMP,
-                EDS__ERROR_MALFORMED_SM,
-                "(%p) enter: state (%p) bad action %u",
-                sm,
-                entry->buff[index],
-                action);
+                                            EDS_TRACE__SOURCE_EDS_SMP,
+                                            EDS__ERROR_MALFORMED_SM,
+                                            "(%p) enter: state (%p) bad action %u",
+                                            sm,
+                                            entry->buff[index],
+                                            action);
             return EDS__ERROR_SM_BAD_ENTER;
         }
     }
@@ -79,12 +79,12 @@ hsm_path_exit(struct eds_object__smp * sm, const struct hsm_path * exit)
         action = exit->buff[count](sm, sm->p__workspace, &g__smp_events[EDS__SM_EVENT__EXIT]);
         if (!SM__ACTION__HANDLED_IGNORED_OR_SUPER(action)) {
             EDS_TRACE__EXIT(
-                EDS_TRACE__SOURCE_EDS_SMP,
-                EDS__ERROR_MALFORMED_SM,
-                "(%p) exit: state (%p) bad action %u",
-                sm,
-                exit->buff[count],
-                action);
+                                            EDS_TRACE__SOURCE_EDS_SMP,
+                                            EDS__ERROR_MALFORMED_SM,
+                                            "(%p) exit: state (%p) bad action %u",
+                                            sm,
+                                            exit->buff[count],
+                                            action);
             return EDS__ERROR_SM_BAD_EXIT;
         }
     }
@@ -99,13 +99,13 @@ hsm_path_build(struct eds_object__smp * sm, struct hsm_path * entry, struct hsm_
     entry->index = 0;
     exit->index--;
 
-/*--  path: a) source ?== destination  ---------------------------------------*/
+    /*--  path: a) source ?== destination  ---------------------------------------*/
     if (exit->buff[exit->index] == entry->buff[entry->index]) {
         entry->index++;
         exit->index++;
         return EDS__ERROR_NONE;
     }
-/*--  path: b) source ?== super(destination)  --------------------------------*/
+    /*--  path: b) source ?== super(destination)  --------------------------------*/
     error = hsm_get_state_super(sm, entry->buff[entry->index++]);
     if (error) {
         return EDS__ERROR_MALFORMED_SM;
@@ -115,7 +115,7 @@ hsm_path_build(struct eds_object__smp * sm, struct hsm_path * entry, struct hsm_
     if (exit->buff[exit->index] == entry->buff[entry->index]) {
         return EDS__ERROR_NONE;
     }
-/*--  path: c) super(source) ?== super(destination)  -------------------------*/
+    /*--  path: c) super(source) ?== super(destination)  -------------------------*/
     error = hsm_get_state_super(sm, exit->buff[exit->index++]);
     if (error) {
         return EDS__ERROR_MALFORMED_SM;
@@ -125,13 +125,13 @@ hsm_path_build(struct eds_object__smp * sm, struct hsm_path * entry, struct hsm_
     if (exit->buff[exit->index] == entry->buff[entry->index]) {
         return EDS__ERROR_NONE;
     }
-/*--  path: d) super(source) ?== destination  --------------------------------*/
+    /*--  path: d) super(source) ?== destination  --------------------------------*/
     entry->index--;
 
     if (exit->buff[exit->index] == entry->buff[entry->index]) {
         return EDS__ERROR_NONE;
     }
-/*--  path: e) source ?== ...super(super(destination))  ----------------------*/
+    /*--  path: e) source ?== ...super(super(destination))  ----------------------*/
     exit->index--;
     entry->index++;
 
@@ -145,7 +145,7 @@ hsm_path_build(struct eds_object__smp * sm, struct hsm_path * entry, struct hsm_
             return EDS__ERROR_NONE;
         }
     }
-/*--  path: f) super(source) ?== ...super(super(destination))  ---------------*/
+    /*--  path: f) super(source) ?== ...super(super(destination))  ---------------*/
     exit->index++;
 
     while (entry->index != 1u) {
@@ -154,7 +154,7 @@ hsm_path_build(struct eds_object__smp * sm, struct hsm_path * entry, struct hsm_
         }
         entry->index--;
     }
-/*--  path: g) ...super(super(source)) ?== ...super(super(destination))  -----*/
+    /*--  path: g) ...super(super(source)) ?== ...super(super(destination))  -----*/
 
     for (;;) {
         error = hsm_get_state_super(sm, exit->buff[exit->index++]);
@@ -183,7 +183,7 @@ eds_smp__init(struct eds_object__smp * sm, eds_object__smp_state * initial_state
 }
 
 eds__error
-eds_smp__dispatch(struct eds_object__smp *sm, const struct eds_object__evt *event)
+eds_smp__dispatch(struct eds_object__smp * sm, const struct eds_object__evt * event)
 {
 #if (EDS_CONFIG__SMP__ENABLE_HSM == 0)
     eds__sm_action action;
@@ -245,16 +245,16 @@ eds_smp__dispatch(struct eds_object__smp *sm, const struct eds_object__evt *even
 }
 
 extern inline eds__sm_action
-eds_smp__action_handled(struct eds_object__smp *sm);
+eds_smp__action_handled(struct eds_object__smp * sm);
 
 extern inline eds__sm_action
-eds_smp__action_ignored(struct eds_object__smp *sm);
+eds_smp__action_ignored(struct eds_object__smp * sm);
 
 extern inline eds__sm_action
-eds_smp__action_super(struct eds_object__smp *sm, eds_object__smp_state * super_state);
+eds_smp__action_super(struct eds_object__smp * sm, eds_object__smp_state * super_state);
 
 extern inline eds__sm_action
-eds_smp__action_transit(struct eds_object__smp *sm, eds_object__smp_state * next_state);
+eds_smp__action_transit(struct eds_object__smp * sm, eds_object__smp_state * next_state);
 
 extern inline void*
-eds_smp__workspace(const struct eds_object__smp *sm);
+eds_smp__workspace(const struct eds_object__smp * sm);

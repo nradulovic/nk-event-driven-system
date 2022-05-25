@@ -96,26 +96,26 @@ typedef uint_fast8_t eds_core__error;
     current = iterator, iterator = eds_core__list_next(iterator)
 
 inline void
-eds_core__list_init(struct eds_object__list *self)
+eds_core__list_init(struct eds_object__list * self)
 {
     self->p__next = self;
     self->p__prev = self;
 }
 
 inline struct eds_object__list*
-eds_core__list_next(const struct eds_object__list *self)
+eds_core__list_next(const struct eds_object__list * self)
 {
     return self->p__next;
 }
 
 inline struct eds_object__list*
-eds_core__list_prev(struct eds_object__list *self)
+eds_core__list_prev(struct eds_object__list * self)
 {
     return self->p__prev;
 }
 
 inline void
-eds_core__list_add_after(struct eds_object__list *self, struct eds_object__list *after)
+eds_core__list_add_after(struct eds_object__list * self, struct eds_object__list * after)
 {
     self->p__next = after->p__next;
     self->p__prev = after;
@@ -124,7 +124,7 @@ eds_core__list_add_after(struct eds_object__list *self, struct eds_object__list 
 }
 
 inline void
-eds_core__list_add_before(struct eds_object__list *self, struct eds_object__list *before)
+eds_core__list_add_before(struct eds_object__list * self, struct eds_object__list * before)
 {
     self->p__next = before;
     self->p__prev = before->p__prev;
@@ -133,7 +133,7 @@ eds_core__list_add_before(struct eds_object__list *self, struct eds_object__list
 }
 
 inline void
-eds_core__list_remove(struct eds_object__list *self)
+eds_core__list_remove(struct eds_object__list * self)
 {
     self->p__next->p__prev = self->p__prev;
     self->p__prev->p__next = self->p__next;
@@ -147,13 +147,13 @@ eds_core__list_remove(struct eds_object__list *self)
 }
 
 inline bool
-eds_core__list_is_empty(const struct eds_object__list *self)
+eds_core__list_is_empty(const struct eds_object__list * self)
 {
     return !!(self->p__next == self);
 }
 
 inline bool
-eds_core__list_is_singular(const struct eds_object__list *self)
+eds_core__list_is_singular(const struct eds_object__list * self)
 {
     return !!((self->p__next != self) && (self->p__next == self->p__prev));
 }
@@ -167,106 +167,106 @@ eds_core__list_is_singular(const struct eds_object__list *self)
     }
 
 void
-eds_core__vector_init(struct eds_object__vector *self,
-    void *entries,
+eds_core__vector_init(struct eds_object__vector * self,
+    void * entries,
     size_t item_size,
     uint32_t n_size);
 
 inline uint32_t
-eds_core__vector_n_entries(const struct eds_object__vector *self)
+eds_core__vector_n_entries(const struct eds_object__vector * self)
 {
     return self->p__n_entries;
 }
 
 inline uint32_t
-eds_core__vector_n_size(const struct eds_object__vector *self)
+eds_core__vector_n_size(const struct eds_object__vector * self)
 {
     return self->p__n_size;
 }
 
 inline bool
-eds_core__vector_is_full(const struct eds_object__vector *self)
+eds_core__vector_is_full(const struct eds_object__vector * self)
 {
     return (self->p__n_entries == self->p__n_size);
 }
 
 inline void*
-eds_core__vector_peek(const struct eds_object__vector *self, uint32_t index)
+eds_core__vector_peek(const struct eds_object__vector * self, uint32_t index)
 {
-    return (char*) self->p__entries + (self->p__item_size * index);
+    return (char*)self->p__entries + (self->p__item_size * index);
 }
 
 void
-eds_core__vector_insert(struct eds_object__vector *self, uint32_t index, const void *entry);
+eds_core__vector_insert(struct eds_object__vector * self, uint32_t index, const void * entry);
 
 void
-eds_core__vector_remove(struct eds_object__vector *self, uint32_t index);
+eds_core__vector_remove(struct eds_object__vector * self, uint32_t index);
 
 void
-eds_core__queue_init(struct eds_object__queue *self, uint32_t n_entries, void **storage);
+eds_core__queue_init(struct eds_object__queue * self, uint32_t n_entries, void ** storage);
 
 void
-eds_core__queue_term(struct eds_object__queue *self);
+eds_core__queue_term(struct eds_object__queue * self);
 
 void
-eds_core__queue_put_fifo(struct eds_object__queue *self, void *item);
+eds_core__queue_put_fifo(struct eds_object__queue * self, void * item);
 
 void
-eds_core__queue_put_lifo(struct eds_object__queue *self, void *item);
+eds_core__queue_put_lifo(struct eds_object__queue * self, void * item);
 
 void*
-eds_core__queue_get(struct eds_object__queue *self);
+eds_core__queue_get(struct eds_object__queue * self);
 
 void*
-eds_core__queue_head(const struct eds_object__queue *self);
+eds_core__queue_head(const struct eds_object__queue * self);
 
 void*
-eds_core__queue_tail(const struct eds_object__queue *self);
+eds_core__queue_tail(const struct eds_object__queue * self);
 
 inline uint32_t
-eds_core__queue_n_entries(const struct eds_object__queue *self)
+eds_core__queue_n_entries(const struct eds_object__queue * self)
 {
     return self->p__n_entries;
 }
 
 inline uint32_t
-eds_core__queue_n_free(const struct eds_object__queue *self)
+eds_core__queue_n_free(const struct eds_object__queue * self)
 {
     return self->p__n_free;
 }
 
 inline bool
-eds_core__queue_is_empty(const struct eds_object__queue *self)
+eds_core__queue_is_empty(const struct eds_object__queue * self)
 {
     return self->p__n_free == self->p__n_entries;
 }
 
 inline bool
-eds_core__queue_is_full(const struct eds_object__queue *self)
+eds_core__queue_is_full(const struct eds_object__queue * self)
 {
     return self->p__n_free == 0u;
 }
 
 void
-eds_core__tasker_node_init(struct eds_object__tasker_node *self, uint_fast8_t prio);
+eds_core__tasker_node_init(struct eds_object__tasker_node * self, uint_fast8_t prio);
 
 void
-eds_core__tasker_run(struct eds_object__tasker *self, struct eds_object__tasker_node *task);
+eds_core__tasker_run(struct eds_object__tasker * self, struct eds_object__tasker_node * task);
 
 void
-eds_core__tasker_pending_sleep(struct eds_object__tasker *self,
-    struct eds_object__tasker_node *task);
+eds_core__tasker_pending_sleep(struct eds_object__tasker * self,
+    struct eds_object__tasker_node * task);
 
 void
-eds_core__tasker_init(struct eds_object__tasker *self);
+eds_core__tasker_init(struct eds_object__tasker * self);
 
 void
-eds_core__tasker_term(struct eds_object__tasker *self);
+eds_core__tasker_term(struct eds_object__tasker * self);
 
 struct eds_object__tasker_node*
-eds_core__tasker_highest(const struct eds_object__tasker *self);
+eds_core__tasker_highest(const struct eds_object__tasker * self);
 
 bool
-eds_core__tasker_is_running(const struct eds_object__tasker *self);
+eds_core__tasker_is_running(const struct eds_object__tasker * self);
 
 #endif /* NEON_KIT_GENERIC_SOURCE_NK_EDS_CORE_H_ */

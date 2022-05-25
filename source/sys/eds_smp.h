@@ -20,13 +20,13 @@
 extern const struct eds_object__evt g__smp_events[];
 
 void
-eds_smp__init(struct eds_object__smp *sm, eds_object__smp_state *initial_state, void *workspace);
+eds_smp__init(struct eds_object__smp * sm, eds_object__smp_state * initial_state, void * workspace);
 
 eds__error
-eds_smp__dispatch(struct eds_object__smp *sm, const struct eds_object__evt *event);
+eds_smp__dispatch(struct eds_object__smp * sm, const struct eds_object__evt * event);
 
 inline eds__sm_action
-eds_smp__action_handled(struct eds_object__smp *sm)
+eds_smp__action_handled(struct eds_object__smp * sm)
 {
     (void)sm;
 
@@ -34,7 +34,7 @@ eds_smp__action_handled(struct eds_object__smp *sm)
 }
 
 inline eds__sm_action
-eds_smp__action_ignored(struct eds_object__smp *sm)
+eds_smp__action_ignored(struct eds_object__smp * sm)
 {
     (void)sm;
 
@@ -42,7 +42,7 @@ eds_smp__action_ignored(struct eds_object__smp *sm)
 }
 
 inline eds__sm_action
-eds_smp__action_super(struct eds_object__smp *sm, eds_object__smp_state * super_state)
+eds_smp__action_super(struct eds_object__smp * sm, eds_object__smp_state * super_state)
 {
     sm->p__state = super_state;
 
@@ -50,14 +50,14 @@ eds_smp__action_super(struct eds_object__smp *sm, eds_object__smp_state * super_
 }
 
 inline eds__sm_action
-eds_smp__action_transit(struct eds_object__smp *sm, eds_object__smp_state * next_state)
+eds_smp__action_transit(struct eds_object__smp * sm, eds_object__smp_state * next_state)
 {
     sm->p__state = next_state;
     return EDS__SM__ACTION__TRANSIT;
 }
 
 inline void*
-eds_smp__workspace(const struct eds_object__smp *sm)
+eds_smp__workspace(const struct eds_object__smp * sm)
 {
     return sm->p__workspace;
 }

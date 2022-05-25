@@ -259,9 +259,9 @@ typedef void
  *              @a max_size memory block was already added.
  */
 eds__error
-eds__mem_add_allocator(eds__mem_alloc_fn *alloc,
-    eds__mem_dealloc_fn *dealloc,
-    void *context,
+eds__mem_add_allocator(eds__mem_alloc_fn * alloc,
+    eds__mem_dealloc_fn * dealloc,
+    void * context,
     size_t max_size);
 
 /** @} *//**
@@ -281,11 +281,6 @@ eds__mem_add_allocator(eds__mem_alloc_fn *alloc,
  *
  * @{
  */
-
-struct eds__event_attr
-{
-    eds__event *static_instance;
-};
 
 /**
  * @brief       Create an event and initialize it.
@@ -313,7 +308,7 @@ struct eds__event_attr
  *              have been depleted.
  */
 eds__error
-eds__event_create(uint32_t event_id, size_t event_data_size, eds__event **event);
+eds__event_create(uint32_t event_id, size_t event_data_size, eds__event ** event);
 
 /**
  * @brief       Cancel an event
@@ -330,13 +325,20 @@ eds__event_create(uint32_t event_id, size_t event_data_size, eds__event **event)
  * @note        If event is statically allocated it can not be canceled.
  */
 eds__error
-eds__event_cancel(eds__event *event);
+eds__event_cancel(eds__event * event);
+
+/**
+ * @brief       Prevent event from being recycled (deleted) by the system
+ *
+ * Every event which is processed by all Agents that received it is then being deleted by EDS. After
+ * call to this function, the event won't be recycled by the system. The event will remain valid
+ * until @ref eds__event_toss is called.
+ */
+eds__error
+eds__event_keep(const eds__event * event);
 
 eds__error
-eds__event_keep(const eds__event *event);
-
-eds__error
-eds__event_toss(const eds__event *event);
+eds__event_toss(const eds__event * event);
 
 /**
  * @brief       Initialize a statically allocated event.
@@ -358,7 +360,7 @@ eds__event_toss(const eds__event *event);
  *              when @a event pointer is NULL pointer.
  */
 eds__error
-eds__event_init(eds__event *event, uint32_t event_id, size_t event_data_size);
+eds__event_init(eds__event * event, uint32_t event_id, size_t event_data_size);
 
 /**
  * @brief       Put data into event
@@ -369,8 +371,8 @@ eds__event_init(eds__event *event, uint32_t event_id, size_t event_data_size);
  * @return      Memory allocated by event where data can be put. The returned pointer will be NULL
  *              pointer if created event has been specified to have 0 bytes data.
  */
-void *
-eds__event_put_data(eds__event *event);
+void*
+eds__event_put_data(eds__event * event);
 
 /**
  * @brief       Get event identification number from the event.
@@ -381,7 +383,7 @@ eds__event_put_data(eds__event *event);
  * @return      Event identification number (uint32_t).
  */
 uint32_t
-eds__event_id(const eds__event *event);
+eds__event_id(const eds__event * event);
 
 /**
  * @brief       Get attached data from the event.
@@ -393,7 +395,7 @@ eds__event_id(const eds__event *event);
  * @retval      NULL The event has no attached data.
  */
 const void*
-eds__event_data(const eds__event *event);
+eds__event_data(const eds__event * event);
 
 /**
  * @brief       Get event attached data size from the event.
@@ -405,7 +407,7 @@ eds__event_data(const eds__event *event);
  * @retval      0 The event has no attached data.
  */
 size_t
-eds__event_size(const eds__event *event);
+eds__event_size(const eds__event * event);
 
 /** @} *//**
  * @defgroup    sm State machine
@@ -421,22 +423,22 @@ eds__event_size(const eds__event *event);
 typedef uint_fast8_t eds__sm_action;
 
 typedef eds__sm_action
-(eds__sm_state)(eds__sm*, void *workspace, const eds__event *event);
+(eds__sm_state)(eds__sm*, void * workspace, const eds__event * event);
 
 eds__sm_action
-eds__sm_event_handled(eds__sm *sm);
+eds__sm_event_handled(eds__sm * sm);
 
 eds__sm_action
-eds__sm_event_ignored(eds__sm *sm);
+eds__sm_event_ignored(eds__sm * sm);
 
 eds__sm_action
-eds__sm_transit_to(eds__sm *sm, eds__sm_state *new_state);
+eds__sm_transit_to(eds__sm * sm, eds__sm_state * new_state);
 
 eds__sm_action
-eds__sm_super_state(eds__sm *sm, eds__sm_state *super_state);
+eds__sm_super_state(eds__sm * sm, eds__sm_state * super_state);
 
 eds__sm_action
-eds__sm_top_state(eds__sm *sm, void *workspace, const eds__event *event);
+eds__sm_top_state(eds__sm * sm, void * workspace, const eds__event * event);
 
 /** @} *//**
  * @defgroup    eds_agent Event Processing Agent (EPA)
@@ -489,11 +491,11 @@ typedef enum eds_object__epa_prio
  */
 struct eds__agent_attr
 {
-    const char *name;
+    const char * name;
     eds__epa_prio prio;
     uint32_t equeue_entries;
-    eds__agent *static_instance;
-    eds__event **static_equeue_storage;
+    eds__agent * static_instance;
+    eds__event ** static_equeue_storage;
 };
 
 /**
@@ -523,19 +525,19 @@ struct eds__agent_attr
  *              have been depleted.
  */
 eds__error
-eds__agent_create(eds__sm_state *sm_initial_state,
-    void *sm_workspace,
-    const struct eds__agent_attr *attr,
-    eds__agent **agent);
+eds__agent_create(eds__sm_state * sm_initial_state,
+    void * sm_workspace,
+    const struct eds__agent_attr * attr,
+    eds__agent ** agent);
 
 eds__error
-eds__agent_delete(eds__agent *agent);
+eds__agent_delete(eds__agent * agent);
 
 eds__error
-eds__agent_send(eds__agent *agent, const eds__event *event);
+eds__agent_send(eds__agent * agent, const eds__event * event);
 
 eds__agent*
-eds__agent_from_sm(eds__sm *sm);
+eds__agent_from_sm(eds__sm * sm);
 
 /**
  * @brief       Get the network this agent belongs to
@@ -546,7 +548,7 @@ eds__agent_from_sm(eds__sm *sm);
  *              pointer is NULL pointer.
  */
 eds__network*
-eds__agent_network(const eds__agent *agent);
+eds__agent_network(const eds__agent * agent);
 
 /**
  * @brief       Get the workspace of this agent
@@ -556,7 +558,7 @@ eds__agent_network(const eds__agent *agent);
  *              during the creation of the agent.
  */
 void*
-eds__agent_workspace(const eds__agent *agent);
+eds__agent_workspace(const eds__agent * agent);
 
 /** @} */
 #define EDS__ETIMER_FLAG__UP_TO             0x1
@@ -564,45 +566,45 @@ eds__agent_workspace(const eds__agent *agent);
 
 struct eds__etimer_attr
 {
-    eds__etimer *static_instance;
+    eds__etimer * static_instance;
     uint32_t flags;
 };
 
 eds__error
-eds__etimer_create(const struct eds__etimer_attr *attr, eds__etimer **etimer);
+eds__etimer_create(const struct eds__etimer_attr * attr, eds__etimer ** etimer);
 
 eds__error
-eds__etimer_delete(eds__etimer *etimer);
+eds__etimer_delete(eds__etimer * etimer);
 
 eds__error
-eds__etimer_send_after(eds__etimer *etimer,
-    eds__agent *agent,
-    const eds__event *event,
+eds__etimer_send_after(eds__etimer * etimer,
+    eds__agent * agent,
+    const eds__event * event,
     uint32_t after_ms);
 
 eds__error
-eds__etimer_send_every(eds__etimer *etimer,
-    eds__agent *agent,
-    const eds__event *event,
+eds__etimer_send_every(eds__etimer * etimer,
+    eds__agent * agent,
+    const eds__event * event,
     uint32_t every_ms);
 
 eds__error
-eds__etimer_cancel(eds__etimer *etimer);
+eds__etimer_cancel(eds__etimer * etimer);
 
 struct eds__epn_attr
 {
-    const char *name;
-    eds__network *instance;
+    const char * name;
+    eds__network * instance;
 };
 
 eds__error
-eds__network_create(const struct eds__epn_attr *atrr, eds__network **epn);
+eds__network_create(const struct eds__epn_attr * atrr, eds__network ** epn);
 
 eds__error
-eds__epn_delete(eds__network *epn);
+eds__epn_delete(eds__network * epn);
 
 eds__error
-eds__network_add_agent(eds__network *epn, eds__agent *sm);
+eds__network_add_agent(eds__network * epn, eds__agent * sm);
 
 /**
  * @brief       Remove an agent from the network
@@ -617,13 +619,13 @@ eds__network_add_agent(eds__network *epn, eds__agent *sm);
  *              network.
  */
 eds__error
-eds__network_remove_agent(eds__network *network, eds__agent *agent);
+eds__network_remove_agent(eds__network * network, eds__agent * agent);
 
 eds__error
-eds__network_start(eds__network *epn);
+eds__network_start(eds__network * epn);
 
 eds__error
-eds__epn_stop(eds__network *epn);
+eds__epn_stop(eds__network * epn);
 
 eds__error
 eds__tick_process_all(void);

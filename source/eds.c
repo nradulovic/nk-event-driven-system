@@ -19,24 +19,26 @@
 
 #include <assert.h>
 
-static struct eds_object__list eds__epn_list = EDS_CORE__LIST_INITIALIZER(&eds__epn_list);
+static struct eds_object__list eds__epn_list = EDS_CORE__LIST_INITIALIZER(&eds__epn_list)
+;
 
-const char * eds__error_to_str(uint32_t error)
+const char*
+eds__error_to_str(uint32_t error)
 {
     static const char * error_texts[] =
-    {
-        [EDS__ERROR_NONE] = "none",
-        [EDS__ERROR_INVALID_ARGUMENT] = "invalid argument",
-        [EDS__ERROR_NO_MEMORY] = "no memory",
-        [EDS__ERROR_NO_RESOURCE] = "no resource",
-        [EDS__ERROR_NO_PERMISSION] = "no permission",
-        [EDS__ERROR_ALREADY_EXISTS] = "already exists",
-        [EDS__ERROR_INVALID_CONFIGURATION] = "invalid configuration",
-        [EDS__ERROR_NOT_EXISTS] = "not exists",
-        [EDS__ERROR_MALFORMED_SM] = "malformed SM",
-        [EDS__ERROR_NO_SPACE] = "no space",
-        [EDS__ERROR_OUT_OF_RANGE] = "out of range",
-    };
+        {
+            [EDS__ERROR_NONE] = "none",
+            [EDS__ERROR_INVALID_ARGUMENT] = "invalid argument",
+            [EDS__ERROR_NO_MEMORY] = "no memory",
+            [EDS__ERROR_NO_RESOURCE] = "no resource",
+            [EDS__ERROR_NO_PERMISSION] = "no permission",
+            [EDS__ERROR_ALREADY_EXISTS] = "already exists",
+            [EDS__ERROR_INVALID_CONFIGURATION] = "invalid configuration",
+            [EDS__ERROR_NOT_EXISTS] = "not exists",
+            [EDS__ERROR_MALFORMED_SM] = "malformed SM",
+            [EDS__ERROR_NO_SPACE] = "no space",
+            [EDS__ERROR_OUT_OF_RANGE] = "out of range",
+        };
     const char * error_text = NULL;
 
     if (error < (sizeof(error_texts) / sizeof(error_texts[0]))) {
@@ -75,9 +77,9 @@ eds__mem_add_allocator(eds__mem_alloc_fn * alloc,
 }
 
 eds__error
-eds__event_create(uint32_t event_id, size_t event_data_size, eds__event **event)
+eds__event_create(uint32_t event_id, size_t event_data_size, eds__event ** event)
 {
-    struct eds_object__evt *l_event;
+    struct eds_object__evt * l_event;
     eds_core__error core_error;
 
     if ((event_id == 0) || (event == NULL)) {
@@ -91,14 +93,13 @@ eds__event_create(uint32_t event_id, size_t event_data_size, eds__event **event)
         return EDS__ERROR_NO_MEMORY;
     default:
         break;
-    }
-    EDS_TRACE__INFO(EDS_TRACE__SOURCE_EVENT_CREATE, "id, event_id, data_size = (%p,%u,%u)", event, event_id, event_data_size);
+    }EDS_TRACE__INFO(EDS_TRACE__SOURCE_EVENT_CREATE, "id, event_id, data_size = (%p,%u,%u)", event, event_id, event_data_size);
     *event = l_event;
     return EDS__ERROR_NONE;
 }
 
 eds__error
-eds__event_cancel(eds__event *event)
+eds__event_cancel(eds__event * event)
 {
     struct eds_port__critical critical;
 
@@ -107,8 +108,7 @@ eds__event_cancel(eds__event *event)
     }
     if (event->p__mem == NULL) {
         return EDS__ERROR_NO_PERMISSION;
-    }
-    EDS_TRACE__INFO(EDS_TRACE__SOURCE_EVENT_CANCEL, "%u", event->p__id);
+    }EDS_TRACE__INFO(EDS_TRACE__SOURCE_EVENT_CANCEL, "%u", event->p__id);
     eds_port__critical_lock(&critical);
     if (eds_evt__is_in_use(event)) {
         event->p__id = EDS__EVENT__NULL;
@@ -121,7 +121,7 @@ eds__event_cancel(eds__event *event)
 }
 
 eds__error
-eds__event_keep(const eds__event *event)
+eds__event_keep(const eds__event * event)
 {
     if (event == NULL) {
         return EDS__ERROR_INVALID_ARGUMENT;
@@ -135,7 +135,7 @@ eds__event_keep(const eds__event *event)
 }
 
 eds__error
-eds__event_toss(const eds__event *event)
+eds__event_toss(const eds__event * event)
 {
     if (event == NULL) {
         EDS_TRACE__EXIT(EDS_TRACE__SOURCE_EVENT_TOSS, EDS__ERROR_INVALID_ARGUMENT, "event = %p", event);
@@ -156,7 +156,7 @@ eds__event_toss(const eds__event *event)
 }
 
 eds__error
-eds__event_init(eds__event *event, uint32_t event_id, size_t event_data_size)
+eds__event_init(eds__event * event, uint32_t event_id, size_t event_data_size)
 {
     if ((event_id == 0) || (event == NULL)) {
         return EDS__ERROR_INVALID_ARGUMENT;
@@ -166,7 +166,7 @@ eds__event_init(eds__event *event, uint32_t event_id, size_t event_data_size)
     return EDS__ERROR_NONE;
 }
 
-void *
+void*
 eds__event_put_data(eds__event * event)
 {
     assert(event != NULL);
@@ -178,14 +178,14 @@ eds__event_put_data(eds__event * event)
 }
 
 uint32_t
-eds__event_id(const eds__event *event)
+eds__event_id(const eds__event * event)
 {
     assert(event != NULL);
     return event->p__id;
 }
 
 const void*
-eds__event_data(const eds__event *event)
+eds__event_data(const eds__event * event)
 {
     assert(event != NULL);
     if (event->p__size != 0u) {
@@ -196,39 +196,38 @@ eds__event_data(const eds__event *event)
 }
 
 size_t
-eds__event_size(const eds__event *event)
+eds__event_size(const eds__event * event)
 {
     assert(event != NULL);
     return event->p__size;
 }
 
-
 eds__sm_action
-eds__sm_event_handled(eds__sm *sm)
+eds__sm_event_handled(eds__sm * sm)
 {
     return eds_smp__action_handled(sm);
 }
 
 eds__sm_action
-eds__sm_event_ignored(eds__sm *sm)
+eds__sm_event_ignored(eds__sm * sm)
 {
     return eds_smp__action_ignored(sm);
 }
 
 eds__sm_action
-eds__sm_transit_to(eds__sm *sm, eds__sm_state *new_state)
+eds__sm_transit_to(eds__sm * sm, eds__sm_state * new_state)
 {
     return eds_smp__action_transit(sm, new_state);
 }
 
 eds__sm_action
-eds__sm_super_state(eds__sm *sm, eds__sm_state *super_state)
+eds__sm_super_state(eds__sm * sm, eds__sm_state * super_state)
 {
     return eds_smp__action_super(sm, super_state);
 }
 
 eds__sm_action
-eds__sm_top_state(eds__sm *sm, void *workspace, const eds__event *event)
+eds__sm_top_state(eds__sm * sm, void * workspace, const eds__event * event)
 {
     (void)sm;
     (void)workspace;
@@ -240,41 +239,40 @@ eds__sm_top_state(eds__sm *sm, void *workspace, const eds__event *event)
 }
 
 eds__error
-eds__agent_create(eds__sm_state *sm_initial_state,
-    void *sm_workspace,
-    const struct eds__agent_attr *attr,
-    eds__agent **agent)
+eds__agent_create(eds__sm_state * sm_initial_state,
+    void * sm_workspace,
+    const struct eds__agent_attr * attr,
+    eds__agent ** agent)
 {
     static const struct eds__agent_attr default_attr =
         {
             .name = EDS__DEFAULT_EPA_NAME,
             .prio = EDS__DEFAULT_EPA_PRIO,
-            .equeue_entries = EDS__DEFAULT_EPA_QUEUE_ENTRIES,
+            .equeue_entries =
+            EDS__DEFAULT_EPA_QUEUE_ENTRIES,
             .static_instance = NULL,
             .static_equeue_storage = NULL
         };
     eds__error error;
 
     if ((sm_initial_state == NULL) || (agent == NULL)) {
-        EDS_TRACE__EXIT(
-                EDS_TRACE__SOURCE_AGENT_CREATE,
-                EDS__ERROR_INVALID_ARGUMENT,
-                "sm_initial_state, agent = (%p, %p)",
-                sm_initial_state,
-                agent);
+        EDS_TRACE__EXIT(EDS_TRACE__SOURCE_AGENT_CREATE,
+                                        EDS__ERROR_INVALID_ARGUMENT,
+                                        "sm_initial_state, agent = (%p, %p)",
+                                        sm_initial_state,
+                                        agent);
         return EDS__ERROR_INVALID_ARGUMENT;
     }
     attr = attr != NULL ? attr : &default_attr;
     if ((attr->equeue_entries == 0u)
         || ((attr->static_instance != NULL) && (attr->static_equeue_storage == NULL))
         || ((attr->static_instance == NULL) && (attr->static_equeue_storage != NULL))) {
-        EDS_TRACE__EXIT(
-                EDS_TRACE__SOURCE_AGENT_CREATE,
-                EDS__ERROR_INVALID_CONFIGURATION,
-                "equeue_entries, static_instance, static_equeue_storage = (%u, %p, %p)",
-                attr->equeue_entries,
-                attr->static_instance,
-                attr->static_equeue_storage);
+        EDS_TRACE__EXIT(EDS_TRACE__SOURCE_AGENT_CREATE,
+                                        EDS__ERROR_INVALID_CONFIGURATION,
+                                        "equeue_entries, static_instance, static_equeue_storage = (%u, %p, %p)",
+                                        attr->equeue_entries,
+                                        attr->static_instance,
+                                        attr->static_equeue_storage);
         return EDS__ERROR_INVALID_CONFIGURATION;
     }
     error = eds_epa__create(sm_initial_state, sm_workspace, attr, agent);
@@ -283,7 +281,7 @@ eds__agent_create(eds__sm_state *sm_initial_state,
 }
 
 eds__error
-eds__agent_delete(eds__agent *agent)
+eds__agent_delete(eds__agent * agent)
 {
     struct eds_port__critical critical;
 
@@ -303,14 +301,18 @@ eds__agent_delete(eds__agent *agent)
 }
 
 eds__error
-eds__agent_send(eds__agent *agent, const eds__event *event)
+eds__agent_send(eds__agent * agent, const eds__event * event)
 {
     struct eds_port__critical critical;
     eds__error error;
     eds_core__error core_error;
 
     if ((agent == NULL) || (event == NULL)) {
-        EDS_TRACE__EXIT(EDS_TRACE__SOURCE_AGENT_SEND, EDS__ERROR_INVALID_ARGUMENT, "agent, event = (%p, %p)", agent, event);
+        EDS_TRACE__EXIT(EDS_TRACE__SOURCE_AGENT_SEND,
+                                        EDS__ERROR_INVALID_ARGUMENT,
+                                        "agent, event = (%p, %p)",
+                                        agent,
+                                        event);
         return EDS__ERROR_INVALID_ARGUMENT;
     }
     if (eds_epa__is_designated(agent) == false) {
@@ -333,25 +335,25 @@ eds__agent_send(eds__agent *agent, const eds__event *event)
 }
 
 eds__agent*
-eds__agent_from_sm(eds__sm *sm)
+eds__agent_from_sm(eds__sm * sm)
 {
     return EDS_CORE__CONTAINER_OF(sm, struct eds_object__epa, p__smp);
 }
 
 eds__network*
-eds__agent_network(const eds__agent *agent)
+eds__agent_network(const eds__agent * agent)
 {
     return eds_epa__designation(agent);
 }
 
 void*
-eds__agent_workspace(const eds__agent *agent)
+eds__agent_workspace(const eds__agent * agent)
 {
     return eds_smp__workspace(eds_epa__smp(agent));
 }
 
 eds__error
-eds__etimer_create(const struct eds__etimer_attr *attr, eds__etimer **etimer)
+eds__etimer_create(const struct eds__etimer_attr * attr, eds__etimer ** etimer)
 {
     static const struct eds__etimer_attr default_attr;
 
@@ -366,7 +368,7 @@ eds__etimer_create(const struct eds__etimer_attr *attr, eds__etimer **etimer)
 }
 
 eds__error
-eds__etimer_delete(eds__etimer *etimer)
+eds__etimer_delete(eds__etimer * etimer)
 {
     if (etimer == NULL) {
         return EDS__ERROR_INVALID_ARGUMENT;
@@ -375,13 +377,13 @@ eds__etimer_delete(eds__etimer *etimer)
 }
 
 eds__error
-eds__etimer_send_after(eds__etimer *etimer,
-    eds__agent *agent,
-    const eds__event *event,
+eds__etimer_send_after(eds__etimer * etimer,
+    eds__agent * agent,
+    const eds__event * event,
     uint32_t after_ms)
 {
     struct eds_port__critical critical;
-    struct eds_object__epn *epn;
+    struct eds_object__epn * epn;
 
     if ((etimer == NULL) || (agent == NULL) || (event == NULL)) {
         EDS_TRACE__EXIT(EDS_TRACE__SOURCE_ETIMER_SEND_AFTER, EDS__ERROR_INVALID_ARGUMENT, "etimer, agent, event = (%p, %p, %p)", etimer, agent, event);
@@ -406,27 +408,22 @@ eds__etimer_send_after(eds__etimer *etimer,
     eds_etm__designate(etimer, agent); /* Designate that this timer is owned by the agent */
     eds_etm__set_event(etimer, event);
     eds_evt__ref_up(event);
-    eds_etm_service__start_once(eds_epn__etm_service(epn), etimer, eds_port__tick_from_ms(after_ms));
-    eds_port__critical_unlock(&critical);
-    EDS_TRACE__EXIT(
-        EDS_TRACE__SOURCE_ETIMER_SEND_AFTER,
-        EDS__ERROR_NONE,
-        "etimer, agent, event_id, after_ms = (%p, %p, %u, %u)",
+    eds_etm_service__start_once(eds_epn__etm_service(epn),
         etimer,
-        agent,
-        event->p__id,
-        after_ms);
+        eds_port__tick_from_ms(after_ms));
+    eds_port__critical_unlock(&critical);
+    EDS_TRACE__EXIT(EDS_TRACE__SOURCE_ETIMER_SEND_AFTER, EDS__ERROR_NONE, "etimer, agent, event_id, after_ms = (%p, %p, %u, %u)", etimer, agent, event->p__id, after_ms);
     return EDS__ERROR_NONE;
 }
 
 eds__error
-eds__etimer_send_every(eds__etimer *etimer,
-    eds__agent *agent,
-    const eds__event *event,
+eds__etimer_send_every(eds__etimer * etimer,
+    eds__agent * agent,
+    const eds__event * event,
     uint32_t every_ms)
 {
     struct eds_port__critical critical;
-    struct eds_object__epn *epn;
+    struct eds_object__epn * epn;
 
     if ((etimer == NULL) || (agent == NULL) || (event == NULL)) {
         return EDS__ERROR_INVALID_ARGUMENT;
@@ -447,16 +444,18 @@ eds__etimer_send_every(eds__etimer *etimer,
     eds_etm__designate(etimer, agent); /* Designate that this timer is owned by the agent */
     eds_etm__set_event(etimer, event);
     eds_evt__ref_up(event);
-    eds_etm_service__start_periodic(eds_epn__etm_service(epn), etimer, eds_port__tick_from_ms(every_ms));
+    eds_etm_service__start_periodic(eds_epn__etm_service(epn),
+        etimer,
+        eds_port__tick_from_ms(every_ms));
     eds_port__critical_unlock(&critical);
     return EDS__ERROR_NONE;
 }
 
 eds__error
-eds__etimer_cancel(eds__etimer *etimer)
+eds__etimer_cancel(eds__etimer * etimer)
 {
     struct eds_port__critical critical;
-    struct eds_object__epn *epn;
+    struct eds_object__epn * epn;
 
     if (etimer == NULL) {
         return EDS__ERROR_INVALID_ARGUMENT;
@@ -477,23 +476,19 @@ eds__etimer_cancel(eds__etimer *etimer)
     eds_evt__ref_down(etimer->p__evt);
     eds_evt__deallocate(etimer->p__evt); /* Dispose of event as well */
     eds_port__critical_unlock(&critical);
-    EDS_TRACE__EXIT(
-        EDS_TRACE__SOURCE_ETIMER_CANCEL,
-        EDS__ERROR_NONE,
-        "etimer = (%p)",
-        etimer);
+    EDS_TRACE__EXIT(EDS_TRACE__SOURCE_ETIMER_CANCEL, EDS__ERROR_NONE, "etimer = (%p)", etimer);
     return EDS__ERROR_NONE;
 }
 
 eds__error
-eds__network_create(const struct eds__epn_attr *attr, eds__network **network)
+eds__network_create(const struct eds__epn_attr * attr, eds__network ** network)
 {
     static const struct eds__epn_attr default_attr =
         {
-        .name = EDS__DEFAULT_EPN_NAME
+            .name = EDS__DEFAULT_EPN_NAME
         };
-    struct eds_object__epn *epn;
-    struct eds_object__mem *mem;
+    struct eds_object__epn * epn;
+    struct eds_object__mem * mem;
 
     if (network == NULL) {
         return EDS__ERROR_INVALID_ARGUMENT;
@@ -532,7 +527,7 @@ eds__network_create(const struct eds__epn_attr *attr, eds__network **network)
 }
 
 eds__error
-eds__epn_delete(eds__network *epn)
+eds__epn_delete(eds__network * epn)
 {
     if (epn == NULL) {
         return EDS__ERROR_INVALID_ARGUMENT;
@@ -545,7 +540,7 @@ eds__epn_delete(eds__network *epn)
 }
 
 eds__error
-eds__network_add_agent(eds__network *network, eds__agent *agent)
+eds__network_add_agent(eds__network * network, eds__agent * agent)
 {
     struct eds_port__critical critical;
     const struct eds_object__evt * const initial_event = &g__smp_events[EDS__SM_EVENT__INIT];
@@ -571,7 +566,7 @@ eds__network_add_agent(eds__network *network, eds__agent *agent)
 }
 
 eds__error
-eds__network_remove_agent(eds__network *network, eds__agent *agent)
+eds__network_remove_agent(eds__network * network, eds__agent * agent)
 {
     struct eds_port__critical critical;
 
@@ -590,7 +585,7 @@ eds__network_remove_agent(eds__network *network, eds__agent *agent)
 }
 
 eds__error
-eds__network_start(eds__network *network)
+eds__network_start(eds__network * network)
 {
     static bool is_port_initialized;
     struct eds_port__critical critical;
@@ -606,13 +601,13 @@ eds__network_start(eds__network *network)
     eds_core__list_add_after(&network->p__list, &eds__epn_list);
     eds_port__critical_unlock(&critical);
     while (network->p__should_run) {
-        struct eds_object__tasker_node *current;
+        struct eds_object__tasker_node * current;
 
         eds__error error = EDS__ERROR_NONE;
 
         eds_port__critical_lock(&critical);
         while ((current = eds_core__tasker_highest(&network->p__tasker)) != NULL) {
-            struct eds_object__epa *current_epa;
+            struct eds_object__epa * current_epa;
 
             current_epa = EDS_CORE__CONTAINER_OF(current, struct eds_object__epa, p__task);
             error = eds_epa__dispatch(current_epa, &critical);
@@ -633,7 +628,7 @@ eds__network_start(eds__network *network)
 }
 
 eds__error
-eds__epn_stop(eds__network *network)
+eds__epn_stop(eds__network * network)
 {
     if (network == NULL) {
         return EDS__ERROR_INVALID_ARGUMENT;
