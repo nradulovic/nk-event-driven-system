@@ -34,36 +34,36 @@ static struct tick_context tick;
 
 struct sm__workspace
 {
-    eds__etimer *tick;
+    eds__etimer * tick;
 };
 
 static void*
-std_alloc(void *context, size_t size)
+std_alloc(void * context, size_t size)
 {
-    (void) context;
+    (void)context;
 
     return malloc(size);
 }
 
 static void
-std_free(void *context, void *memory)
+std_free(void * context, void * memory)
 {
-    (void) context;
+    (void)context;
 
     free(memory);
 }
 
 static eds__sm_action
-sm__blink_off(eds__sm *sm, void *workspace, const eds__event *event);
+sm__blink_off(eds__sm * sm, void * workspace, const eds__event * event);
 static eds__sm_action
-sm__blink_on(eds__sm *sm, void *workspace, const eds__event *event);
+sm__blink_on(eds__sm * sm, void * workspace, const eds__event * event);
 static eds__sm_action
-sm__blink_init(eds__sm *sm, void *workspace, const eds__event *event);
+sm__blink_init(eds__sm * sm, void * workspace, const eds__event * event);
 
 static eds__sm_action
-sm__blink_off(eds__sm *sm, void *workspace, const eds__event *event)
+sm__blink_off(eds__sm * sm, void * workspace, const eds__event * event)
 {
-    (void) workspace;
+    (void)workspace;
 
     switch (eds__event_id(event)) {
     case EDS__SM_EVENT__INIT:
@@ -78,9 +78,9 @@ sm__blink_off(eds__sm *sm, void *workspace, const eds__event *event)
 }
 
 static eds__sm_action
-sm__blink_on(eds__sm *sm, void *workspace, const eds__event *event)
+sm__blink_on(eds__sm * sm, void * workspace, const eds__event * event)
 {
-    (void) workspace;
+    (void)workspace;
 
     switch (eds__event_id(event)) {
     case EDS__SM_EVENT__INIT:
@@ -95,11 +95,11 @@ sm__blink_on(eds__sm *sm, void *workspace, const eds__event *event)
 }
 
 static eds__sm_action
-sm__blink_init(eds__sm *sm, void *workspace, const eds__event *event)
+sm__blink_init(eds__sm * sm, void * workspace, const eds__event * event)
 {
-    struct sm__workspace *ws = workspace;
+    struct sm__workspace * ws = workspace;
     eds__error error;
-    eds__event *n_event;
+    eds__event * n_event;
 
     switch (eds__event_id(event)) {
     case EDS__SM_EVENT__INIT:
@@ -121,21 +121,21 @@ timer_handler(int sig_no)
 {
     int error;
 
-    (void) sig_no;
+    (void)sig_no;
     error = sem_post(&tick.timer_lock);
     assert(error == 0);
 }
 
 static void*
-tick_thread(void *arg)
+tick_thread(void * arg)
 {
-    (void) arg;
+    (void)arg;
 
     for (;;) {
         eds__error error;
 
         sem_wait(&tick.timer_lock);
-        error = eds__epn_process_tick();
+        error = eds__tick_process_all();
         assert(error == EDS__ERROR_NONE);
     }
     return NULL;
@@ -167,8 +167,8 @@ int
 main(void)
 {
     eds__error error;
-    eds__agent *sm_blink_agent;
-    eds__network *network;
+    eds__agent * sm_blink_agent;
+    eds__network * network;
     struct sm__workspace sm__blink_workspace;
 
     tick_setup();
