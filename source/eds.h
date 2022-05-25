@@ -160,7 +160,16 @@ typedef uint_fast8_t eds__error;
 #define EDS__ERROR_SM_BAD_INIT              0x0d
 #define EDS__ERROR_SM_BAD_SUPER             0x0e
 
-const char * eds__error_to_str(uint32_t error);
+/**
+ * @brief       Convert EDS error to human readable string
+ *
+ * @param       error is integer value of an EDS error. For possible values refer to @see eds_errors
+ * @return      Pointer to constant string describing the error. This pointer can not be a NULL
+ *              pointer. In case when error value is not recognized by the function, it will return
+ *              string with text "unknown".
+ */
+const char*
+eds__error_to_str(uint32_t error);
 
 /** @} *//**
  * @defgroup    eds_mem Memory allocator
@@ -306,6 +315,20 @@ struct eds__event_attr
 eds__error
 eds__event_create(uint32_t event_id, size_t event_data_size, eds__event **event);
 
+/**
+ * @brief       Cancel an event
+ *
+ * Once the event is sent to an Agent, the only way to undo this action is to cancel the event. The
+ * event is cancelled to all receiving Agents to which the event has been sent.
+ *
+ * @param       event Pointer to event.
+ * @return      Operation status.
+ * @retval      EDS__ERROR_NONE Operation completed successfully.
+ * @retval      EDS__ERROR_INVALID_ARGUMENT Is returned when @a event pointer is NULL pointer.
+ * @retval      EDS__ERROR_NO_PERMISSION Is returned when event is statically allocated and that
+ *              class of events can not be canceled.
+ * @note        If event is statically allocated it can not be canceled.
+ */
 eds__error
 eds__event_cancel(eds__event *event);
 
@@ -316,7 +339,7 @@ eds__error
 eds__event_toss(const eds__event *event);
 
 /**
- * @brief       Initialize a static event.
+ * @brief       Initialize a statically allocated event.
  *
  * Static event is an event which always exists. Once processed it can not be deleted. Using static
  * events is an alternative when embedded system does not allow any memory allocation.
@@ -337,9 +360,17 @@ eds__event_toss(const eds__event *event);
 eds__error
 eds__event_init(eds__event *event, uint32_t event_id, size_t event_data_size);
 
-
+/**
+ * @brief       Put data into event
+ *
+ * @pre         Argument @a event must be a non-NULL pointer and pointing to a previously initialized
+ *              or created event.
+ * @param       event Pointer to event.
+ * @return      Memory allocated by event where data can be put. The returned pointer will be NULL
+ *              pointer if created event has been specified to have 0 bytes data.
+ */
 void *
-eds__event_put_data(eds__event * event);
+eds__event_put_data(eds__event *event);
 
 /**
  * @brief       Get event identification number from the event.
