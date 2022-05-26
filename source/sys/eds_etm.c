@@ -78,15 +78,11 @@ eds_etm__delete(eds__etimer * etimer)
 {
     struct eds_port__critical critical;
 
-    eds_port__critical_lock(&critical);
-    if (eds_etm__is_designated(etimer) == false) {
-        eds_port__critical_unlock(&critical);
-        return EDS__ERROR_NOT_EXISTS;
-    }
     if (etimer->p__mem != NULL) {
+        eds_port__critical_lock(&critical);
         eds_mem__deallocate_to(etimer->p__mem, etimer);
+        eds_port__critical_unlock(&critical);
     }
-    eds_port__critical_unlock(&critical);
     return EDS__ERROR_NONE;
 }
 
