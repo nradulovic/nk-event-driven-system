@@ -267,13 +267,17 @@ test__eds_core__insert_leak(void)
         uint32_t entries[DUMMY_VECTOR_SIZE];
         uint32_t end_guard;
     } dummy_entries =
-        {
-        .begin_guard = BEGIN_GUARD_VALUE, .end_guard = END_GUARD_VALUE
-        };
+    {
+        .begin_guard = BEGIN_GUARD_VALUE, 
+        .end_guard = END_GUARD_VALUE
+    };
     uint32_t dummy_insert_1 = DUMMY_INSERT_1_VALUE;
     uint32_t dummy_insert_2 = DUMMY_INSERT_2_VALUE;
-    eds_core__vector_init(&vector, &dummy_entries.entries[0], sizeof(dummy_entries.entries[0]),
-    DUMMY_VECTOR_SIZE);
+    eds_core__vector_init(
+        &vector, 
+        &dummy_entries.entries[0], 
+        sizeof(dummy_entries.entries[0]),
+        DUMMY_VECTOR_SIZE);
     eds_core__vector_insert(&vector, 0, &dummy_insert_1);
     eds_core__vector_insert(&vector, 0, &dummy_insert_2);
     /* CUT */
@@ -296,19 +300,18 @@ void
 nk_test__execute(void)
 {
     static const struct nk_testsuite__test tests[] =
-        {
+    {
         NK_TEST__TEST(test__eds_core__vector_init),
-    NK_TEST__TEST(test__eds_core__vector_insert__first),
-NK_TEST__TEST(test__eds_core__vector_insert__second),
-NK_TEST__TEST(test__eds_core__vector_remove__first),
-NK_TEST__TEST(test__eds_core__vector_remove__second_of_two),
-NK_TEST__TEST(test__eds_core__vector_remove__first_of_two),
-NK_TEST__TEST(test__eds_core__vector_remove__all),
-NK_TEST__TEST(test__eds_core__vector_insert__second_at_zero),
-NK_TEST__TEST(test__eds_core__vector_is_full),
-NK_TEST__TEST(test__eds_core__insert_leak),
-NK_TEST__TEST_TERMINATE()
-}
-    ;
+        NK_TEST__TEST(test__eds_core__vector_insert__first),
+        NK_TEST__TEST(test__eds_core__vector_insert__second),
+        NK_TEST__TEST(test__eds_core__vector_remove__first),
+        NK_TEST__TEST(test__eds_core__vector_remove__second_of_two),
+        NK_TEST__TEST(test__eds_core__vector_remove__first_of_two),
+        NK_TEST__TEST(test__eds_core__vector_remove__all),
+        NK_TEST__TEST(test__eds_core__vector_insert__second_at_zero),
+        NK_TEST__TEST(test__eds_core__vector_is_full),
+        NK_TEST__TEST(test__eds_core__insert_leak),
+        NK_TEST__TEST_TERMINATE()
+    };
     nk_test__run_fixture(tests, NULL, NULL, NK_TESTSUITE__FIXTURE_NAME(none));
 }
