@@ -37,10 +37,10 @@ test__eds_mem__init_NULL_1(void)
 static void
 test__eds_mem__init_nNULL_M(void)
 {
+#define DUMMY_SIZE 12345
     /* CUT */
     struct eds_object__mem mem;
     uint32_t dummy_context;
-#define DUMMY_SIZE 12345
 
     eds_mem__init(&mem, fake_alloc, fake_dealloc, &dummy_context, DUMMY_SIZE);
 
@@ -190,9 +190,10 @@ test__eds_mem__find__two_entries_no_match(void)
     struct eds_object__vector fake_mem__instances;
     struct eds_object__mem fake_mem_instances_in_vector[2];
     void * instances_in_vector[] =
-        {
-        &fake_mem_instances_in_vector[0], &fake_mem_instances_in_vector[1]
-        };
+    {
+        &fake_mem_instances_in_vector[0], 
+        &fake_mem_instances_in_vector[1]
+    };
     fake_mem_instances_in_vector[0].p__max_size = 1;
     fake_mem_instances_in_vector[1].p__max_size = 2;
     struct eds_object__mem * instance;
@@ -224,6 +225,8 @@ setup(void)
     RESET_FAKE(eds_core__vector_n_entries);
     RESET_FAKE(eds_core__vector_peek);
     RESET_FAKE(eds_core__vector_insert);
+    RESET_FAKE(fake_alloc);
+    RESET_FAKE(fake_dealloc);
     FFF_RESET_HISTORY();
 }
 
@@ -231,18 +234,17 @@ void
 nk_test__execute(void)
 {
     static const struct nk_testsuite__test tests[] =
-        {
+    {
         NK_TEST__TEST(test__eds_mem__init_NULL_1),
-    NK_TEST__TEST(test__eds_mem__init_nNULL_M),
-NK_TEST__TEST(test__eds_mem__instance_count__zero),
-NK_TEST__TEST(test__eds_mem__instance_count__one),
-NK_TEST__TEST(test__eds_mem__find__empty),
-NK_TEST__TEST(test__eds_mem__find__one_entry_no_match),
-NK_TEST__TEST(test__eds_mem__find__one_entry_exact_match),
-NK_TEST__TEST(test__eds_mem__find__one_entry_over_match),
-NK_TEST__TEST(test__eds_mem__find__two_entries_no_match),
-NK_TEST__TEST_TERMINATE()
-}
-    ;
+        NK_TEST__TEST(test__eds_mem__init_nNULL_M),
+        NK_TEST__TEST(test__eds_mem__instance_count__zero),
+        NK_TEST__TEST(test__eds_mem__instance_count__one),
+        NK_TEST__TEST(test__eds_mem__find__empty),
+        NK_TEST__TEST(test__eds_mem__find__one_entry_no_match),
+        NK_TEST__TEST(test__eds_mem__find__one_entry_exact_match),
+        NK_TEST__TEST(test__eds_mem__find__one_entry_over_match),
+        NK_TEST__TEST(test__eds_mem__find__two_entries_no_match),
+        NK_TEST__TEST_TERMINATE()
+    };
     nk_test__run_fixture(tests, setup, NULL, NK_TESTSUITE__FIXTURE_NAME(none));
 }
