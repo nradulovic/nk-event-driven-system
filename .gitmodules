@@ -1,0 +1,3 @@
+[submodule "build/sbs"]
+	path = build/sbs
+	url = git@gitlab.com:neon-kit/shared-build-system.git

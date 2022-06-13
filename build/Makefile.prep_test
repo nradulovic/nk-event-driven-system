@@ -1,0 +1,3 @@
+
+all:
+	$(MAKE) -C ../external -f Makefile.unit-testing-framework

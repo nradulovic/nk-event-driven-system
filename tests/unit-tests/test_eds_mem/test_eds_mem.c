@@ -5,11 +5,11 @@
  *      Author: nenad
  */
 
-#include "../nk_test.h"
+#include "nk_test.h"
 
-#include "fff.h"
-#include "eds/source/sys/eds_mem.h"
-#include "eds/source/eds_object.h"
+#include "fff/fff.h"
+#include "sys/eds_mem.h"
+#include "eds_object.h"
 
 DEFINE_FFF_GLOBALS
 
@@ -228,7 +228,7 @@ setup(void)
 }
 
 void
-test_execute(void)
+nk_test__execute(void)
 {
     static const struct nk_testsuite__test tests[] =
         {
