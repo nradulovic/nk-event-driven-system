@@ -13,6 +13,8 @@
 
 DEFINE_FFF_GLOBALS
 
+FAKE_VALUE_FUNC(uint_fast8_t, eds_port__ffs, uint32_t)
+
 static void
 test__eds_core__vector_init(void)
 {

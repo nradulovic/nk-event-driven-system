@@ -1,0 +1,7 @@
+
+.PHONY: all
+all:
+	make -f Makefile.test_eds_core test
+	make -f Makefile.test_eds_mem test
+
+test: all
