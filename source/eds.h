@@ -116,8 +116,13 @@ typedef struct eds_object__epn eds__network;
 
 /**
  * @brief       Version identification macro
+ * 
+ * This macro definition contains current EDS version triplet: major, minor and patch numbers.
+ * * The major number is located on bit positions [23 - 16].
+ * * The minor number is located on bit positions [15 - 8].
+ * * The patch number is located on bit positions [7 - 0].
  */
-#define EDS__VERSION                        0x0300
+#define EDS__VERSION                        0x030000
 
 /** @} *//**
  * @defgroup    eds_errors Error handling

@@ -42,6 +42,11 @@ components into the project. Since there are so many IDEs and build systems it i
 leave the building process to application writer. The only thing that a Neon Kit component expect is
 a directory structure specified in the description following this chapter.
 
+## Unit-testing
+
+Neon Kit Event Driven system contains unit-tests in `tests` directory. To start unit-testing refer
+to `documentation/nk_testing.md` for details.
+
 ## Building a Neon Kit component
 
 All Neon Kit components need to be placed into a single directory. For convenience lets refer to
@@ -50,8 +55,9 @@ this directory as a variable named `NEON_KIT_ROOT`.
 The following are needed to be configured in application project:
 - include path should have the following entries:
   - directory where all Neon Kit projects are located in `$NEON_KIT_ROOT`.
-  - directory where a specific Neon Kit component is located. In this case the path would be 
-    `$NEON_KIT_ROOT/[component]/source`.
+  - directory where a specific Neon Kit component is located: 
+    `$NEON_KIT_ROOT/[component]/source`. In this case the path would be:
+    `$NEON_KIT_ROOT/eds/source`.
   - directory where portable definition header `[component]_port_definition.h` is located.
 - no defined macros are needed except when a custom component configuration is needed which is 
   explained below.
