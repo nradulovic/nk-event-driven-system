@@ -49,3 +49,4 @@ docs:
 .PHONY: clean_docs
 clean_docs:
 	@$(RM) -rf generated/html
+
