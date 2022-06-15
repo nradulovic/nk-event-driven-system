@@ -79,23 +79,14 @@ eds__mem_add_allocator(eds__mem_alloc_fn * alloc,
 eds__error
 eds__event_create(uint32_t event_id, size_t event_data_size, eds__event ** event)
 {
-    struct eds_object__evt * l_event;
-    eds_core__error core_error;
+    eds__error error;
 
     if ((event_id == 0) || (event == NULL)) {
         return EDS__ERROR_INVALID_ARGUMENT;
     }
-    core_error = eds_evt__allocate(event_id, event_data_size, &l_event);
-    switch (core_error) {
-    case EDS_CORE__ERROR__NO_RESOURCE:
-        return EDS__ERROR_NO_RESOURCE;
-    case EDS_CORE__ERROR__NO_MEMORY:
-        return EDS__ERROR_NO_MEMORY;
-    default:
-        break;
-    }EDS_TRACE__INFO(EDS_TRACE__SOURCE_EVENT_CREATE, "id, event_id, data_size = (%p,%u,%u)", event, event_id, event_data_size);
-    *event = l_event;
-    return EDS__ERROR_NONE;
+    error = eds_evt__allocate(event_id, event_data_size, event);
+    EDS_TRACE__INFO(EDS_TRACE__SOURCE_EVENT_CREATE, "id, event_id, data_size = (%p,%u,%u)", event, event_id, event_data_size);
+    return error;
 }
 
 eds__error
@@ -465,10 +456,7 @@ eds__etimer_cancel(eds__etimer * etimer)
         eds_port__critical_unlock(&critical);
         return EDS__ERROR_NOT_EXISTS;
     }
-    if (eds_epa__is_designated(etimer->p__epa) == false) {
-        eds_port__critical_unlock(&critical);
-        return EDS__ERROR_NO_PERMISSION;
-    }
+    /* To have designated timer but no designated EPA cannot happen. */
     epn = eds_epa__designation(etimer->p__epa);
     eds_etm_service__cancel(eds_epn__etm_service(epn), etimer);
     eds_etm__designate(etimer, NULL); /* Designate that the timer is not owned by any agent */
@@ -485,7 +473,7 @@ eds__network_create(const struct eds__epn_attr * attr, eds__network ** network)
 {
     static const struct eds__epn_attr default_attr =
         {
-            .name = EDS__DEFAULT_EPN_NAME
+            .name = EDS__DEFAULT_NETWORK_NAME
         };
     struct eds_object__epn * epn;
     struct eds_object__mem * mem;
@@ -519,7 +507,7 @@ eds__network_create(const struct eds__epn_attr * attr, eds__network ** network)
     eds_port__sleep_init(&epn->p__sleep);
     epn->p__mem = mem;
 #if (EDS_CONFIG__NETWORK__ENABLE_NAME != 0)
-    epn->p__name = attr->name != NULL ? attr->name : EDS__DEFAULT_EPN_NAME;
+    epn->p__name = attr->name != NULL ? attr->name : EDS__DEFAULT_NETWORK_NAME;
 #endif
     *network = epn;
 

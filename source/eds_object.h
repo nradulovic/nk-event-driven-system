@@ -1,13 +1,13 @@
-/*
- * @file
- *
- * @date        Dec 2, 2021
- * @author      Nenad Radulovic (NBR) nenad.b.radulovic@gmail.com
- */
 /**
  * @file
- * @defgroup    eds_object EDS Objects
- * @brief       EDS Objects interface
+ * @date        Dec 2, 2021
+ * @brief       Nano-Kit Event Driven System (EDS) objects header
+ *
+ * @author      Nenad Radulovic (nenad.b.radulovic@gmail.com)
+ * @authors     Nenad Radulovic (nenad.b.radulovic@gmail.com)
+ *
+ * @defgroup    eds_object Objects
+ * @brief       Event Driven System (EDS) objects
  *
  * This module contains definition of all objects used in EDS.
  *

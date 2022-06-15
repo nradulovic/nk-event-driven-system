@@ -12,7 +12,7 @@ eds_evt__calculate_bundle_size(size_t event_data_size)
     return sizeof(struct eds_object__evt) + eds_port__align_up(event_data_size);
 }
 
-eds_core__error
+eds__error
 eds_evt__allocate(uint32_t event_id, size_t event_data_size, struct eds_object__evt ** event)
 {
     struct eds_object__mem * mem;
@@ -22,15 +22,15 @@ eds_evt__allocate(uint32_t event_id, size_t event_data_size, struct eds_object__
     event_size = eds_evt__calculate_bundle_size(event_data_size);
     mem = eds_mem__find(&mem__instances, event_size);
     if (mem == NULL) {
-        return EDS_CORE__ERROR__NO_RESOURCE;
+        return EDS__ERROR_NO_RESOURCE;
     }
     l_event = eds_mem__allocate_from(mem, event_size);
     if (l_event == NULL) {
-        return EDS_CORE__ERROR__NO_MEMORY;
+        return EDS__ERROR_NO_MEMORY;
     }
     eds_evt__init(l_event, event_id, event_data_size, mem);
     *event = l_event;
-    return EDS_CORE__ERROR_NONE;
+    return EDS__ERROR_NONE;
 }
 
 void
