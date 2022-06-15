@@ -48,5 +48,5 @@ docs:
 
 .PHONY: clean_docs
 clean_docs:
-	@$(RM) -rf generated/html
+	@$(RM) -rf ../generated/html
 
