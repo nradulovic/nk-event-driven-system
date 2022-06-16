@@ -1,22 +1,18 @@
 # Relative path to Neon-Kit common build directory.
 WS = ..
 
-# Relative path (relative to $(WS)) of the project directory.
-PROJECT_DIR = tests
-
 # Project name, this will be used as output binary file name.
 PROJECT_NAME := test_eds_mem
 
 # Project configuration header file.
-PROJECT_CONFIG := $(PROJECT_DIR)/unit-tests/test_eds_mem/eds_port
+PROJECT_CONFIG := tests/unit-tests/$(PROJECT_NAME)/eds_port
 
 # List additional C header include paths.
-CC_INCLUDES += $(PROJECT_DIR)
-CC_INCLUDES += $(PROJECT_DIR)/unit-tests/test_eds_mem
+CC_INCLUDES += tests/unit-tests/$(PROJECT_NAME)
 
 # List additional C source files. Files which are not listed here will not be
 # compiled.
-CC_SOURCES += $(PROJECT_DIR)/unit-tests/test_eds_mem/test_eds_mem.c
+CC_SOURCES += tests/unit-tests/$(PROJECT_NAME)/$(PROJECT_NAME).c
 CC_SOURCES += source/sys/eds_mem.c
 
 # List additional archives. Use this when using an external static archive.
@@ -30,6 +26,7 @@ include $(WS)/build/sbs/initialize.mk
 
 # Include application dependencies
 include $(WS)/build/eds/interface.mk
+include $(WS)/build/eds/utf_interface.mk
 include $(WS)/$(DEF_EXTERNAL_DIR)/unit-testing-framework/build/utf.mk
 
 # Include target of build system, a target is the last include in the Makefile

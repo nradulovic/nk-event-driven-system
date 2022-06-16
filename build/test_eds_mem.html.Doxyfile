@@ -1,0 +1,4 @@
+
+@INCLUDE = test_eds_mem.Doxyfile
+
+GENERATE_HTML = YES

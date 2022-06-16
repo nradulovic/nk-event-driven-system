@@ -1,0 +1,4 @@
+
+@INCLUDE = test_eds_core.Doxyfile
+
+GENERATE_LATEX = YES

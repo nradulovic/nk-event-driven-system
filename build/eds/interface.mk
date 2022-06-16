@@ -18,5 +18,3 @@
 
 # Add common library include folder
 CC_INCLUDES += source 
-
-DEF_UTF_DIR = $(DEF_EXTERNAL_DIR)/unit-testing-framework

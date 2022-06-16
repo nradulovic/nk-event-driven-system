@@ -45,7 +45,7 @@ a directory structure specified in the description following this chapter.
 ## Unit-testing
 
 Neon Kit Event Driven system contains unit-tests in `tests` directory. To start unit-testing refer
-to `documentation/nk_testing.md` for details.
+to [documentation/nk_testing.md](documentation/nk_testing.md) for details.
 
 ## Building a Neon Kit component
 

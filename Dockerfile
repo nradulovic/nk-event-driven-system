@@ -14,4 +14,4 @@ WORKDIR /nk/build
 RUN make test
 
 FROM scratch AS test_report
-COPY --from=build /nk/generated/report* /test_report/
+COPY --from=build /nk/generated/report_* /test_report/
