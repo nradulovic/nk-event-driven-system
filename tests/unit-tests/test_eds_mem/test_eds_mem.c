@@ -15,75 +15,13 @@ DEFINE_FFF_GLOBALS
 
 FAKE_VALUE_FUNC(uint32_t, eds_core__vector_n_entries, const struct eds_object__vector *)
 FAKE_VALUE_FUNC(void *, eds_core__vector_peek, const struct eds_object__vector *, uint32_t)
+FAKE_VALUE_FUNC(bool, eds_core__vector_is_full, const struct eds_object__vector *)
 FAKE_VOID_FUNC(eds_core__vector_insert, struct eds_object__vector *, uint32_t, const void *)
 
 FAKE_VALUE_FUNC(void *, fake_alloc, void*, size_t)
 FAKE_VOID_FUNC(fake_dealloc, void*, void*)
 
-static void
-test__eds_mem__init_NULL_1(void)
-{
-    /* CUT */
-    struct eds_object__mem mem;
-
-    eds_mem__init(&mem, fake_alloc, fake_dealloc, NULL, 1);
-
-    NK_TEST__EXPECT_PTR(NULL);
-    NK_TEST__ACTUAL_PTR(eds_mem__context(&mem));
-    NK_TEST__EXPECT_SIZE(1);
-    NK_TEST__ACTUAL_SIZE(eds_mem__max_size(&mem));
-}
-
-static void
-test__eds_mem__init_nNULL_M(void)
-{
-#define DUMMY_SIZE 12345
-    /* CUT */
-    struct eds_object__mem mem;
-    uint32_t dummy_context;
-
-    eds_mem__init(&mem, fake_alloc, fake_dealloc, &dummy_context, DUMMY_SIZE);
-
-    NK_TEST__EXPECT_PTR(&dummy_context);
-    NK_TEST__ACTUAL_PTR(eds_mem__context(&mem));
-    NK_TEST__EXPECT_SIZE(DUMMY_SIZE);
-    NK_TEST__ACTUAL_SIZE(eds_mem__max_size(&mem));
-#undef DUMMY_SIZE
-}
-
-static void
-test__eds_mem__instance_count__zero(void)
-{
-    struct eds_object__vector fake_mem__instances;
-    eds_core__vector_n_entries_fake.return_val = 0;
-
-    /* CUT */
-    uint32_t count = eds_mem__instance_count(&fake_mem__instances);
-
-    NK_TEST__EXPECT_UINT(0);
-    NK_TEST__ACTUAL_UINT(count);
-    NK_TEST__EXPECT_UINT(1);
-    NK_TEST__ACTUAL_UINT(eds_core__vector_n_entries_fake.call_count);
-    NK_TEST__EXPECT_PTR(&fake_mem__instances);
-    NK_TEST__ACTUAL_PTR(eds_core__vector_n_entries_fake.arg0_history[0]);
-}
-
-static void
-test__eds_mem__instance_count__one(void)
-{
-    struct eds_object__vector fake_mem__instances;
-    eds_core__vector_n_entries_fake.return_val = 1;
-
-    /* CUT */
-    uint32_t count = eds_mem__instance_count(&fake_mem__instances);
-
-    NK_TEST__EXPECT_UINT(1);
-    NK_TEST__ACTUAL_UINT(count);
-    NK_TEST__EXPECT_UINT(1);
-    NK_TEST__ACTUAL_UINT(eds_core__vector_n_entries_fake.call_count);
-    NK_TEST__EXPECT_PTR(&fake_mem__instances);
-    NK_TEST__ACTUAL_PTR(eds_core__vector_n_entries_fake.arg0_history[0]);
-}
+struct eds_object__vector eds_state__mem_instances;
 
 static void
 test__eds_mem__find__empty(void)
@@ -235,10 +173,6 @@ nk_test__execute(void)
 {
     static const struct nk_testsuite__test tests[] =
     {
-        NK_TEST__TEST(test__eds_mem__init_NULL_1),
-        NK_TEST__TEST(test__eds_mem__init_nNULL_M),
-        NK_TEST__TEST(test__eds_mem__instance_count__zero),
-        NK_TEST__TEST(test__eds_mem__instance_count__one),
         NK_TEST__TEST(test__eds_mem__find__empty),
         NK_TEST__TEST(test__eds_mem__find__one_entry_no_match),
         NK_TEST__TEST(test__eds_mem__find__one_entry_exact_match),

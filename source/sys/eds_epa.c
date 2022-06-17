@@ -8,6 +8,7 @@
 #include "sys/eds_epn.h"
 #include "sys/eds_core.h"
 #include "sys/eds_equeue.h"
+#include "sys/eds_state.h"
 
 extern inline void
 eds_epa__designate(struct eds_object__epa * epa, struct eds_object__epn * epn);
@@ -37,7 +38,7 @@ eds_epa__create(eds__sm_state * sm_initial_state,
 
         epa_size_bytes = sizeof(struct eds_object__epa)
             + eds_equeue__calculate_storage_size(attr->equeue_entries);
-        mem = eds_mem__find(&mem__instances, epa_size_bytes);
+        mem = eds_mem__find(&eds_state__mem_instances, epa_size_bytes);
         if (mem == NULL) {
             EDS_TRACE__EXIT(EDS_TRACE__SOURCE_AGENT_CREATE, EDS__ERROR_NO_RESOURCE, "%u", epa_size_bytes);
             return EDS__ERROR_NO_RESOURCE;
@@ -67,13 +68,12 @@ eds_epa__create(eds__sm_state * sm_initial_state,
 #endif
     l_epa->p__epn = NULL;
     *epa = l_epa;
-    EDS_TRACE__INFO(
-                                    EDS_TRACE__SOURCE_AGENT_CREATE,
-                                    "id, name, equeue_entries, prio = (%p, %s, %u, %u)",
-                                    l_epa,
-                                    attr->name,
-                                    attr->equeue_entries,
-                                    attr->prio);
+    EDS_TRACE__INFO(EDS_TRACE__SOURCE_AGENT_CREATE,
+        "id, name, equeue_entries, prio = (%p, %s, %u, %u)",
+        l_epa,
+        attr->name,
+        attr->equeue_entries,
+        attr->prio);
     return EDS__ERROR_NONE;
 }
 
@@ -126,3 +126,117 @@ eds_epa__terminate(struct eds_object__epa * epa)
     }
     eds_core__tasker_pending_sleep(eds_epn__tasker(eds_epa__designation(epa)), &epa->p__task);
 }
+
+eds__error
+eds__agent_create(eds__sm_state * sm_initial_state,
+    void * sm_workspace,
+    const struct eds__agent_attr * attr,
+    eds__agent ** agent)
+{
+    static const struct eds__agent_attr default_attr =
+    {
+        .name = EDS__DEFAULT_EPA_NAME,
+        .prio = EDS__DEFAULT_EPA_PRIO,
+        .equeue_entries = EDS__DEFAULT_EPA_QUEUE_ENTRIES,
+        .static_instance = NULL,
+        .static_equeue_storage = NULL
+    };
+    eds__error error;
+
+    if ((sm_initial_state == NULL) || (agent == NULL)) {
+        EDS_TRACE__EXIT(EDS_TRACE__SOURCE_AGENT_CREATE,
+            EDS__ERROR_INVALID_ARGUMENT,
+            "sm_initial_state, agent = (%p, %p)",
+            sm_initial_state,
+            agent);
+        return EDS__ERROR_INVALID_ARGUMENT;
+    }
+    attr = attr != NULL ? attr : &default_attr;
+    if ((attr->equeue_entries == 0u)
+        || ((attr->static_instance != NULL) && (attr->static_equeue_storage == NULL))
+        || ((attr->static_instance == NULL) && (attr->static_equeue_storage != NULL))) {
+        EDS_TRACE__EXIT(EDS_TRACE__SOURCE_AGENT_CREATE,
+            EDS__ERROR_INVALID_CONFIGURATION,
+            "equeue_entries, static_instance, static_equeue_storage = (%u, %p, %p)",
+            attr->equeue_entries,
+            attr->static_instance,
+            attr->static_equeue_storage);
+        return EDS__ERROR_INVALID_CONFIGURATION;
+    }
+    error = eds_epa__create(sm_initial_state, sm_workspace, attr, agent);
+
+    return error;
+}
+
+eds__error
+eds__agent_delete(eds__agent * agent)
+{
+    struct eds_port__critical critical;
+
+    if (agent == NULL) {
+        return EDS__ERROR_INVALID_ARGUMENT;
+    }
+    if (eds_epa__is_designated(agent) == true) {
+        return EDS__ERROR_NO_PERMISSION;
+    }
+    eds_port__critical_lock(&critical);
+    if (agent->p__mem != NULL) {
+        eds_mem__deallocate_to(agent->p__mem, agent);
+    }
+    eds_port__critical_unlock(&critical);
+
+    return EDS__ERROR_NONE;
+}
+
+eds__error
+eds__agent_send(eds__agent * agent, const eds__event * event)
+{
+    struct eds_port__critical critical;
+    eds__error error;
+    eds_core__error core_error;
+
+    if ((agent == NULL) || (event == NULL)) {
+        EDS_TRACE__EXIT(EDS_TRACE__SOURCE_AGENT_SEND,
+            EDS__ERROR_INVALID_ARGUMENT,
+            "agent, event = (%p, %p)",
+            agent,
+            event);
+        return EDS__ERROR_INVALID_ARGUMENT;
+    }
+    if (eds_epa__is_designated(agent) == false) {
+        EDS_TRACE__EXIT(EDS_TRACE__SOURCE_AGENT_SEND, EDS__ERROR_NO_PERMISSION, "agent = (%p)", agent);
+        return EDS__ERROR_NO_PERMISSION;
+    }
+    eds_port__critical_lock(&critical);
+    core_error = eds_epa__send(agent, event);
+    eds_port__critical_unlock(&critical);
+    EDS_TRACE__EXIT(EDS_TRACE__SOURCE_AGENT_SEND, core_error, "agent, event = (%p, %p)", agent, event);
+    switch (core_error) {
+    case EDS_CORE__ERROR__NO_SPACE:
+        error = EDS__ERROR_NO_SPACE;
+        break;
+    default:
+        error = EDS__ERROR_NONE;
+        break;
+    }
+    return error;
+}
+
+eds__agent*
+eds__agent_from_sm(eds__sm * sm)
+{
+    return EDS_CORE__CONTAINER_OF(sm, struct eds_object__epa, p__smp);
+}
+
+eds__network*
+eds__agent_network(const eds__agent * agent)
+{
+    return eds_epa__designation(agent);
+}
+
+void*
+eds__agent_workspace(const eds__agent * agent)
+{
+    return eds_smp__workspace(eds_epa__smp(agent));
+}
+

@@ -21,12 +21,6 @@
             .p__size = (event_data_size),                                                       \
         }
 
-size_t
-eds_evt__calculate_bundle_size(size_t event_data_size);
-
-eds__error
-eds_evt__allocate(uint32_t event_id, size_t event_data_size, struct eds_object__evt ** event);
-
 void
 eds_evt__deallocate(const struct eds_object__evt * event);
 

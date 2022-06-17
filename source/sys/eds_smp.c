@@ -19,13 +19,12 @@ struct hsm_path
 #endif
 
 const struct eds_object__evt g__smp_events[] =
-    {
+{
     [EDS__SM_EVENT__INIT] = EDS_EVT__INITIALIZER(EDS__SM_EVENT__INIT, 0),
     [EDS__SM_EVENT__ENTER] = EDS_EVT__INITIALIZER(EDS__SM_EVENT__ENTER, 0),
     [EDS__SM_EVENT__EXIT] = EDS_EVT__INITIALIZER(EDS__SM_EVENT__EXIT, 0),
     [EDS__SM_EVENT__SUPER] = EDS_EVT__INITIALIZER(EDS__SM_EVENT__SUPER, 0),
-    }
-;
+};
 
 #if (EDS_CONFIG__SMP__ENABLE_HSM != 0)
 static eds__error
@@ -51,16 +50,19 @@ hsm_path_enter(struct eds_object__smp * sm, const struct hsm_path * entry)
     while (index--) {
         eds__sm_action action;
 
-        EDS_TRACE__INFO(EDS_TRACE__SOURCE_EDS_SMP, "(%p) enter: state = (%p)", sm, entry->buff[index]);
+        EDS_TRACE__INFO(EDS_TRACE__SOURCE_EDS_SMP, 
+            "(%p) enter: state = (%p)", 
+            sm, 
+            entry->buff[index]);
         action = entry->buff[index](sm, sm->p__workspace, &g__smp_events[EDS__SM_EVENT__ENTER]);
         if (!SM__ACTION__HANDLED_IGNORED_OR_SUPER(action)) {
             EDS_TRACE__EXIT(
-                                            EDS_TRACE__SOURCE_EDS_SMP,
-                                            EDS__ERROR_MALFORMED_SM,
-                                            "(%p) enter: state (%p) bad action %u",
-                                            sm,
-                                            entry->buff[index],
-                                            action);
+                EDS_TRACE__SOURCE_EDS_SMP,
+                EDS__ERROR_MALFORMED_SM,
+                "(%p) enter: state (%p) bad action %u",
+                sm,
+                entry->buff[index],
+                action);
             return EDS__ERROR_SM_BAD_ENTER;
         }
     }
@@ -78,13 +80,12 @@ hsm_path_exit(struct eds_object__smp * sm, const struct hsm_path * exit)
         EDS_TRACE__INFO(EDS_TRACE__SOURCE_EDS_SMP, "(%p) exit: state = (%p)", sm, exit->buff[count]);
         action = exit->buff[count](sm, sm->p__workspace, &g__smp_events[EDS__SM_EVENT__EXIT]);
         if (!SM__ACTION__HANDLED_IGNORED_OR_SUPER(action)) {
-            EDS_TRACE__EXIT(
-                                            EDS_TRACE__SOURCE_EDS_SMP,
-                                            EDS__ERROR_MALFORMED_SM,
-                                            "(%p) exit: state (%p) bad action %u",
-                                            sm,
-                                            exit->buff[count],
-                                            action);
+            EDS_TRACE__EXIT(EDS_TRACE__SOURCE_EDS_SMP,
+                EDS__ERROR_MALFORMED_SM,
+                "(%p) exit: state (%p) bad action %u",
+                sm,
+                exit->buff[count],
+                action);
             return EDS__ERROR_SM_BAD_EXIT;
         }
     }

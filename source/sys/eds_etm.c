@@ -12,6 +12,7 @@
 #include "sys/eds_mem.h"
 #include "sys/eds_tmr.h"
 #include "sys/eds_core.h"
+#include "sys/eds_state.h"
 #include "eds_port.h"
 #include "eds_trace.h"
 
@@ -48,7 +49,7 @@ eds_etm__create(const struct eds__etimer_attr * attr, eds__etimer ** etm)
     if (attr->static_instance == NULL) {
         struct eds_port__critical critical;
 
-        mem = eds_mem__find(&mem__instances, sizeof(*l_etm));
+        mem = eds_mem__find(&eds_state__mem_instances, sizeof(*l_etm));
         if (mem == NULL) {
             EDS_TRACE__EXIT(EDS_TRACE__SOURCE_ETIMER_CREATE, EDS__ERROR_NO_RESOURCE, "%u", sizeof(*l_etm));
             return EDS__ERROR_NO_RESOURCE;
