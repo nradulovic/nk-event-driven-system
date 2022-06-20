@@ -40,5 +40,5 @@ include $(WS)/build/sbs/initialize.mk
 # Include application dependencies
 
 # Include target of build system, a target is the last include in the Makefile
-include $(WS)/build/sbs/target_runnable.mk
+include $(WS)/build/sbs/target_test.mk
 
