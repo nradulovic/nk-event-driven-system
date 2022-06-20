@@ -157,3 +157,129 @@ eds_etm_service__tick(struct eds_object__etm * etm_service)
 {
     eds_tmr__process_timers(&etm_service->p__tmr);
 }
+
+eds__error
+eds__etimer_create(const struct eds__etimer_attr * attr, eds__etimer ** etimer)
+{
+    static const struct eds__etimer_attr default_attr;
+
+    if (etimer == NULL) {
+        EDS_TRACE__EXIT(EDS_TRACE__SOURCE_ETIMER_CREATE, EDS__ERROR_INVALID_ARGUMENT, "attr, etimer = (%p, %p)", attr, etimer);
+        return EDS__ERROR_INVALID_ARGUMENT;
+    }
+    if (attr == NULL) {
+        attr = &default_attr;
+    }
+    return eds_etm__create(attr, etimer);
+}
+
+eds__error
+eds__etimer_delete(eds__etimer * etimer)
+{
+    if (etimer == NULL) {
+        return EDS__ERROR_INVALID_ARGUMENT;
+    }
+    return eds_etm__delete(etimer);
+}
+
+eds__error
+eds__etimer_send_after(eds__etimer * etimer,
+    eds__agent * agent,
+    const eds__event * event,
+    uint32_t after_ms)
+{
+    struct eds_port__critical critical;
+    struct eds_object__epn * epn;
+
+    if ((etimer == NULL) || (agent == NULL) || (event == NULL)) {
+        EDS_TRACE__EXIT(EDS_TRACE__SOURCE_ETIMER_SEND_AFTER, EDS__ERROR_INVALID_ARGUMENT, "etimer, agent, event = (%p, %p, %p)", etimer, agent, event);
+        return EDS__ERROR_INVALID_ARGUMENT;
+    }
+    if (after_ms < eds_port__tick_duration_ms()) {
+        return eds__agent_send(agent, event);
+    }
+    eds_port__critical_lock(&critical);
+    if (eds_epa__is_designated(agent) == false) {
+        eds_port__critical_unlock(&critical);
+        EDS_TRACE__EXIT(EDS_TRACE__SOURCE_ETIMER_SEND_AFTER, EDS__ERROR_NO_PERMISSION, "etimer, agent, event = (%p, %p, %p)", etimer, agent, event);
+        return EDS__ERROR_NO_PERMISSION;
+    }
+    if (eds_etm__is_designated(etimer) == true) {
+        eds_port__critical_unlock(&critical);
+        EDS_TRACE__EXIT(EDS_TRACE__SOURCE_ETIMER_SEND_AFTER, EDS__ERROR_ALREADY_EXISTS, "etimer, agent, event = (%p, %p, %p)", etimer, agent, event);
+        return EDS__ERROR_ALREADY_EXISTS;
+    }
+
+    epn = eds_epa__designation(agent);
+    eds_etm__designate(etimer, agent); /* Designate that this timer is owned by the agent */
+    eds_etm__set_event(etimer, event);
+    eds_evt__ref_up(event);
+    eds_etm_service__start_once(eds_epn__etm_service(epn),
+        etimer,
+        eds_port__tick_from_ms(after_ms));
+    eds_port__critical_unlock(&critical);
+    EDS_TRACE__EXIT(EDS_TRACE__SOURCE_ETIMER_SEND_AFTER, EDS__ERROR_NONE, "etimer, agent, event_id, after_ms = (%p, %p, %u, %u)", etimer, agent, event->p__id, after_ms);
+    return EDS__ERROR_NONE;
+}
+
+eds__error
+eds__etimer_send_every(eds__etimer * etimer,
+    eds__agent * agent,
+    const eds__event * event,
+    uint32_t every_ms)
+{
+    struct eds_port__critical critical;
+    struct eds_object__epn * epn;
+
+    if ((etimer == NULL) || (agent == NULL) || (event == NULL)) {
+        return EDS__ERROR_INVALID_ARGUMENT;
+    }
+    if (every_ms < eds_port__tick_duration_ms()) {
+        return EDS__ERROR_OUT_OF_RANGE;
+    }
+    eds_port__critical_lock(&critical);
+    if (eds_epa__is_designated(agent) == false) {
+        eds_port__critical_unlock(&critical);
+        return EDS__ERROR_NO_PERMISSION;
+    }
+    if (eds_etm__is_designated(etimer) == true) {
+        eds_port__critical_unlock(&critical);
+        return EDS__ERROR_ALREADY_EXISTS;
+    }
+    epn = eds_epa__designation(agent);
+    eds_etm__designate(etimer, agent); /* Designate that this timer is owned by the agent */
+    eds_etm__set_event(etimer, event);
+    eds_evt__ref_up(event);
+    eds_etm_service__start_periodic(eds_epn__etm_service(epn),
+        etimer,
+        eds_port__tick_from_ms(every_ms));
+    eds_port__critical_unlock(&critical);
+    return EDS__ERROR_NONE;
+}
+
+eds__error
+eds__etimer_cancel(eds__etimer * etimer)
+{
+    struct eds_port__critical critical;
+    struct eds_object__epn * epn;
+
+    if (etimer == NULL) {
+        return EDS__ERROR_INVALID_ARGUMENT;
+    }
+    eds_port__critical_lock(&critical);
+    if (eds_etm__is_designated(etimer) == false) {
+        eds_port__critical_unlock(&critical);
+        return EDS__ERROR_NOT_EXISTS;
+    }
+    /* To have designated timer but no designated EPA cannot happen. */
+    epn = eds_epa__designation(etimer->p__epa);
+    eds_etm_service__cancel(eds_epn__etm_service(epn), etimer);
+    eds_etm__designate(etimer, NULL); /* Designate that the timer is not owned by any agent */
+    eds_evt__null(etimer->p__evt); /* We want to null-ify this event for all receivers */
+    eds_evt__ref_down(etimer->p__evt);
+    eds_evt__deallocate(etimer->p__evt); /* Dispose of event as well */
+    eds_port__critical_unlock(&critical);
+    EDS_TRACE__EXIT(EDS_TRACE__SOURCE_ETIMER_CANCEL, EDS__ERROR_NONE, "etimer = (%p)", etimer);
+    return EDS__ERROR_NONE;
+}
+
