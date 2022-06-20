@@ -1096,7 +1096,7 @@ eds__etimer_cancel(eds__etimer * etimer);
  * networks are created using default values specified in @ref eds_defaults. Use this structure to
  * override and customize a network instance.
  */
-struct eds__epn_attr
+struct eds__network_attr
 {
     /**
      * @brief   This member defines network human readable name string.
@@ -1126,19 +1126,19 @@ struct eds__epn_attr
  * @brief       Create a network.
  */
 eds__error
-eds__network_create(const struct eds__epn_attr * atrr, eds__network ** epn);
+eds__network_create(const struct eds__network_attr * atrr, eds__network ** network);
 
 /**
  * @brief       Delete a network.
  */
 eds__error
-eds__epn_delete(eds__network * epn);
+eds__network_delete(eds__network * network);
 
 /**
  * @brief       Add an agent to network.
  */
 eds__error
-eds__network_add_agent(eds__network * epn, eds__agent * sm);
+eds__network_add_agent(eds__network * network, eds__agent * sm);
 
 /**
  * @brief       Remove an agent from the network.
@@ -1165,7 +1165,7 @@ eds__network_start(eds__network * network);
  * @brief       Stop executing Agents of this network.
  */
 eds__error
-eds__epn_stop(eds__network * epn);
+eds__network_stop(eds__network * network);
 
 /** @} */
 #endif /* NEON_KIT_GENERIC_SOURCE_NK_EDS_H_ */

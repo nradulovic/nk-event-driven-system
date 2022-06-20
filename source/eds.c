@@ -215,12 +215,12 @@ eds__etimer_cancel(eds__etimer * etimer)
 }
 
 eds__error
-eds__network_create(const struct eds__epn_attr * attr, eds__network ** network)
+eds__network_create(const struct eds__network_attr * attr, eds__network ** network)
 {
-    static const struct eds__epn_attr default_attr =
-        {
-            .name = EDS__DEFAULT_NETWORK_NAME
-        };
+    static const struct eds__network_attr default_attr =
+    {
+        .name = EDS__DEFAULT_NETWORK_NAME
+    };
     struct eds_object__epn * epn;
     struct eds_object__mem * mem;
 
@@ -261,14 +261,19 @@ eds__network_create(const struct eds__epn_attr * attr, eds__network ** network)
 }
 
 eds__error
-eds__epn_delete(eds__network * epn)
+eds__network_delete(eds__network * network)
 {
-    if (epn == NULL) {
+    struct eds_port__critical critical;
+
+    if (network == NULL) {
         return EDS__ERROR_INVALID_ARGUMENT;
     }
-    if (epn->p__mem == NULL) {
+    if (network->p__mem == NULL) {
         return EDS__ERROR_NO_PERMISSION;
     }
+    eds_port__critical_lock(&critical);
+    eds_mem__deallocate_to(network->p__mem, network);
+    eds_port__critical_unlock(&critical);
 
     return EDS__ERROR_NONE;
 }
@@ -362,12 +367,11 @@ eds__network_start(eds__network * network)
 }
 
 eds__error
-eds__epn_stop(eds__network * network)
+eds__network_stop(eds__network * network)
 {
     if (network == NULL) {
         return EDS__ERROR_INVALID_ARGUMENT;
     }
-    // TODO
     network->p__should_run = false;
     return EDS__ERROR_NONE;
 }

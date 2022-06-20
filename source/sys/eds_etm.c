@@ -9,12 +9,19 @@
 #include "eds.h"
 #include "sys/eds_epa.h"
 #include "sys/eds_epn.h"
+#include "sys/eds_evt.h"
 #include "sys/eds_mem.h"
 #include "sys/eds_tmr.h"
 #include "sys/eds_core.h"
 #include "sys/eds_state.h"
 #include "eds_port.h"
 #include "eds_trace.h"
+
+struct tuple_service_epa
+{
+    struct eds_object__epa * epa;
+    struct eds_object__etm * etm_service;
+};
 
 static void
 etm__every_handler(struct eds_object__tmr_node * tmr)
@@ -27,6 +34,25 @@ etm__every_handler(struct eds_object__tmr_node * tmr)
         eds_epa__send(etm->p__epa, etm->p__evt);
         if (!eds_tmr__node_is_periodic(tmr)) {
             eds_etm__designate(etm, NULL);
+        }
+    }
+}
+
+static void
+match_and_cancel_delete(struct eds_object__tmr_node * tmr_node, void * arg)
+{
+    struct tuple_service_epa * tuple_service_epa = arg;
+    struct eds_object__etm_node * etm;
+
+    etm = EDS_CORE__CONTAINER_OF(tmr_node, struct eds_object__etm_node, p__node);
+    if (tuple_service_epa->epa == etm->p__epa) {
+        eds_tmr__cancel(&tuple_service_epa->etm_service->p__tmr, &etm->p__node);
+        eds_etm__designate(etm, NULL); /* Designate that the timer is not owned by any agent */
+        eds_evt__null(etm->p__evt); /* We want to null-ify this event for all receivers */
+        eds_evt__ref_down(etm->p__evt);
+        eds_evt__deallocate(etm->p__evt); /* Dispose of event as well */
+        if (etm->p__mem != NULL) {
+            eds_mem__deallocate_to(etm->p__mem, etm);
         }
     }
 }
@@ -87,35 +113,15 @@ eds_etm__delete(eds__etimer * etimer)
     return EDS__ERROR_NONE;
 }
 
-struct tuple_service_epa
-{
-    struct eds_object__epa * epa;
-    struct eds_object__etm * etm_service;
-};
-
-static void
-match_and_delete(struct eds_object__tmr_node * tmr_node, void * arg)
-{
-    struct tuple_service_epa * tuple_service_epa = arg;
-    struct eds_object__etm_node * etm;
-
-    etm = EDS_CORE__CONTAINER_OF(tmr_node, struct eds_object__etm_node, p__node);
-    if (tuple_service_epa->epa == etm->p__epa) {
-        eds_tmr__cancel(&tuple_service_epa->etm_service->p__tmr, &etm->p__node);
-        if (etm->p__mem != NULL) {
-            eds_mem__deallocate_to(etm->p__mem, etm);
-        }
-    }
-}
-
 void
 eds_etm_service__delete_all(struct eds_object__etm * etm_service, struct eds_object__epa * epa)
 {
     struct tuple_service_epa tuple_service_epa =
-        {
-        .epa = epa, .etm_service = etm_service
-        };
-    eds_tmr__for_each_node(&etm_service->p__tmr, match_and_delete, &tuple_service_epa);
+    {
+        .epa = epa, 
+        .etm_service = etm_service
+    };
+    eds_tmr__for_each_node(&etm_service->p__tmr, match_and_cancel_delete, &tuple_service_epa);
 }
 
 void
