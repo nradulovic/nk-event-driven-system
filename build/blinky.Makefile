@@ -32,7 +32,7 @@ AR_LIBS +=
 # List additional libraries. Use this when using an external static library.
 LD_LIBS +=
 
-LD_FLAGS += -lpthread
+LD_FLAGS += -pthread -lpthread
 
 # Include initialization of build system, this include should be the first
 include $(WS)/build/sbs/initialize.mk
