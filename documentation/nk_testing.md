@@ -2,11 +2,23 @@
 
 Along Event Driven System sources unit-tests are bundled in `tests` directory.
 
-## Testing setup on developer machine (non-virtualized)
+Unit-testing can be run in the following ways:
+- natively on Ubuntu machine
+- using Docker Ubuntu virtual machine
 
-In order to execute unit-tests the following criteria must be met:
+## Testing on Ubuntu machine
 
-1. Using Ubuntu/Debian machine
-2. GNU make installed
-3. GCC installed
+In order to execute unit-tests do the following:
+
+    sudo apt-get install git make gcc
+    git submodule update --init --force --recursive
+    cd build
+    make test
+
+## Testing using Docker
+
+The main docker file is `Dockerfile` in top-level project directory. Start the
+testing using this dockerfile. On a linux machine do:
+
+    make test
 

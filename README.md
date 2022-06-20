@@ -33,6 +33,25 @@ This code is something that is developed by application writer. The application 
 responsible to implement all needed functionality of a port. Port templates are available in 
 `template` directory.
 
+## Project directory structure
+
+The project contains the following folders:
+- `build` - this directory contains a number of Makefile and Doxygen files which are used by
+  unit-testing and documentation build system. This directory was not intended to be used in
+  application build system, but it could be used for that purposes as well. The makefiles in
+  this directory are used to build unit-tests, documentation (HTML and PDF) and examples
+  which are located in `documentation` directory. Any build artifact is stored in new
+  directory called `generated` in project top level directory.
+- `documentation` - contains various descriptions of the system, how to use it properly and
+  some examples in `documentation/examples`.
+- `external` - is used to store external project dependencies. During the unit-testing the
+  Neon-Kit Unit-Testing Framework is checkoud into this directory using `git` tool.
+- `source` - this directory contains all the source files. This is the only directory that is
+  needed by application.
+- `template` - contains some template files which are needed by Even Driven System. Copy-paste the 
+  template files to your application and modify them as needed.
+- `tests` - contains unit-tests and profiling tests.
+
 ## Where is a build system?
 
 There is no build system for Neon Kit suite components. The Neon Kit contains only sources which are 
