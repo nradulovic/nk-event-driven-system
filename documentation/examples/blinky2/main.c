@@ -5,30 +5,13 @@
  *      Author: nenad
  */
 
-#if __STDC_VERSION__ >= 199901L
-#define _POSIX_C_SOURCE 200809L
-#endif
-
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
-#include <unistd.h>
-#include <pthread.h>
-#include <semaphore.h>
-#include <signal.h>           /* Definition of SIGEV_* constants */
-#include <sys/time.h>
 
 #include "eds.h"
-
-struct tick_context
-{
-    struct sigaction sigaction;
-    pthread_t timer_thread;
-    sem_t timer_lock;
-};
-
-static struct tick_context tick;
+#include "eds_port/eds_port_definition.h"
 
 #define EVENT_TICK      1000
 
@@ -118,60 +101,6 @@ sm__blink_init(eds__sm * sm, void * workspace, const eds__event * event)
     }
 }
 
-static void
-timer_handler(int sig_no)
-{
-    int error;
-
-    (void)sig_no;
-    error = sem_post(&tick.timer_lock);
-    assert(error == 0);
-}
-
-#include <errno.h>
-#include <string.h>
-
-static void*
-tick_thread(void * arg)
-{
-    (void)arg;
-
-    for (;;) {
-        int sem_error;
-        eds__error error;
-
-        do {
-            sem_error = sem_wait(&tick.timer_lock);
-        } while ((sem_error == -1) && (errno == EINTR));
-        assert(sem_error == 0);
-        error = eds__tick_process_all();
-        assert(error == EDS__ERROR_NONE);
-    }
-    return NULL;
-}
-
-static void
-tick_setup(void)
-{
-    int error;
-    struct itimerval timer;
-
-    timer.it_value.tv_sec = 0;
-    timer.it_value.tv_usec = 10000;
-    timer.it_interval.tv_sec = 0;
-    timer.it_interval.tv_usec = 10000;
-    tick.sigaction.sa_handler = &timer_handler;
-
-    error = sem_init(&tick.timer_lock, 0, 0);
-    assert(error == 0);
-    error = pthread_create(&tick.timer_thread, NULL, tick_thread, NULL);
-    assert(error == 0);
-    error = sigaction(SIGALRM, &tick.sigaction, NULL);
-    assert(error == 0);
-    error = setitimer(ITIMER_REAL, &timer, NULL);
-    assert(error == 0);
-}
-
 int
 main(void)
 {
@@ -180,13 +109,15 @@ main(void)
     eds__agent * sm_blink_agent2;
     eds__network * network;
     struct sm__workspace sm__blink_workspace1 =
-        {
-        .period_ms = 1000, .instance = 0
-        };
+    {
+        .period_ms = 1000, 
+        .instance = 0
+    };
     struct sm__workspace sm__blink_workspace2 =
-        {
-        .period_ms = 500, .instance = 1
-        };
+    {
+        .period_ms = 500, 
+        .instance = 1
+    };
 
     tick_setup();
 

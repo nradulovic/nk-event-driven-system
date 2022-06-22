@@ -20,4 +20,7 @@ struct eds_port__critical
     int dummy;
 };
 
+void
+tick_setup(void);
+
 #endif /* NEON_KIT_EDS_DOCUMENTATION_EXAMPLES_BLINKY_EDS_PORT_EDS_PORT_DEFINITION_H_ */
