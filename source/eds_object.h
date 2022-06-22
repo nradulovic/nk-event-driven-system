@@ -223,8 +223,8 @@ struct eds_object__epa
     struct eds_object__tasker_node p__task;     //!< Task instance which is processing events.
     struct eds_object__smp p__smp;              //!< State machine processor instances.
     struct eds_object__equeue p__equeue;        //!< Event queue instance.
-    struct eds_object__epn * p__epn;             //!< Owner of this EPA.
-    struct eds_object__mem * p__mem;             //!< Memory allocator reference.
+    struct eds_object__epn * p__epn;            //!< Owner of this EPA.
+    struct eds_object__mem * p__mem;            //!< Memory allocator reference.
 #if (EDS_CONFIG__AGENT__ENABLE_NAME != 0)
     const char * p__name;                       //!< Pointer to C string containing the name of EPA.
 #endif
@@ -241,10 +241,8 @@ struct eds_object__epn
     struct eds_port__sleep p__sleep;            //!< Portable sleep data.
     bool p__should_run;                         //!< Stop execution flag (used to terminate EPN).
     struct eds_object__etm p__etm;              //!< Event timer
-    struct eds_object__mem * p__mem;             //!< Memory allocator reference.
-#if (EDS_CONFIG__NETWORK__ENABLE_NAME != 0)
-    const char * p__name;                       //!< Pointer to C string containing the name of EPN.
-#endif
+    struct eds_object__mem * p__mem;            //!< Memory allocator reference.
+    const struct eds__network_attr * p__attr;   //!< Attributes of the network.
 };
 
 #endif /* NEON_KIT_GENERIC_SOURCE_NK_EDS_OBJECT_H_ */

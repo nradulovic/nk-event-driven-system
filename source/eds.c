@@ -127,9 +127,7 @@ eds__network_create(const struct eds__network_attr * attr, eds__network ** netwo
     eds_etm_service__init(&epn->p__etm);
     eds_port__sleep_init(&epn->p__sleep);
     epn->p__mem = mem;
-#if (EDS_CONFIG__NETWORK__ENABLE_NAME != 0)
-    epn->p__name = attr->name != NULL ? attr->name : EDS__DEFAULT_NETWORK_NAME;
-#endif
+    epn->p__attr = attr;
     *network = epn;
 
     return EDS__ERROR_NONE;
@@ -233,7 +231,17 @@ eds__network_start(eds__network * network)
         if (error != EDS__ERROR_NONE) {
             return error;
         }
+#if (EDS_CONFIG__NETWORK__ENABLE_CALLBACKS != 0)
+        if (network->p__attr->cb_to_idle != NULL) {
+            network->p__attr->cb_to_idle(network, network->p__attr->cb_arg);
+        }
+#endif
         eds_epn__sleep_wait(network);
+#if (EDS_CONFIG__NETWORK__ENABLE_CALLBACKS != 0)
+        if (network->p__attr->cb_to_run != NULL) {
+            network->p__attr->cb_to_run(network, network->p__attr->cb_arg);
+        }
+#endif
     }
     eds_port__critical_lock(&critical);
     eds_core__list_remove(&network->p__list);
@@ -248,6 +256,16 @@ eds__network_stop(eds__network * network)
         return EDS__ERROR_INVALID_ARGUMENT;
     }
     network->p__should_run = false;
+    return EDS__ERROR_NONE;
+}
+
+eds__error
+eds__network_name(eds__network * network, const char ** name)
+{
+    if ((network == NULL) || (name == NULL)) {
+        return EDS__ERROR_INVALID_ARGUMENT;
+    }
+    *name = network->p__attr->name != NULL ? network->p__attr->name : EDS__DEFAULT_NETWORK_NAME;
     return EDS__ERROR_NONE;
 }
 

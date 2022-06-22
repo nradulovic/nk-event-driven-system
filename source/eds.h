@@ -1076,6 +1076,15 @@ eds__etimer_cancel(eds__etimer * etimer);
 /**
  * @defgroup    eds_network Event Processing Network (EPN)
  * @brief       Event Processing Network interface
+ *
+ * Event Processing Network is responsible for executing the agents when an agent receives an event.
+ * 
+ * At least one network needs to exist in order to process the events.
+ *
+ * Agents which are part of a network are executing in the same thread context.
+ *
+ * Multiple networks might exist. Each network is executing agents in different thread context. Event
+ * Driven System supports sending events between two networks.
  * @{
  */
 
@@ -1103,13 +1112,13 @@ struct eds__network_attr
      *
      * When this pointer is set to null, the newly created agent will have name as defined by
      * @ref EDS__DEFAULT_NETWORK_NAME. This string must exists the whole time the network is running
-     * since only reference to a string is stored in the attribute structure and in network
+     * since only the reference to a string is stored in the attribute structure and in network
      * structure.
      */
     const char * name;
 
     /**
-     * @brief   This member defines whether the network instance should be allocated statically.
+     * @brief   This member defines whether the network instance will be allocated statically.
      *
      * In some application there is a requirement to allocate structures statically. If that is the
      * case use `static_` members of attribute class to allocate all parts of the agent instance
@@ -1119,6 +1128,45 @@ struct eds__network_attr
      * instance.
      */
     eds__network * instance;
+
+    /**
+     * @brief   This callback is called when network wants to switch from __run__ state to __idle__ state.
+     *
+     * When this member is initialized to NULL then no callback is called.
+     *
+     * The callback receives: 
+     * - the pointer to current network instance and 
+     * - the global callback argument which is also part of this structure.
+     *
+     * @note    In order to use callbacks @ref EDS_CONFIG__NETWORK__ENABLE_CALLBACKS macro must be
+     *          enabled.
+     */
+    void (* cb_to_idle)(eds__network *, void *);
+    
+    /**
+     * @brief  This callback is called when network wants to switch from __idle state to __run__ state.
+     *
+     * When this member is initialized to NULL then no callback is called.
+     *
+     * The callback receives: 
+     * - the pointer to current network instance and 
+     * - the callback argument which is also part of this structure.
+     *
+     * @note    In order to use callbacks @ref EDS_CONFIG__NETWORK__ENABLE_CALLBACKS macro must be
+     *          enabled.
+     */
+    void (* cb_to_run)(eds__network *, void *);
+
+    /**
+     * @brief  Callback argument
+     *
+     * Use this member to supply a some application related data to callbacks. This argument is just
+     * passed to callbacks when they are called.
+     *
+     * @note    In order to use callbacks @ref EDS_CONFIG__NETWORK__ENABLE_CALLBACKS macro must be
+     *          enabled.
+     */
+    void * cb_arg;
 };
 
 /** @} */
@@ -1166,6 +1214,19 @@ eds__network_start(eds__network * network);
  */
 eds__error
 eds__network_stop(eds__network * network);
+
+/**
+ * @brief       Get the name of the network
+ *
+ * @param       network Pointer to event processing network.
+ * @param       name Pointer to `const char *` variable which will hold the network name.
+ * @return      Operation status.
+ * @retval      EDS__ERROR_NONE Operation completed successfully.
+ * @retval      EDS__ERROR_INVLD_ARGUMENT Is returned when @a network or @a name pointer is NULL
+ *              pointer.
+ */
+eds__error
+eds__network_name(eds__network * network, const char ** name);
 
 /** @} */
 #endif /* NEON_KIT_GENERIC_SOURCE_NK_EDS_H_ */

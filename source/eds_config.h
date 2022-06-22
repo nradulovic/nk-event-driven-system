@@ -63,10 +63,10 @@
  */
 
 /**
- * @brief       Enable or disable network instance name storing.
+ * @brief       Enable or disable network callbacks.
  */
-#ifndef EDS_CONFIG__NETWORK__ENABLE_NAME
-#define EDS_CONFIG__NETWORK__ENABLE_NAME    1
+#ifndef EDS_CONFIG__NETWORK__ENABLE_CALLBACKS
+#define EDS_CONFIG__NETWORK__ENABLE_CALLBACKS 1
 #endif
 
 /** @} */
