@@ -54,3 +54,6 @@ INPUT                  = ../source \
 # and want to reuse the introduction page also for the doxygen output.
 
 USE_MDFILE_AS_MAINPAGE = ../README.md
+
+GENERATE_HTML = YES
+
