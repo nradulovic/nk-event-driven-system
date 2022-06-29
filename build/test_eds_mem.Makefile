@@ -21,6 +21,9 @@ AR_LIBS +=
 # List additional libraries. Use this when using an external static library.
 LD_LIBS +=
 
+# List additional features
+VARIANT_FEATURES += 
+
 # Include initialization of build system, this include should be the first
 include $(WS)/build/sbs/initialize.mk
 
