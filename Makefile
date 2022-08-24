@@ -1,5 +1,5 @@
 
-include build/sbs/definitions.mk
+include build/../external/sbs/definitions.mk
 
 .PHONY: test
 test:
