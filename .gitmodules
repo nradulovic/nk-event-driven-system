@@ -1,6 +1,6 @@
 [submodule "external/utf"]
 	path = external/utf
-	url = git@gitlab.com:neon-kit/unit-testing-framework.git
+	url = ../unit-testing-framework.git
 [submodule "external/sbs"]
 	path = external/sbs
-	url = git@github.com:nradulovic/shared-build-system.git
+	url = ../shared-build-system.git
