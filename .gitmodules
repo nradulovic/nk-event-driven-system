@@ -1,3 +1,0 @@
-[submodule "build/sbs"]
-	path = build/sbs
-	url = ../shared-build-system.git
