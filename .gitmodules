@@ -1,0 +1,3 @@
+[submodule "external/utf"]
+	path = external/utf
+	url = git@gitlab.com:neon-kit/unit-testing-framework.git
