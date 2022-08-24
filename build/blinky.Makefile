@@ -25,12 +25,12 @@ LD_LIBS +=
 VARIANT_FEATURES += pthread
 
 # Include initialization of build system, this include should be the first
-include $(WS)/build/sbs/initialize.mk
+include $(WS)/build/../external/sbs/initialize.mk
 
 # Include application dependencies
 include $(WS)/build/eds/interface.mk
 include $(WS)/build/eds/implementation.mk
 
 # Include target of build system, a target is the last include in the Makefile
-include $(WS)/build/sbs/target_runnable.mk
+include $(WS)/build/../external/sbs/target_runnable.mk
 
