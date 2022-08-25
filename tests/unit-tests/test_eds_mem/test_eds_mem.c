@@ -22,11 +22,12 @@ FAKE_VALUE_FUNC(void *, fake_alloc, void*, size_t)
 FAKE_VOID_FUNC(fake_dealloc, void*, void*)
 
 struct eds_object__vector eds_state__mem_instances;
+bool eds_state__has_started;
 
 static void
 test__eds_mem__find__empty(void)
 {
-    struct eds_object__vector fake_mem__instances;
+    struct eds_object__vector fake_mem__instances = { 0 };
     struct eds_object__mem * instance;
 
     eds_core__vector_n_entries_fake.return_val = 0; /* Tell to MEM that vector is empty */
@@ -44,7 +45,7 @@ test__eds_mem__find__empty(void)
 static void
 test__eds_mem__find__one_entry_no_match(void)
 {
-    struct eds_object__vector fake_mem__instances;
+    struct eds_object__vector fake_mem__instances = { 0 };
     struct eds_object__mem fake_mem_instance_in_vector;
     struct eds_object__mem * instance;
 
@@ -71,7 +72,7 @@ test__eds_mem__find__one_entry_no_match(void)
 static void
 test__eds_mem__find__one_entry_exact_match(void)
 {
-    struct eds_object__vector fake_mem__instances;
+    struct eds_object__vector fake_mem__instances = { 0 };
     struct eds_object__mem fake_mem_instance_in_vector;
     struct eds_object__mem * instance;
 
@@ -98,7 +99,7 @@ test__eds_mem__find__one_entry_exact_match(void)
 static void
 test__eds_mem__find__one_entry_over_match(void)
 {
-    struct eds_object__vector fake_mem__instances;
+    struct eds_object__vector fake_mem__instances = { 0 };
     struct eds_object__mem fake_mem_instance_in_vector;
     struct eds_object__mem * instance;
 
@@ -125,7 +126,7 @@ test__eds_mem__find__one_entry_over_match(void)
 static void
 test__eds_mem__find__two_entries_no_match(void)
 {
-    struct eds_object__vector fake_mem__instances;
+    struct eds_object__vector fake_mem__instances = { 0 };
     struct eds_object__mem fake_mem_instances_in_vector[2];
     void * instances_in_vector[] =
     {
