@@ -1,8 +1,5 @@
 
 WS = ..
-GIT_BASE_URL ?= git@gitlab.com:neon-kit
-GIT_UTF_RELEASE ?= release-1.0
-GIT_URL ?= $(GIT_BASE_URL)/unit-testing-framework.git
 
 include $(WS)/build/../external/sbs/definitions.mk
 
@@ -40,6 +37,9 @@ clean_test_no_allocations:
 test: test_eds_core test_eds_mem test_no_allocations
 	$(PRINT) All tests:
 	$(PRINT) OK
+.PHONY: test_report
+test_report: test
+	@for report in $(WS)/$(DEF_GENERATED_DIR)/report_test_*; do echo $$report:; cat $$report; done
 
 .PHONY: test_eds_core
 test_eds_core: 

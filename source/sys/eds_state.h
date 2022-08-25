@@ -15,6 +15,6 @@
 #include <stdbool.h>
 
 extern struct eds_object__vector eds_state__mem_instances;
-bool eds_state__has_started;
+extern bool eds_state__has_started;
 
 #endif /* SOURCE_SYS_EDS_STATE_H_ */
