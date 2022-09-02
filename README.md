@@ -42,15 +42,15 @@ submodules. (The ZIP file is also not a valid git repository)
 
 To clone using HTTPS:
 
-git clone https://github.com/nradulovic/nk-event-driven-system.git --recurse-submodules
+    git clone https://github.com/nradulovic/nk-event-driven-system.git --recurse-submodules
 
 Using SSH:
 
-git clone git@github.com:nradulovic/nk-event-driven-system.git --recurse-submodules
+    git clone git@github.com:nradulovic/nk-event-driven-system.git --recurse-submodules
 
 If you have downloaded the repo without using the --recurse-submodules argument, you need to run:
 
-git submodule update --init --recursive
+    git submodule update --init --recursive
 
 ## Project directory structure
 
