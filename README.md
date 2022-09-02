@@ -33,6 +33,25 @@ This code is something that is developed by application writer. The application 
 responsible to implement all needed functionality of a port. Port templates are available in 
 `template` directory.
 
+## Cloning this repository
+
+This repo uses Git Submodules to bring in dependent components.
+
+Note: If you download the ZIP file provided by the GitHub UI, you will not get the contents of the 
+submodules. (The ZIP file is also not a valid git repository)
+
+To clone using HTTPS:
+
+git clone https://github.com/nradulovic/nk-event-driven-system.git --recurse-submodules
+
+Using SSH:
+
+git clone git@github.com:nradulovic/nk-event-driven-system.git --recurse-submodules
+
+If you have downloaded the repo without using the --recurse-submodules argument, you need to run:
+
+git submodule update --init --recursive
+
 ## Project directory structure
 
 The project contains the following folders:
