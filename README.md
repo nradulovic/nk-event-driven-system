@@ -63,8 +63,6 @@ The project contains the following folders:
   directory called `generated` in project top level directory.
 - `documentation` - contains various descriptions of the system, how to use it properly and
   some examples in `documentation/examples`.
-- `external` - is used to store external project dependencies. During the unit-testing the
-  Neon-Kit Unit-Testing Framework is checkoud into this directory using `git` tool.
 - `source` - this directory contains all the source files. This is the only directory that is
   needed by application.
 - `template` - contains some template files which are needed by Even Driven System. Copy-paste the 
