@@ -28,8 +28,8 @@ VARIANT_FEATURES += pthread
 include $(WS)/../shared-build-system/initialize.mk
 
 # Include application dependencies
-include $(WS)/build/eds/interface.mk
-include $(WS)/build/eds/implementation.mk
+include $(WS)/build/interface.mk
+include $(WS)/build/implementation.mk
 
 # Include target of build system, a target is the last include in the Makefile
 include $(WS)/../shared-build-system/target_runnable.mk

@@ -25,13 +25,13 @@ LD_LIBS +=
 VARIANT_FEATURES += 
 
 # Include initialization of build system, this include should be the first
-include $(WS)/build/../external/sbs/initialize.mk
+include $(WS)/../shared-build-system/initialize.mk
 
 # Include application dependencies
-include $(WS)/build/eds/interface.mk
-include $(WS)/build/eds/utf_interface.mk
-include $(WS)/build/../external/utf/build/utf.mk
+include $(WS)/build/interface.mk
+include $(WS)/build/utf_interface.mk
+include $(WS)/../unit-testing-framework/build/utf.mk
 
 # Include target of build system, a target is the last include in the Makefile
-include $(WS)/build/../external/sbs/target_test.mk
+include $(WS)/../shared-build-system/target_test.mk
 
