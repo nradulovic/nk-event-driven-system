@@ -1,6 +1,0 @@
-[submodule "external/utf"]
-	path = external/utf
-	url = ../unit-testing-framework.git
-[submodule "external/sbs"]
-	path = external/sbs
-	url = ../shared-build-system.git
