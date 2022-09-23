@@ -1,7 +1,7 @@
 
 WS = ..
 
-include $(WS)/build/../external/sbs/definitions.mk
+include $(WS)/../shared-build-system/definitions.mk
 
 .PHONY: all
 all: build_test_eds_core build_test_eds_mem build_test_no_allocations
