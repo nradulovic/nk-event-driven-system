@@ -13,7 +13,6 @@ CC_INCLUDES +=
 # List additional C source files. Files which are not listed here will not be
 # compiled.
 CC_SOURCES += tests/integration-tests/test_no_allocations/main.c
-CC_SOURCES += tests/integration-tests/test_no_allocations/eds_port/eds_port_definition.c
 
 # List additional archives. Use this when using an external static archive.
 AR_LIBS +=
