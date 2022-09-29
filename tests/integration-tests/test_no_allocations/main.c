@@ -42,9 +42,9 @@ std_free(void * context, void * memory)
 {
     (void)context;
 
-    free(memory);
     no_deallocations++;
     printf("-%5u <= %p\n", no_deallocations, memory);
+    free(memory);
 }
 
 static eds__sm_action
