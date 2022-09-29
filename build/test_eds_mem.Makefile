@@ -5,10 +5,10 @@ WS = ..
 PROJECT_NAME := test_eds_mem
 
 # Project configuration header file.
-PROJECT_CONFIG := tests/unit-tests/$(PROJECT_NAME)/eds_port
+PROJECT_CONFIG := tests/unit-tests
 
 # List additional C header include paths.
-CC_INCLUDES += tests/unit-tests/$(PROJECT_NAME)
+CC_INCLUDES += 
 
 # List additional C source files. Files which are not listed here will not be
 # compiled.
@@ -25,13 +25,12 @@ LD_LIBS +=
 VARIANT_FEATURES += 
 
 # Include initialization of build system, this include should be the first
-include $(WS)/build/../external/sbs/initialize.mk
+include $(WS)/../shared-build-system/initialize.mk
 
 # Include application dependencies
-include $(WS)/build/eds/interface.mk
-include $(WS)/build/eds/utf_interface.mk
-include $(WS)/$(DEF_EXTERNAL_DIR)/utf/build/utf.mk
+include $(WS)/build/interface.mk
+include $(WS)/../unit-testing-framework/build/library.mk
 
 # Include target of build system, a target is the last include in the Makefile
-include $(WS)/build/../external/sbs/target_test.mk
+include $(WS)/../shared-build-system/target_test.mk
 

@@ -13,7 +13,6 @@ CC_INCLUDES += source
 # List additional C source files. Files which are not listed here will not be
 # compiled.
 CC_SOURCES += documentation/examples/blinky2/main.c
-CC_SOURCES += documentation/examples/blinky2/eds_port/eds_port_definition.c
 
 # List additional archives. Use this when using an external static archive.
 AR_LIBS +=
@@ -28,8 +27,7 @@ VARIANT_FEATURES += pthread
 include $(WS)/../shared-build-system/initialize.mk
 
 # Include application dependencies
-include $(WS)/build/interface.mk
-include $(WS)/build/implementation.mk
+include $(WS)/build/library.mk
 
 # Include target of build system, a target is the last include in the Makefile
 include $(WS)/../shared-build-system/target_runnable.mk

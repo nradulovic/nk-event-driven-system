@@ -15,11 +15,15 @@ build_test_eds_mem:
 	$(VERBOSE)$(MAKE) -f test_eds_mem.Makefile
 
 .PHONY: build_test_no_allocations
-build_test_no_allocations: 
+build_test_no_allocations: build_library
 	$(VERBOSE)$(MAKE) -f test_no_allocations.Makefile
 
+.PHONY: build_library
+build_library:
+	$(VERBOSE)$(MAKE) -f library.Makefile
+
 .PHONY: clean
-clean: clean_test_eds_core clean_test_eds_mem clean_docs clean_test_no_allocations
+clean: clean_test_eds_core clean_test_eds_mem clean_docs clean_test_no_allocations clean_library
 
 .PHONY: clean_test_eds_core
 clean_test_eds_core: 
@@ -30,8 +34,12 @@ clean_test_eds_mem:
 	$(VERBOSE)$(MAKE) -f test_eds_mem.Makefile clean
 
 .PHONY: clean_test_no_allocations
-clean_test_no_allocations: 
+clean_test_no_allocations: clean_library
 	$(VERBOSE)$(MAKE) -f test_no_allocations.Makefile clean
+
+.PHONY: clean_library
+clean_library:
+	$(VERBOSE)$(MAKE) -f library.Makefile clean
 
 .PHONY: test
 test: test_eds_core test_eds_mem test_no_allocations
