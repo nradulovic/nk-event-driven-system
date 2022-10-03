@@ -26,25 +26,26 @@ tmr_sentinel_pend(struct eds_object__tmr * tmr, struct eds_object__tmr_node * no
 }
 
 void
-eds_tmr__node_init(struct eds_object__tmr_node * tmr, void
-(*fn)(struct eds_object__tmr_node*))
+eds_tmr__node_init(
+    struct eds_object__tmr_node * self,
+    void (* fn)(struct eds_object__tmr_node *))
 {
-    eds_core__list_init(&tmr->p__list);
-    tmr->p__n_rtick = 0u;
-    tmr->p__n_itick = 0u;
-    tmr->p__fn = fn;
+    eds_core__list_init(&self->p__list);
+    self->p__n_rtick = 0u;
+    self->p__n_itick = 0u;
+    self->p__fn = fn;
 }
 
 bool
-eds_tmr__node_is_running(const struct eds_object__tmr_node * tmr)
+eds_tmr__node_is_running(const struct eds_object__tmr_node * self)
 {
-    return eds_core__list_is_empty(&tmr->p__list) == false;
+    return eds_core__list_is_empty(&self->p__list) == false;
 }
 
 bool
-eds_tmr__node_is_periodic(const struct eds_object__tmr_node * tmr)
+eds_tmr__node_is_periodic(const struct eds_object__tmr_node * self)
 {
-    return tmr->p__n_itick != 0u;
+    return self->p__n_itick != 0u;
 }
 
 void
@@ -79,7 +80,8 @@ eds_tmr__cancel(struct eds_object__tmr * self, struct eds_object__tmr_node * nod
         if (eds_core__list_next(&node->p__list) != &self->p__active) {
             struct eds_object__tmr_node * next_tmr;
 
-            next_tmr = EDS_CORE__CONTAINER_OF(eds_core__list_next(&node->p__list),
+            next_tmr = EDS_CORE__CONTAINER_OF(
+                eds_core__list_next(&node->p__list),
                 struct eds_object__tmr_node,
                 p__list);
             next_tmr->p__n_rtick += node->p__n_rtick;
@@ -98,8 +100,8 @@ eds_tmr__init(struct eds_object__tmr * tmr)
 bool
 eds_tmr__are_timers_pending(const struct eds_object__tmr * sentinel)
 {
-    if ((eds_core__list_is_empty(&sentinel->p__active) == false)
-        || (eds_core__list_is_empty(&sentinel->p__pending) == false)) {
+    if ((eds_core__list_is_empty(&sentinel->p__active) == false) ||
+        (eds_core__list_is_empty(&sentinel->p__pending) == false)) {
         return true;
     } else {
         return false;
@@ -109,8 +111,7 @@ eds_tmr__are_timers_pending(const struct eds_object__tmr * sentinel)
 void
 eds_tmr__process_timers(struct eds_object__tmr * tmr)
 {
-    struct eds_object__list elapsed_timers = EDS_CORE__LIST_INITIALIZER(&elapsed_timers)
-    ;
+    struct eds_object__list elapsed_timers = EDS_CORE__LIST_INITIALIZER(&elapsed_timers);
     struct eds_object__list * iterator;
     struct eds_object__list * current;
 
@@ -161,8 +162,10 @@ eds_tmr__process_timers(struct eds_object__tmr * tmr)
 }
 
 void
-eds_tmr__for_each_node(struct eds_object__tmr * self, void
-(*map)(struct eds_object__tmr_node*, void*), void * arg)
+eds_tmr__for_each_node(
+    struct eds_object__tmr * self,
+    void (* map)(struct eds_object__tmr_node *, void *),
+    void * arg)
 {
     struct eds_object__list * iterator;
     struct eds_object__list * current;
