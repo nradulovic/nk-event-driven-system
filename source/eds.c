@@ -18,8 +18,6 @@
 #include "sys/eds_tmr.h"
 #include "sys/eds_state.h"
 
-#include <assert.h>
-
 static struct eds_object__list eds__epn_list = EDS_CORE__LIST_INITIALIZER(&eds__epn_list)
 ;
 

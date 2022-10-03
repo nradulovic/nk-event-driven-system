@@ -91,7 +91,7 @@ typedef struct eds_object__epn eds__network;
  *
  * @see         eds_mem
  */
-#define EDS__DEFAULT_MEM_ENTRIES            16u
+#define EDS__DEFAULT_MEM_ENTRIES                16u
 
 /**
  * @brief       Default minimum bytes of a memory pool allocator.

@@ -5,7 +5,6 @@
 #include "eds_port.h"
 #include "eds_trace.h"
 
-#include <assert.h>
 #include <stddef.h>
 
 static size_t
@@ -187,7 +186,6 @@ eds__event_init(eds__event * event, uint32_t event_id, size_t event_data_size)
 void*
 eds__event_put_data(eds__event * event)
 {
-    assert(event != NULL);
     if (event->p__size != 0u) {
         return event + 1u;
     } else {
@@ -198,14 +196,12 @@ eds__event_put_data(eds__event * event)
 uint32_t
 eds__event_id(const eds__event * event)
 {
-    assert(event != NULL);
     return event->p__id;
 }
 
 const void*
 eds__event_data(const eds__event * event)
 {
-    assert(event != NULL);
     if (event->p__size != 0u) {
         return event + 1u;
     } else {
@@ -216,7 +212,6 @@ eds__event_data(const eds__event * event)
 size_t
 eds__event_size(const eds__event * event)
 {
-    assert(event != NULL);
     return event->p__size;
 }
 
