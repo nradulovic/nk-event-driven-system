@@ -21,7 +21,7 @@
 #include <stddef.h>
 
 /* Include port specific type definitions */
-#include "eds_port/eds_port_definition.h"
+#include "eds_port.h"
 
 /* Include EDS configuration */
 #include "eds_config.h"
@@ -238,7 +238,9 @@ struct eds_object__epn
 {
     struct eds_object__list p__list;            //!< Linked list node.
     struct eds_object__tasker p__tasker;        //!< Tasker which processes the tasks.
-    struct eds_port__sleep p__sleep;            //!< Portable sleep data.
+#if (EDS_PORT__USE_LOCAL_SLEEP == 1)
+    struct eds_port__sleep_local p__sleep;      //!< Portable sleep data.
+#endif
     bool p__should_run;                         //!< Stop execution flag (used to terminate EPN).
     struct eds_object__etm p__etm;              //!< Event timer
     struct eds_object__mem * p__mem;            //!< Memory allocator reference.

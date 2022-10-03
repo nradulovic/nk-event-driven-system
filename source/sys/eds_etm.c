@@ -73,16 +73,16 @@ eds_etm__create(const struct eds__etimer_attr * attr, eds__etimer ** etm)
     struct eds_object__etm_node * l_etm;
 
     if (attr->static_instance == NULL) {
-        struct eds_port__critical critical;
+	EDS_PORT__CRITICAL_INSTANCE(critical);
 
         mem = eds_mem__find(&eds_state__mem_instances, sizeof(*l_etm));
         if (mem == NULL) {
             EDS_TRACE__EXIT(EDS_TRACE__SOURCE_ETIMER_CREATE, EDS__ERROR_NO_RESOURCE, "%u", sizeof(*l_etm));
             return EDS__ERROR_NO_RESOURCE;
         }
-        eds_port__critical_lock(&critical);
+        EDS_PORT__CRITICAL_LOCK(&critical);
         l_etm = eds_mem__allocate_from(mem, sizeof(*l_etm));
-        eds_port__critical_unlock(&critical);
+        EDS_PORT__CRITICAL_UNLOCK(&critical);
         if (l_etm == NULL) {
             EDS_TRACE__EXIT(EDS_TRACE__SOURCE_ETIMER_CREATE, EDS__ERROR_NO_MEMORY, "%u from %p", sizeof(*l_etm), mem);
             return EDS__ERROR_NO_MEMORY;
@@ -103,12 +103,12 @@ eds_etm__create(const struct eds__etimer_attr * attr, eds__etimer ** etm)
 eds__error
 eds_etm__delete(eds__etimer * etimer)
 {
-    struct eds_port__critical critical;
+	EDS_PORT__CRITICAL_INSTANCE(critical);
 
     if (etimer->p__mem != NULL) {
-        eds_port__critical_lock(&critical);
+        EDS_PORT__CRITICAL_LOCK(&critical);
         eds_mem__deallocate_to(etimer->p__mem, etimer);
-        eds_port__critical_unlock(&critical);
+        EDS_PORT__CRITICAL_UNLOCK(&critical);
     }
     return EDS__ERROR_NONE;
 }
@@ -188,8 +188,8 @@ eds__etimer_send_after(eds__etimer * etimer,
     const eds__event * event,
     uint32_t after_ms)
 {
-    struct eds_port__critical critical;
     struct eds_object__epn * epn;
+	EDS_PORT__CRITICAL_INSTANCE(critical);
 
     if ((etimer == NULL) || (agent == NULL) || (event == NULL)) {
         EDS_TRACE__EXIT(EDS_TRACE__SOURCE_ETIMER_SEND_AFTER, EDS__ERROR_INVALID_ARGUMENT, "etimer, agent, event = (%p, %p, %p)", etimer, agent, event);
@@ -198,14 +198,14 @@ eds__etimer_send_after(eds__etimer * etimer,
     if (after_ms < eds_port__tick_duration_ms()) {
         return eds__agent_send(agent, event);
     }
-    eds_port__critical_lock(&critical);
+    EDS_PORT__CRITICAL_LOCK(&critical);
     if (eds_epa__is_designated(agent) == false) {
-        eds_port__critical_unlock(&critical);
+        EDS_PORT__CRITICAL_UNLOCK(&critical);
         EDS_TRACE__EXIT(EDS_TRACE__SOURCE_ETIMER_SEND_AFTER, EDS__ERROR_NO_PERMISSION, "etimer, agent, event = (%p, %p, %p)", etimer, agent, event);
         return EDS__ERROR_NO_PERMISSION;
     }
     if (eds_etm__is_designated(etimer) == true) {
-        eds_port__critical_unlock(&critical);
+        EDS_PORT__CRITICAL_UNLOCK(&critical);
         EDS_TRACE__EXIT(EDS_TRACE__SOURCE_ETIMER_SEND_AFTER, EDS__ERROR_ALREADY_EXISTS, "etimer, agent, event = (%p, %p, %p)", etimer, agent, event);
         return EDS__ERROR_ALREADY_EXISTS;
     }
@@ -217,7 +217,7 @@ eds__etimer_send_after(eds__etimer * etimer,
     eds_etm_service__start_once(eds_epn__etm_service(epn),
         etimer,
         eds_port__tick_from_ms(after_ms));
-    eds_port__critical_unlock(&critical);
+    EDS_PORT__CRITICAL_UNLOCK(&critical);
     EDS_TRACE__EXIT(EDS_TRACE__SOURCE_ETIMER_SEND_AFTER, EDS__ERROR_NONE, "etimer, agent, event_id, after_ms = (%p, %p, %u, %u)", etimer, agent, event->p__id, after_ms);
     return EDS__ERROR_NONE;
 }
@@ -228,8 +228,8 @@ eds__etimer_send_every(eds__etimer * etimer,
     const eds__event * event,
     uint32_t every_ms)
 {
-    struct eds_port__critical critical;
     struct eds_object__epn * epn;
+	EDS_PORT__CRITICAL_INSTANCE(critical);
 
     if ((etimer == NULL) || (agent == NULL) || (event == NULL)) {
         return EDS__ERROR_INVALID_ARGUMENT;
@@ -237,13 +237,13 @@ eds__etimer_send_every(eds__etimer * etimer,
     if (every_ms < eds_port__tick_duration_ms()) {
         return EDS__ERROR_OUT_OF_RANGE;
     }
-    eds_port__critical_lock(&critical);
+    EDS_PORT__CRITICAL_LOCK(&critical);
     if (eds_epa__is_designated(agent) == false) {
-        eds_port__critical_unlock(&critical);
+        EDS_PORT__CRITICAL_UNLOCK(&critical);
         return EDS__ERROR_NO_PERMISSION;
     }
     if (eds_etm__is_designated(etimer) == true) {
-        eds_port__critical_unlock(&critical);
+        EDS_PORT__CRITICAL_UNLOCK(&critical);
         return EDS__ERROR_ALREADY_EXISTS;
     }
     epn = eds_epa__designation(agent);
@@ -253,22 +253,22 @@ eds__etimer_send_every(eds__etimer * etimer,
     eds_etm_service__start_periodic(eds_epn__etm_service(epn),
         etimer,
         eds_port__tick_from_ms(every_ms));
-    eds_port__critical_unlock(&critical);
+    EDS_PORT__CRITICAL_UNLOCK(&critical);
     return EDS__ERROR_NONE;
 }
 
 eds__error
 eds__etimer_cancel(eds__etimer * etimer)
 {
-    struct eds_port__critical critical;
     struct eds_object__epn * epn;
+	EDS_PORT__CRITICAL_INSTANCE(critical);
 
     if (etimer == NULL) {
         return EDS__ERROR_INVALID_ARGUMENT;
     }
-    eds_port__critical_lock(&critical);
+    EDS_PORT__CRITICAL_LOCK(&critical);
     if (eds_etm__is_designated(etimer) == false) {
-        eds_port__critical_unlock(&critical);
+        EDS_PORT__CRITICAL_UNLOCK(&critical);
         return EDS__ERROR_NOT_EXISTS;
     }
     /* To have designated timer but no designated EPA cannot happen. */
@@ -278,7 +278,7 @@ eds__etimer_cancel(eds__etimer * etimer)
     eds_evt__null(etimer->p__evt); /* We want to null-ify this event for all receivers */
     eds_evt__ref_down(etimer->p__evt);
     eds_evt__deallocate(etimer->p__evt); /* Dispose of event as well */
-    eds_port__critical_unlock(&critical);
+    EDS_PORT__CRITICAL_UNLOCK(&critical);
     EDS_TRACE__EXIT(EDS_TRACE__SOURCE_ETIMER_CANCEL, EDS__ERROR_NONE, "etimer = (%p)", etimer);
     return EDS__ERROR_NONE;
 }

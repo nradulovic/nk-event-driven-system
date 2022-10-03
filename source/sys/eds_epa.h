@@ -48,8 +48,12 @@ eds_epa__create(eds__sm_state * sm_initial_state,
 eds__error
 eds_epa__send(struct eds_object__epa * epa, const struct eds_object__evt * evt);
 
+#if (EDS_PORT__USE_LOCAL_CRITICAL == 1)
 eds__error
-eds_epa__dispatch(struct eds_object__epa * agent, struct eds_port__critical * critical);
+eds_epa__dispatch(struct eds_object__epa * agent, struct eds_port__critical_local * critical);
+#else
+eds_epa__dispatch(struct eds_object__epa * agent, struct eds_port__critical_local * critical);
+#endif
 
 void
 eds_epa__terminate(struct eds_object__epa * epa);

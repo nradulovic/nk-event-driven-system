@@ -83,10 +83,10 @@ eds_evt__mem(const struct eds_object__evt * event);
 eds__error
 eds__event_create(uint32_t event_id, size_t event_data_size, eds__event ** event)
 {
-    struct eds_port__critical critical;
     struct eds_object__mem * mem;
     struct eds_object__evt * l_event;
     size_t event_size;
+    EDS_PORT__CRITICAL_INSTANCE(critical);
 
     if ((event_id == 0) || (event == NULL)) {
         return EDS__ERROR_INVALID_ARGUMENT;
@@ -96,9 +96,9 @@ eds__event_create(uint32_t event_id, size_t event_data_size, eds__event ** event
     if (mem == NULL) {
         return EDS__ERROR_NO_RESOURCE;
     }
-    eds_port__critical_lock(&critical);
+    EDS_PORT__CRITICAL_LOCK(&critical);
     l_event = eds_mem__allocate_from(mem, event_size);
-    eds_port__critical_unlock(&critical);
+    EDS_PORT__CRITICAL_UNLOCK(&critical);
     if (l_event == NULL) {
         return EDS__ERROR_NO_MEMORY;
     }
@@ -111,7 +111,7 @@ eds__event_create(uint32_t event_id, size_t event_data_size, eds__event ** event
 eds__error
 eds__event_cancel(eds__event * event)
 {
-    struct eds_port__critical critical;
+    EDS_PORT__CRITICAL_INSTANCE(critical);
 
     if (event == NULL) {
         return EDS__ERROR_INVALID_ARGUMENT;
@@ -119,13 +119,13 @@ eds__event_cancel(eds__event * event)
     if (event->p__mem == NULL) {
         return EDS__ERROR_NO_PERMISSION;
     }
-    eds_port__critical_lock(&critical);
+    EDS_PORT__CRITICAL_LOCK(&critical);
     if (eds_evt__is_in_use(event)) {
         event->p__id = EDS__EVENT__NULL;
     } else {
         eds_mem__deallocate_to(event->p__mem, event);
     }
-    eds_port__critical_unlock(&critical);
+    EDS_PORT__CRITICAL_UNLOCK(&critical);
     EDS_TRACE__INFO(EDS_TRACE__SOURCE_EVENT_CANCEL, "%u", event->p__id);
     return EDS__ERROR_NONE;
 }
@@ -133,7 +133,7 @@ eds__event_cancel(eds__event * event)
 eds__error
 eds__event_keep(const eds__event * event)
 {
-    struct eds_port__critical critical;
+    EDS_PORT__CRITICAL_INSTANCE(critical);
 
     if (event == NULL) {
         return EDS__ERROR_INVALID_ARGUMENT;
@@ -141,9 +141,9 @@ eds__event_keep(const eds__event * event)
     if (!eds_evt__is_dynamic(event)) {
         return EDS__ERROR_NO_PERMISSION;
     }
-    eds_port__critical_lock(&critical);
+    EDS_PORT__CRITICAL_LOCK(&critical);
     eds_evt__ref_up(event);
-    eds_port__critical_unlock(&critical);
+    EDS_PORT__CRITICAL_UNLOCK(&critical);
     EDS_TRACE__INFO(EDS_TRACE__SOURCE_EVENT_KEEP, "%p (%u, %u)", event, event->p__id, event->p__ref_count);
     return EDS__ERROR_NONE;
 }
@@ -151,7 +151,7 @@ eds__event_keep(const eds__event * event)
 eds__error
 eds__event_toss(const eds__event * event)
 {
-    struct eds_port__critical critical;
+    EDS_PORT__CRITICAL_INSTANCE(critical);
 
     if (event == NULL) {
         EDS_TRACE__EXIT(EDS_TRACE__SOURCE_EVENT_TOSS, EDS__ERROR_INVALID_ARGUMENT, "event = %p", event);
@@ -165,10 +165,10 @@ eds__event_toss(const eds__event * event)
         EDS_TRACE__EXIT(EDS_TRACE__SOURCE_EVENT_TOSS, EDS__ERROR_NO_RESOURCE, "%p (%u, %u)", event, event->p__id, event->p__ref_count);
         return EDS__ERROR_NO_RESOURCE;
     }
-    eds_port__critical_lock(&critical);
+    EDS_PORT__CRITICAL_LOCK(&critical);
     eds_evt__ref_down(event);
     eds_evt__deallocate(event);
-    eds_port__critical_unlock(&critical);
+    EDS_PORT__CRITICAL_UNLOCK(&critical);
     EDS_TRACE__INFO(EDS_TRACE__SOURCE_EVENT_TOSS, "%p (%u, %u)", event, event->p__id, event->p__ref_count);
     return EDS__ERROR_NONE;
 }

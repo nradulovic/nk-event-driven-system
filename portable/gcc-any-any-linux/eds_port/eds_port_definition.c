@@ -76,34 +76,7 @@ tick_thread(void * arg)
 }
 
 void
-eds_port__sleep_init(struct eds_port__sleep * sleep)
-{
-    int error;
-
-    error = sem_init(&sleep->semaphore, 0, 0);
-    assert(error == 0);
-}
-
-void
-eds_port__sleep_wait(struct eds_port__sleep * sleep)
-{
-    int error;
-
-    error = sem_wait(&sleep->semaphore);
-    assert((error == 0) || (errno == EINTR));
-}
-
-void
-eds_port__sleep_signal(struct eds_port__sleep * sleep)
-{
-    int error;
-
-    error = sem_post(&sleep->semaphore);
-    assert(error == 0);
-}
-
-void
-eds_port__critical_lock(struct eds_port__critical * critical)
+eds_port__critical_local_lock(struct eds_port__critical_local * critical)
 {
     int error;
 
@@ -113,12 +86,40 @@ eds_port__critical_lock(struct eds_port__critical * critical)
 }
 
 void
-eds_port__critical_unlock(struct eds_port__critical * critical)
+eds_port__critical_local_unlock(struct eds_port__critical_local * critical)
 {
     int error;
 
     (void)critical;
     error = pthread_mutex_unlock(&s__critical_mutex);
+    assert(error == 0);
+}
+
+
+void
+eds_port__sleep_local_init(struct eds_port__sleep_local * sleep)
+{
+    int error;
+
+    error = sem_init(&sleep->semaphore, 0, 0);
+    assert(error == 0);
+}
+
+void
+eds_port__sleep_local_wait(struct eds_port__sleep_local * sleep)
+{
+    int error;
+
+    error = sem_wait(&sleep->semaphore);
+    assert((error == 0) || (errno == EINTR));
+}
+
+void
+eds_port__sleep_local_signal(struct eds_port__sleep_local * sleep)
+{
+    int error;
+
+    error = sem_post(&sleep->semaphore);
     assert(error == 0);
 }
 
