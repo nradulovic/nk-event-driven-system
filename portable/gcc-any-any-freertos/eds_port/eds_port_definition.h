@@ -5,8 +5,8 @@
  *      Author: nenad
  */
 
-#ifndef NEON_KIT_EDS_DOCUMENTATION_EXAMPLES_BLINKY_EDS_PORT_EDS_PORT_DEFINITION_H_
-#define NEON_KIT_EDS_DOCUMENTATION_EXAMPLES_BLINKY_EDS_PORT_EDS_PORT_DEFINITION_H_
+#ifndef NEON_KIT_EDS_PORTABLE_GCC_ANY_ANY_FREERTOS_EDS_PORT_DEFINITION_H_
+#define NEON_KIT_EDS_PORTABLE_GCC_ANY_ANY_FREERTOS_EDS_PORT_DEFINITION_H_
 
 struct eds_port__sleep_local
 {
@@ -18,7 +18,9 @@ struct eds_port__critical_local
     int dummy;
 };
 
-void
-tick_setup(void);
+struct eds_port__timer
+{
+    int dummy;
+};
 
-#endif /* NEON_KIT_EDS_DOCUMENTATION_EXAMPLES_BLINKY_EDS_PORT_EDS_PORT_DEFINITION_H_ */
+#endif /* NEON_KIT_EDS_PORTABLE_GCC_ANY_ANY_FREERTOS_EDS_PORT_DEFINITION_H_ */

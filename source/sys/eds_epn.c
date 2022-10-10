@@ -4,7 +4,7 @@
 extern inline struct eds_object__tasker*
 eds_epn__tasker(struct eds_object__epn * epn);
 
-extern inline struct eds_object__etm*
+extern inline struct eds_object__etm_sentinel *
 eds_epn__etm_service(struct eds_object__epn * epn);
 
 void

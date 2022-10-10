@@ -1,10 +1,9 @@
 /**
  * @file
  * @date        Dec 2, 2021
- * @brief       Nano-Kit Event Driven System (EDS) objects header
- *
  * @author      Nenad Radulovic (nenad.b.radulovic@gmail.com)
- * @authors     Nenad Radulovic (nenad.b.radulovic@gmail.com)
+ *
+ * @brief       Nano-Kit Event Driven System (EDS) objects header
  *
  * @defgroup    eds_object Objects
  * @brief       Event Driven System (EDS) objects
@@ -93,7 +92,7 @@ struct eds_object__queue
     uint32_t p__tail;                           //!< Index pointing to tail of queue.
     uint32_t p__n_entries;                      //!< How many entries are put into the queue.
     uint32_t p__n_free;                         //!< How many entries are still free.
-    void ** p__storage;                          //!< Pointer to the array which contains entries.
+    void ** p__storage;                         //!< Pointer to the array which contains entries.
 };
 
 /**
@@ -105,22 +104,34 @@ struct eds_object__equeue
 };
 
 /**
- * @brief       Timer state enumerator.
+ * @brief       Timer sentinel state enumerator. 
  */
-enum eds_object__tmr_state
+enum eds_object__tmr_sentinel_state
 {
-    EDS_OBJECT__TMR_STATE__DORMENT,             //!< Timer is in dormant state (not running).
-    EDS_OBJECT__TMR_STATE__PENDING,             //!< Timer is pending to be activated.
-    EDS_OBJECT__TMR_STATE__ACTIVE               //!< Timer is currently active.
+    EDS_OBJECT__TMR_SENTINEL_STATE_DORMANT,
+    EDS_OBJECT__TMR_SENTINEL_STATE_INITIALIZED,
+    EDS_OBJECT__TMR_SENTINEL_STATE_RUNNING
 };
 
 /**
- * @brief       Timer object
+ * @brief       Timer sentinel object.
  */
-struct eds_object__tmr
+struct eds_object__tmr_sentinel
 {
     struct eds_object__list p__active;          //!< List of active timers.
     struct eds_object__list p__pending;         //!< List of timers which wait for being activated.
+    struct eds_port__timer tick_timer;          //!< Tick portable timer instance
+    enum eds_object__tmr_sentinel_state state;
+};
+
+/**
+ * @brief       Timer node state enumerator.
+ */
+enum eds_object__tmr_node_state
+{
+    EDS_OBJECT__TMR_NODE_STATE_DORMANT,         //!< Timer is in dormant state (not running).
+    EDS_OBJECT__TMR_NODE_STATE_PENDING,         //!< Timer is pending to be activated.
+    EDS_OBJECT__TMR_NODE_STATE_RUNNING          //!< Timer is currently active and running.
 };
 
 /**
@@ -130,20 +141,19 @@ struct eds_object__tmr
 struct eds_object__tmr_node
 {
     struct eds_object__list p__list;            //!< Linked list node.
-    uint32_t p__n_rtick;                        //!< Relative ticks.
-    uint32_t p__n_itick;                        //!< Initial ticks.
-    void
-    (*p__fn)(struct eds_object__tmr_node*);   //!< Callback function.
-    enum eds_object__tmr_state p__state;        //!< State of timer.
+    uint32_t rtime_ticks;                       //!< Relative time in ticks.
+    uint32_t itime_ticks;                       //!< Initial time in ticks.
+    void (* fn)(struct eds_object__tmr_node *); //!< Callback function.
+    enum eds_object__tmr_node_state state;      //!< State of timer node.
 };
 
 /**
  * @brief       Event timer object
  * @note        All members of this structure are private.
  */
-struct eds_object__etm
+struct eds_object__etm_sentinel
 {
-    struct eds_object__tmr p__tmr;              //!< Timer instance.
+    struct eds_object__tmr_sentinel p__tmr;              //!< Timer instance.
 };
 
 /**
@@ -242,7 +252,7 @@ struct eds_object__epn
     struct eds_port__sleep_local p__sleep;      //!< Portable sleep data.
 #endif
     bool p__should_run;                         //!< Stop execution flag (used to terminate EPN).
-    struct eds_object__etm p__etm;              //!< Event timer
+    struct eds_object__etm_sentinel etm_sentinel;              //!< Event timer sentinel.
     struct eds_object__mem * p__mem;            //!< Memory allocator reference.
     const struct eds__network_attr * p__attr;   //!< Attributes of the network.
 };

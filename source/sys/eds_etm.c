@@ -20,7 +20,7 @@
 struct tuple_service_epa
 {
     struct eds_object__epa * epa;
-    struct eds_object__etm * etm_service;
+    struct eds_object__etm_sentinel * etm_service;
 };
 
 static void
@@ -114,7 +114,7 @@ eds_etm__delete(eds__etimer * etimer)
 }
 
 void
-eds_etm_service__delete_all(struct eds_object__etm * etm_service, struct eds_object__epa * epa)
+eds_etm_service__delete_all(struct eds_object__etm_sentinel * etm_service, struct eds_object__epa * epa)
 {
     struct tuple_service_epa tuple_service_epa =
     {
@@ -125,35 +125,35 @@ eds_etm_service__delete_all(struct eds_object__etm * etm_service, struct eds_obj
 }
 
 void
-eds_etm_service__init(struct eds_object__etm * etm_service)
+eds_etm_service__init(struct eds_object__etm_sentinel * etm_service)
 {
     eds_tmr__init(&etm_service->p__tmr);
 }
 
 void
-eds_etm_service__start_once(struct eds_object__etm * etm_service,
+eds_etm_service__start_once(struct eds_object__etm_sentinel * etm_service,
     struct eds_object__etm_node * etm,
     uint32_t ms)
 {
-    eds_tmr__start_once(&etm_service->p__tmr, &etm->p__node, ms);
+    eds_tmr__start_after(&etm_service->p__tmr, &etm->p__node, ms);
 }
 
 void
-eds_etm_service__start_periodic(struct eds_object__etm * etm_service,
+eds_etm_service__start_periodic(struct eds_object__etm_sentinel * etm_service,
     struct eds_object__etm_node * etm,
     uint32_t ms)
 {
-    eds_tmr__start_periodic(&etm_service->p__tmr, &etm->p__node, ms);
+    eds_tmr__start_every(&etm_service->p__tmr, &etm->p__node, ms);
 }
 
 void
-eds_etm_service__cancel(struct eds_object__etm * etm_service, struct eds_object__etm_node * etm)
+eds_etm_service__cancel(struct eds_object__etm_sentinel * etm_service, struct eds_object__etm_node * etm)
 {
     eds_tmr__cancel(&etm_service->p__tmr, &etm->p__node);
 }
 
 void
-eds_etm_service__tick(struct eds_object__etm * etm_service)
+eds_etm_service__tick(struct eds_object__etm_sentinel * etm_service)
 {
     eds_tmr__process_timers(&etm_service->p__tmr);
 }

@@ -20,6 +20,11 @@ struct eds_port__critical_local
     int dummy;
 };
 
+struct eds_port__timer
+{
+    int dummy;
+};
+
 void
 tick_setup(void);
 

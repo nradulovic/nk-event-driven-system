@@ -63,13 +63,19 @@ eds_port__sleep_local_signal(struct eds_port__sleep_local * sleep);
 #define EDS_PORT__USE_TICK_TIMER
 #endif
 
+#if defined(EDS_PORT__USE_GLOBAL_TIMER)
+#define EDS_PORT__USE_LOCAL_TIMER       0
+#else
+#define EDS_PORT__USE_LOCAL_TIMER       1
+#endif
+
 struct eds_port__timer;
 
 void
 eds_port__timer_init(struct eds_port__timer * timer);
 
 void
-eds_port__timer_start(struct eds_port__timer * timer, uint32_t ms);
+eds_port__timer_start(struct eds_port__timer * timer);
 
 void
 eds_port__timer_stop(struct eds_port__timer * timer);

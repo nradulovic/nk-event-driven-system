@@ -63,12 +63,24 @@ eds_port__tick_from_ms(uint32_t ms)
 }
 
 void
-eds_port__init(void)
+eds_port__timer_init(struct eds_port__timer * timer, uint32_t ms)
 {
+
 }
 
 void
-tick_setup(void)
+eds_port__timer_start(struct eds_port__timer * timer)
 {
 
+}
+
+void
+eds_port__timer_stop(struct eds_port__timer * timer)
+{
+    
+}
+
+void
+eds_port__init(void)
+{
 }

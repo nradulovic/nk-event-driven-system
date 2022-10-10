@@ -3,16 +3,16 @@
 
 #include "eds_object.h"
 
-inline struct eds_object__tasker*
+inline struct eds_object__tasker *
 eds_epn__tasker(struct eds_object__epn * epn)
 {
     return &epn->p__tasker;
 }
 
-inline struct eds_object__etm*
+inline struct eds_object__etm_sentinel *
 eds_epn__etm_service(struct eds_object__epn * epn)
 {
-    return &epn->p__etm;
+    return &epn->etm_sentinel;
 }
 
 void

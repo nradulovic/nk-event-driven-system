@@ -15,33 +15,33 @@ bool
 eds_tmr__node_is_periodic(const struct eds_object__tmr_node * self);
 
 void
-eds_tmr__start_once(
-    struct eds_object__tmr * self,
+eds_tmr__start_after(
+    struct eds_object__tmr_sentinel * self,
     struct eds_object__tmr_node * node,
-    uint32_t tick);
+    uint32_t after_ticks);
 
 void
-eds_tmr__start_periodic(
-    struct eds_object__tmr * self,
+eds_tmr__start_every(
+    struct eds_object__tmr_sentinel * self,
     struct eds_object__tmr_node * node,
-    uint32_t ticks);
+    uint32_t every_ticks);
 
 void
-eds_tmr__cancel(struct eds_object__tmr * self, struct eds_object__tmr_node * node);
+eds_tmr__cancel(struct eds_object__tmr_sentinel * self, struct eds_object__tmr_node * node);
 
 void
-eds_tmr__init(struct eds_object__tmr * self);
+eds_tmr__init(struct eds_object__tmr_sentinel * self);
 
 bool
-eds_tmr__are_timers_pending(const struct eds_object__tmr * self);
-
-void
-eds_tmr__process_timers(struct eds_object__tmr * self);
+eds_tmr__are_timers_pending(const struct eds_object__tmr_sentinel * self);
 
 void
 eds_tmr__for_each_node(
-    struct eds_object__tmr * self,
+    struct eds_object__tmr_sentinel * self,
     void (* map)(struct eds_object__tmr_node *, void *),
     void * arg);
+
+void
+eds_tmr__process_timers(struct eds_object__tmr_sentinel * self);
 
 #endif /* NEON_KIT_EDS_SOURCE_EDS_TMR_H_ */

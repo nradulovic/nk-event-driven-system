@@ -39,25 +39,25 @@ eds__error
 eds_etm__delete(eds__etimer * etimer);
 
 void
-eds_etm_service__delete_all(struct eds_object__etm * etm_service, struct eds_object__epa * epa);
+eds_etm_service__delete_all(struct eds_object__etm_sentinel * etm_service, struct eds_object__epa * epa);
 
 void
-eds_etm_service__init(struct eds_object__etm * etm_service);
+eds_etm_service__init(struct eds_object__etm_sentinel * etm_service);
 
 void
-eds_etm_service__start_once(struct eds_object__etm * etm_service,
+eds_etm_service__start_once(struct eds_object__etm_sentinel * etm_service,
     struct eds_object__etm_node * etm,
     uint32_t ms);
 
 void
-eds_etm_service__start_periodic(struct eds_object__etm * etm_service,
+eds_etm_service__start_periodic(struct eds_object__etm_sentinel * etm_service,
     struct eds_object__etm_node * etm,
     uint32_t ms);
 
 void
-eds_etm_service__cancel(struct eds_object__etm * etm_service, struct eds_object__etm_node * etm);
+eds_etm_service__cancel(struct eds_object__etm_sentinel * etm_service, struct eds_object__etm_node * etm);
 
 void
-eds_etm_service__tick(struct eds_object__etm * etm_service);
+eds_etm_service__tick(struct eds_object__etm_sentinel * etm_service);
 
 #endif /* NEON_KIT_EDS_SOURCE_EDS_ETIMER_H_ */

@@ -46,7 +46,7 @@ critical_mutex_init(void)
     assert(error == 0);
     error = pthread_mutexattr_settype(&mutextattr, PTHREAD_MUTEX_RECURSIVE);
     assert(error == 0);
-    error = pthread_mutex_init(&s__critical_mutex, NULL);
+    error = pthread_mutex_init(&s__critical_mutex, &mutextattr);
     assert(error == 0);
 }
 
@@ -148,21 +148,11 @@ eds_port__tick_from_ms(uint32_t ms)
 }
 
 void
-eds_port__init(void)
-{
-    critical_mutex_init();
-}
-
-void
-tick_setup(void)
+eds_port__timer_init(struct eds_port__timer * timer)
 {
     int error;
-    struct itimerval timer;
 
-    timer.it_value.tv_sec = 0;
-    timer.it_value.tv_usec = 1000;
-    timer.it_interval.tv_sec = 0;
-    timer.it_interval.tv_usec = 1000;
+    (void)timer;
     tick.sigaction.sa_handler = &timer_handler;
 
     error = sem_init(&tick.timer_lock, 0, 0);
@@ -171,6 +161,46 @@ tick_setup(void)
     assert(error == 0);
     error = sigaction(SIGALRM, &tick.sigaction, NULL);
     assert(error == 0);
-    error = setitimer(ITIMER_REAL, &timer, NULL);
+
+}
+
+void
+eds_port__timer_start(struct eds_port__timer * timer)
+{
+    struct itimerval timerval;
+    int error;
+
+    (void)timer;
+
+    timerval.it_value.tv_sec = 0;
+    timerval.it_value.tv_usec = 1000;
+    timerval.it_interval.tv_sec = 0;
+    timerval.it_interval.tv_usec = 1000;
+
+    error = setitimer(ITIMER_REAL, &timerval, NULL);
     assert(error == 0);
 }
+
+void
+eds_port__timer_stop(struct eds_port__timer * timer)
+{
+    struct itimerval timerval;
+    int error;
+
+    (void)timer;
+
+    timerval.it_value.tv_sec = 0;
+    timerval.it_value.tv_usec = 0;
+    timerval.it_interval.tv_sec = 0;
+    timerval.it_interval.tv_usec = 0;
+
+    error = setitimer(ITIMER_REAL, &timerval, NULL);
+    assert(error == 0);
+}
+
+void
+eds_port__init(void)
+{
+    critical_mutex_init();
+}
+

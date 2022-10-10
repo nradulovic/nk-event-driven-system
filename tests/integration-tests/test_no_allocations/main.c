@@ -142,8 +142,6 @@ main(void)
     eds__network * network;
     struct sm__workspace sm__blink_workspace;
 
-    tick_setup();
-
     error = eds__mem_add_allocator(std_alloc, std_free, NULL, SIZE_MAX);
     assert(error == EDS__ERROR_NONE);
 
