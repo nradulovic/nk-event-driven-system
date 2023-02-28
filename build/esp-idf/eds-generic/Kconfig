@@ -1,0 +1,43 @@
+menu "Event Driven System (EDS)"
+    config EDS_SMP_ENABLE_HSM
+        bool "Enable State Machine Processor (SMP) hierarchical state machines (HSM) support."
+        default "y"
+        help
+            Enable or disable execution of hierarchical state machines (HSM) in the SMP module.
+            
+            If this option is disabled only non-hierarchical state machines, also known as 
+            Finite State Machine (FSM), may be executed by SMP.
+            
+    config EDS_SMP_HSM_LEVELS
+        int "Maximum hierarchical state machines (HSM) state nesting levels."
+        default 8
+        depends on EDS_SMP_ENABLE_HSM
+        help
+            Define the maximum number of state nesting levels in hierarchical state machines (HSM).
+            
+            This option is ignored when EDS_CONFIG__SMP__ENABLE_HSM is not enabled (set to zero).
+        
+    config EDS_AGENT_ENABLE_NAME
+        bool "Enable Event Processing Agent (EPA) name support."
+        default "y"
+        help
+            Enable or disable the EPA instance to store reference to a constant string containing 
+            the name.
+    
+    config EDS_NETWORK_ENABLE_NAME
+        bool "Enable Event Processing Network (EPN) name support."
+        default "y"
+        help
+            Enable or disable the EPN instance to store reference to a constant string containing 
+            the name.
+            
+    config EDS_NETWORK_ENABLE_CALLBACKS
+        bool "Enable Event Processing Network (EPN) callbacks."
+        default "y"
+        help
+            EPN callbacks are called on the following events:
+            - when EPN wants to switch from idle state to run state.
+            - when EPN wants to switch from run state to idle state
+ 
+            The callbacks are passed to an EPN at the moment of the EPN instance creation.
+endmenu

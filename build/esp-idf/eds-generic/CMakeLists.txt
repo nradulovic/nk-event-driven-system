@@ -12,8 +12,9 @@ idf_component_register(
         "../../../source/sys/eds_state.c"
         "../../../source/sys/eds_tmr.c"
     INCLUDE_DIRS 
-        "../../../source" 
+        "../../../source"
+        "."
     REQUIRES 
         eds-portable)
                        
-target_compile_options(${COMPONENT_TARGET} PRIVATE -Wall -Wextra -pedantic)
+target_compile_options(${COMPONENT_TARGET} PRIVATE -DEDS_CONFIG__ENABLE -Wall -Wextra -pedantic)

@@ -28,14 +28,25 @@
  */
 
 /**
- * @brief       Enable or disable execution of hierarchical state machines (HSM).
+ * @brief       Enable State Machine Processor (SMP) hierarchical state machines (HSM) support.
+ *
+ *              Enable or disable execution of hierarchical state machines (HSM) in the SMP module.
+ *
+ *              If this option is disabled only non-hierarchical state machines, also known as
+ *              Finite State Machine (FSM), may be executed.
  */
 #ifndef EDS_CONFIG__SMP__ENABLE_HSM
 #define EDS_CONFIG__SMP__ENABLE_HSM         1
 #endif
 
 /**
- * @brief       Define maximum number of hierarchical level in hierarchical state machines (HSM).
+ * @brief       Maximum hierarchical state machines (HSM) state nesting levels.
+ *
+ *              Define the maximum number of state nesting levels in hierarchical state machines
+ *              (HSM).
+ *
+ *              This option is ignored when @ref EDS_CONFIG__SMP__ENABLE_HSM is not enabled (set to
+ *              zero).
  */
 #ifndef EDS_CONFIG__SMP__HSM_LEVELS
 #define EDS_CONFIG__SMP__HSM_LEVELS         8
@@ -49,7 +60,10 @@
  */
 
 /**
- * @brief       Enable or disable agent instance name storing.
+ * @brief       Enable Event Processing Agent (EPA) name support.
+ *
+ *              Enable or disable the EPA instance to store reference to a constant string
+ *              containing the name.
  */
 #ifndef EDS_CONFIG__AGENT__ENABLE_NAME
 #define EDS_CONFIG__AGENT__ENABLE_NAME      1
@@ -63,7 +77,23 @@
  */
 
 /**
- * @brief       Enable or disable network callbacks.
+ * @brief       Enable Event Processing Network (EPN) name support.
+ *
+ *              Enable or disable the EPN instance to store reference to a constant string
+ *              containing the name.
+ */
+#ifndef EDS_CONFIG__NETWORK__ENABLE_NAME
+#define EDS_CONFIG__NETWORK__ENABLE_NAME    1
+#endif
+
+/**
+ * @brief       Enable Event Processing Network (EPN) callbacks.
+ *
+ *              EPN callbacks are called on the following events:
+ *              - when network wants to switch from idle state to run state.
+ *              - when network wants to switch from run state to idle state,
+ *
+ *              The callbacks are passed to an EPN at the moment of the EPN instance creation.
  */
 #ifndef EDS_CONFIG__NETWORK__ENABLE_CALLBACKS
 #define EDS_CONFIG__NETWORK__ENABLE_CALLBACKS 1

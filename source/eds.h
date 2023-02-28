@@ -1144,7 +1144,7 @@ struct eds__network_attr
     void (* cb_to_idle)(eds__network *, void *);
     
     /**
-     * @brief  This callback is called when network wants to switch from __idle state to __run__ state.
+     * @brief  This callback is called when network wants to switch from __idle__ state to __run__ state.
      *
      * When this member is initialized to NULL then no callback is called.
      *
