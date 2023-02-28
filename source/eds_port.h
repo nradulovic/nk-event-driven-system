@@ -38,9 +38,9 @@ void
 eds_port__critical_local_unlock(struct eds_port__critical_local * critical);
 
 #if defined(EDS_PORT__USE_GLOBAL_SLEEP)
-#define EDS_PORT__USE_LOCAL_SLEEP		0
+#define EDS_PORT__USE_LOCAL_SLEEP		    0
 #else
-#define EDS_PORT__USE_LOCAL_SLEEP		1
+#define EDS_PORT__USE_LOCAL_SLEEP		    1
 #endif
 
 void
@@ -64,9 +64,9 @@ eds_port__sleep_local_signal(struct eds_port__sleep_local * sleep);
 #endif
 
 #if defined(EDS_PORT__USE_GLOBAL_TIMER)
-#define EDS_PORT__USE_LOCAL_TIMER       0
+#define EDS_PORT__USE_LOCAL_TIMER           0
 #else
-#define EDS_PORT__USE_LOCAL_TIMER       1
+#define EDS_PORT__USE_LOCAL_TIMER           1
 #endif
 
 struct eds_port__timer;
@@ -85,6 +85,16 @@ eds_port__ffs(uint32_t value);
 
 size_t
 eds_port__align_up(size_t non_aligned_value);
+
+struct eds_port__atomic;
+
+#define EDS_PORT__ATOMIC_INITIALIZER(value) { (value) }
+#define eds_port__atomic_set(atomic, value) ((atomic)->counter = (value))
+#define eds_port__atomic_read(atomic)       ((atomic)->counter)
+
+#if defined(__DOXYGEN__)
+#define eds_port__test_and_set(atomic)
+#endif
 
 uint32_t
 eds_port__tick_duration_ms(void);

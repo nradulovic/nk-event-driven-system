@@ -201,14 +201,13 @@ eds__network_remove_agent(eds__network * network, eds__agent * agent)
 eds__error
 eds__network_start(eds__network * network)
 {
-    static bool is_port_initialized;
+    static struct eds_port__atomic is_port_initialized;
     EDS_PORT__CRITICAL_INSTANCE(critical);
 
     if (network == NULL) {
         return EDS__ERROR_INVALID_ARGUMENT;
     }
-    if (is_port_initialized == false) {
-        is_port_initialized = true;
+    if (eds_port__atomic_test_and_set(&is_port_initialized) == 0) {
         eds_port__init();
     }
     EDS_PORT__CRITICAL_LOCK(&critical);
@@ -227,7 +226,7 @@ eds__network_start(eds__network * network)
 #if (EDS_PORT__USE_LOCAL_CRITICAL == 1)
             error = eds_epa__dispatch(current_epa, &critical);
 #else
-        error = eds_epa__dispatch(current_epa);
+            error = eds_epa__dispatch(current_epa);
 #endif
             if (error != EDS__ERROR_NONE) {
                 break;
