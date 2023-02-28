@@ -86,7 +86,7 @@ eds_epa__send(struct eds_object__epa * epa, const struct eds_object__evt * evt)
         eds_evt__ref_up(evt);
         eds_equeue__push_back(&epa->p__equeue, evt);
         eds_core__tasker_run(eds_epn__tasker(eds_epa__designation(epa)), &epa->p__task);
-        eds_epn__sleep_wake_up(eds_epa__designation(epa));
+        EDS_PORT__SLEEP_SIGNAL(eds_epn__sleep(epa->p__epn));
         error = EDS__ERROR_NONE;
     } else {
         error = EDS__ERROR_NO_SPACE;
@@ -94,12 +94,12 @@ eds_epa__send(struct eds_object__epa * epa, const struct eds_object__evt * evt)
     return error;
 }
 
-#if (EDS_PORT__USE_LOCAL_CRITICAL == 1)
-eds__error
-eds_epa__dispatch(struct eds_object__epa * epa, struct eds_port__critical_local * critical)
-#else
+#if (EDS_PORT__GLOBAL_CRITICAL == 1)
 eds__error
 eds_epa__dispatch(struct eds_object__epa * epa)
+#else
+eds__error
+eds_epa__dispatch(struct eds_object__epa * epa, struct eds_port__critical * critical)
 #endif
 {
     const struct eds_object__evt * evt;
@@ -109,17 +109,9 @@ eds_epa__dispatch(struct eds_object__epa * epa)
     if (eds_equeue__is_empty(&epa->p__equeue)) {
         eds_core__tasker_pending_sleep(eds_epn__tasker(eds_epa__designation(epa)), &epa->p__task);
     }
-#if (EDS_PORT__USE_LOCAL_CRITICAL == 1)
-    eds_port__critical_local_unlock(critical);
-#else
-    eds_port__critical_global_unlock();
-#endif
+    EDS_PORT__CRITICAL_UNLOCK(critical);
     error = eds_smp__dispatch(&epa->p__smp, evt);
-#if (EDS_PORT__USE_LOCAL_CRITICAL == 1)
-    eds_port__critical_local_lock(critical);
-#else
-    eds_port__critical_global_lock();
-#endif
+    EDS_PORT__CRITICAL_LOCK(critical);
     eds_evt__ref_down(evt);
     eds_evt__deallocate(evt);
 

@@ -248,11 +248,11 @@ struct eds_object__epn
 {
     struct eds_object__list p__list;            //!< Linked list node.
     struct eds_object__tasker p__tasker;        //!< Tasker which processes the tasks.
-#if (EDS_PORT__USE_LOCAL_SLEEP == 1)
-    struct eds_port__sleep_local p__sleep;      //!< Portable sleep data.
+#if (EDS_PORT__GLOBAL_SLEEP == 0)
+    struct eds_port__sleep p__sleep;            //!< Portable sleep data.
 #endif
-    bool p__should_run;                         //!< Stop execution flag (used to terminate EPN).
     struct eds_object__etm_sentinel etm_sentinel;              //!< Event timer sentinel.
+    bool p__should_run;                         //!< Stop execution flag (used to terminate EPN).
     struct eds_object__mem * p__mem;            //!< Memory allocator reference.
     const struct eds__network_attr * p__attr;   //!< Attributes of the network.
 };

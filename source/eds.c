@@ -120,14 +120,11 @@ eds__network_create(const struct eds__network_attr * attr, eds__network ** netwo
         mem = NULL;
         epn = attr->instance;
     }
-    epn->p__should_run = true;
+    eds_core__list_init(&epn->p__list);
     eds_core__tasker_init(&epn->p__tasker);
+    EDS_PORT__SLEEP_INIT(&epn->p__sleep);
     eds_etm_service__init(eds_epn__etm_service(epn));
-#if (EDS_PORT__USE_LOCAL_SLEEP == 1)
-    eds_port__sleep_local_init(&epn->p__sleep);
-#else
-    eds_port__sleep_global_init(void);
-#endif
+    epn->p__should_run = true;
     epn->p__mem = mem;
     epn->p__attr = attr;
     *network = epn;
@@ -201,16 +198,19 @@ eds__network_remove_agent(eds__network * network, eds__agent * agent)
 eds__error
 eds__network_start(eds__network * network)
 {
-    static struct eds_port__atomic is_port_initialized;
+    static bool is_port_initialized;
     EDS_PORT__CRITICAL_INSTANCE(critical);
 
     if (network == NULL) {
         return EDS__ERROR_INVALID_ARGUMENT;
     }
-    if (eds_port__atomic_test_and_set(&is_port_initialized) == 0) {
-        eds_port__init();
-    }
     EDS_PORT__CRITICAL_LOCK(&critical);
+    if (is_port_initialized == false) {
+        is_port_initialized = true;
+        EDS_PORT__CRITICAL_UNLOCK(&critical);
+        eds_port__init();
+        EDS_PORT__CRITICAL_LOCK(&critical);
+    }
     eds_core__list_add_after(&network->p__list, &eds__epn_list);
     EDS_PORT__CRITICAL_UNLOCK(&critical);
     while (network->p__should_run) {
@@ -223,10 +223,10 @@ eds__network_start(eds__network * network)
             struct eds_object__epa * current_epa;
 
             current_epa = EDS_CORE__CONTAINER_OF(current, struct eds_object__epa, p__task);
-#if (EDS_PORT__USE_LOCAL_CRITICAL == 1)
-            error = eds_epa__dispatch(current_epa, &critical);
-#else
+#if (EDS_PORT__GLOBAL_CRITICAL == 1)
             error = eds_epa__dispatch(current_epa);
+#else
+            error = eds_epa__dispatch(current_epa, &critical);
 #endif
             if (error != EDS__ERROR_NONE) {
                 break;
@@ -241,7 +241,7 @@ eds__network_start(eds__network * network)
             network->p__attr->cb_to_idle(network, network->p__attr->cb_arg);
         }
 #endif
-        eds_epn__sleep_wait(network);
+        EDS_PORT__SLEEP_WAIT(&network->p__sleep);
 #if (EDS_CONFIG__NETWORK__ENABLE_CALLBACKS == 1)
         if (network->p__attr->cb_to_run != NULL) {
             network->p__attr->cb_to_run(network, network->p__attr->cb_arg);

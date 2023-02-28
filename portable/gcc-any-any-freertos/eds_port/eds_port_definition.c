@@ -14,28 +14,28 @@
         (((num) + (align) - 1u) & ~((align) - 1u))
 
 void
-eds_port__critical_local_lock(struct eds_port__critical_local * critical)
+eds_port__critical_lock(struct eds_port__critical * critical)
 {
 }
 
 void
-eds_port__critical_local_unlock(struct eds_port__critical_local * critical)
+eds_port__critical_unlock(struct eds_port__critical * critical)
 {
 }
 
 
 void
-eds_port__sleep_local_init(struct eds_port__sleep_local * sleep)
+eds_port__sleep_init(struct eds_port__sleep * sleep)
 {
 }
 
 void
-eds_port__sleep_local_wait(struct eds_port__sleep_local * sleep)
+eds_port__sleep_wait(struct eds_port__sleep * sleep)
 {
 }
 
 void
-eds_port__sleep_local_signal(struct eds_port__sleep_local * sleep)
+eds_port__sleep_signal(struct eds_port__sleep * sleep)
 {
 }
 
