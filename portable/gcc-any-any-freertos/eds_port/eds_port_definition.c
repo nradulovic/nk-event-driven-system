@@ -5,9 +5,10 @@
  *      Author: nenad
  */
 
+#include "eds_port_definition.h"
 
-#include "eds_port.h"
-#include "eds.h"
+#include <stdint.h>
+#include <stddef.h>
 
 #define ALIGN_UP(num, align)                                       \
         (((num) + (align) - 1u) & ~((align) - 1u))
@@ -63,7 +64,7 @@ eds_port__tick_from_ms(uint32_t ms)
 }
 
 void
-eds_port__timer_init(struct eds_port__timer * timer, uint32_t ms)
+eds_port__timer_init(struct eds_port__timer * timer)
 {
 
 }
