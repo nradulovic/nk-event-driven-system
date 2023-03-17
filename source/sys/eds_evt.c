@@ -10,21 +10,17 @@
 static size_t
 eds_evt__calculate_bundle_size(size_t event_data_size)
 {
-    return sizeof(struct eds_object__evt) + eds_port__align_up(event_data_size);
+    return sizeof(struct eds_object__evt) + EDS_PORT__ALIGN_UP(event_data_size);
 }
 
 void
 eds_evt__deallocate(const struct eds_object__evt * event)
 {
-    struct eds_object__evt * d_event;
+    if (eds_evt__is_dynamic(event) && (eds_evt__is_in_use(event) == false)) {
+        struct eds_object__evt * d_event;
 
-    d_event = eds_evt__to_dynamic(event);
-    if ((d_event != NULL) && (d_event->p__ref_count == 0u)) {
-        struct eds_object__mem * mem;
-
-        mem = eds_evt__mem(d_event);
-        eds_evt__term(d_event);
-        eds_mem__deallocate_to(mem, d_event);
+        d_event = eds_evt__to_dynamic(event);
+        eds_mem__deallocate_to(d_event->p__mem, d_event);
     }
 }
 
@@ -34,10 +30,8 @@ eds_evt__null(const struct eds_object__evt * event)
     struct eds_object__evt * d_event;
 
     d_event = eds_evt__to_dynamic(event);
-    if (d_event != NULL) {
-        d_event->p__id = EDS__EVENT__NULL;
-        d_event->p__size = 0u;
-    }
+    d_event->p__id = EDS__EVENT__NULL;
+    d_event->p__size = 0u;
 }
 
 void
@@ -52,15 +46,6 @@ eds_evt__init(struct eds_object__evt * event,
     event->p__ref_count = 0u;
 }
 
-void
-eds_evt__term(struct eds_object__evt * d_event)
-{
-    d_event->p__id = EDS__EVENT__NULL;
-    d_event->p__size = 0u;
-    d_event->p__mem = NULL;
-    d_event->p__ref_count = 0u;
-}
-
 extern inline struct eds_object__evt*
 eds_evt__to_dynamic(const struct eds_object__evt * event);
 
@@ -69,15 +54,6 @@ eds_evt__ref_up(const struct eds_object__evt * event);
 
 extern inline void
 eds_evt__ref_down(const struct eds_object__evt * event);
-
-extern inline bool
-eds_evt__is_in_use(const struct eds_object__evt * event);
-
-extern inline bool
-eds_evt__is_dynamic(const struct eds_object__evt * event);
-
-extern inline struct eds_object__mem*
-eds_evt__mem(const struct eds_object__evt * event);
 
 eds__error
 eds__event_create(uint32_t event_id, size_t event_data_size, eds__event ** event)
@@ -104,6 +80,7 @@ eds__event_create(uint32_t event_id, size_t event_data_size, eds__event ** event
     eds_evt__init(l_event, event_id, event_data_size, mem);
     *event = l_event;
     EDS_TRACE__INFO(EDS_TRACE__SOURCE_EVENT_CREATE, "id, event_id, data_size = (%p,%u,%u)", event, event_id, event_data_size);
+    eds_state__has_started = true;
     return EDS__ERROR_NONE;
 }
 
@@ -120,7 +97,7 @@ eds__event_cancel(eds__event * event)
     }
     EDS_PORT__CRITICAL_LOCK(&critical);
     if (eds_evt__is_in_use(event)) {
-        event->p__id = EDS__EVENT__NULL;
+        eds_evt__null(event);
     } else {
         eds_mem__deallocate_to(event->p__mem, event);
     }
@@ -137,7 +114,7 @@ eds__event_keep(const eds__event * event)
     if (event == NULL) {
         return EDS__ERROR_INVALID_ARGUMENT;
     }
-    if (!eds_evt__is_dynamic(event)) {
+    if (eds_evt__is_dynamic(event) == false) {
         return EDS__ERROR_NO_PERMISSION;
     }
     EDS_PORT__CRITICAL_LOCK(&critical);
@@ -156,11 +133,11 @@ eds__event_toss(const eds__event * event)
         EDS_TRACE__EXIT(EDS_TRACE__SOURCE_EVENT_TOSS, EDS__ERROR_INVALID_ARGUMENT, "event = %p", event);
         return EDS__ERROR_INVALID_ARGUMENT;
     }
-    if (!eds_evt__is_dynamic(event)) {
+    if (eds_evt__is_dynamic(event) == false) {
         EDS_TRACE__EXIT(EDS_TRACE__SOURCE_EVENT_TOSS, EDS__ERROR_NO_PERMISSION, "%p (%u, %u)", event, event->p__id, event->p__ref_count);
         return EDS__ERROR_NO_PERMISSION;
     }
-    if (!eds_evt__is_in_use(event)) {
+    if (eds_evt__is_in_use(event) == false) {
         EDS_TRACE__EXIT(EDS_TRACE__SOURCE_EVENT_TOSS, EDS__ERROR_NO_RESOURCE, "%p (%u, %u)", event, event->p__id, event->p__ref_count);
         return EDS__ERROR_NO_RESOURCE;
     }

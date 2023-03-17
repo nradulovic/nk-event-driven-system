@@ -33,30 +33,22 @@ eds_evt__init(struct eds_object__evt * event,
     size_t event_data_size,
     struct eds_object__mem * mem);
 
-void
-eds_evt__term(struct eds_object__evt * d_event);
+#define eds_evt__is_dynamic(event)          ((event)->p__mem != NULL)
+#define eds_evt__is_in_use(event)           ((event)->p__ref_count != 0u)
 
 inline struct eds_object__evt*
 eds_evt__to_dynamic(const struct eds_object__evt * event)
 {
-    if (event->p__mem != NULL) {
-        /*
-         * At this point we know that event is dynamically allocated, therefore, we are safe to
-         * discard pointer const-ness.
-         */
-        return (struct eds_object__evt*)(uintptr_t)event;
-    } else {
-        return NULL;
-    }
+    return (struct eds_object__evt*)(uintptr_t)event;
 }
 
 inline void
 eds_evt__ref_up(const struct eds_object__evt * event)
 {
-    struct eds_object__evt * d_event;
+    if (eds_evt__is_dynamic(event) && (event->p__ref_count < UINT32_MAX)) {
+        struct eds_object__evt * d_event;
 
-    d_event = eds_evt__to_dynamic(event);
-    if ((d_event != NULL) && (d_event->p__ref_count < UINT32_MAX)) {
+        d_event = eds_evt__to_dynamic(event);
         d_event->p__ref_count++;
     }
 }
@@ -64,30 +56,12 @@ eds_evt__ref_up(const struct eds_object__evt * event)
 inline void
 eds_evt__ref_down(const struct eds_object__evt * event)
 {
-    struct eds_object__evt * d_event;
+    if (eds_evt__is_dynamic(event) && (event->p__ref_count > 0u)) {
+        struct eds_object__evt * d_event;
 
-    d_event = eds_evt__to_dynamic(event);
-    if ((d_event != NULL) && (d_event->p__ref_count > 0u)) {
+        d_event = eds_evt__to_dynamic(event);
         d_event->p__ref_count--;
     }
-}
-
-inline bool
-eds_evt__is_in_use(const struct eds_object__evt * event)
-{
-    return (event->p__ref_count != 0u);
-}
-
-inline bool
-eds_evt__is_dynamic(const struct eds_object__evt * event)
-{
-    return (event->p__mem != NULL);
-}
-
-inline struct eds_object__mem*
-eds_evt__mem(const struct eds_object__evt * event)
-{
-    return event->p__mem;
 }
 
 #endif /* NEON_KIT_GENERIC_SOURCE_EDS_EVENT_H_ */

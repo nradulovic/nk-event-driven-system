@@ -17,4 +17,4 @@ idf_component_register(
     REQUIRES 
         eds-portable)
                        
-target_compile_options(${COMPONENT_TARGET} PRIVATE -DEDS_CONFIG__ENABLE -Wall -Wextra -pedantic)
+target_compile_options(${COMPONENT_TARGET} PRIVATE -DEDS_CONFIG__ENABLE -Wall -Wextra)

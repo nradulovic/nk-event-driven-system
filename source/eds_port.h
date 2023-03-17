@@ -77,22 +77,22 @@ eds_port__sleep_signal(struct eds_port__sleep * sleep);
 #define EDS_PORT__USE_LOCAL_TIMER           1
 #endif
 
-struct eds_port__timer;
+void
+eds_port__timer_set_cb(void (* callback)(void));
 
 void
-eds_port__timer_init(struct eds_port__timer * timer);
+eds_port__timer_start(void);
 
 void
-eds_port__timer_start(struct eds_port__timer * timer);
-
-void
-eds_port__timer_stop(struct eds_port__timer * timer);
+eds_port__timer_stop(void);
 
 uint_fast8_t
 eds_port__ffs(uint32_t value);
 
-size_t
-eds_port__align_up(size_t non_aligned_value);
+#ifndef EDS_PORT__ALIGN_UP
+#define EDS_PORT__ALIGN_UP(size) \
+    (((size) + sizeof(void *) - 1u) & ~(sizeof(void *) - 1u))
+#endif
 
 uint32_t
 eds_port__tick_duration_ms(void);

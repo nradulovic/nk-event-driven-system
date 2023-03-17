@@ -4,19 +4,23 @@
 #include "eds_port.h"
 #include "eds_trace.h"
 
-#define SM__ACTION__HANDLED_OR_IGNORED(action)                                                  \
-    ((action) < EDS__SM__ACTION__SUPER)
+#define SMP__ACTION_HANDLED_OR_IGNORED(action)                                                  \
+    ((action) < SMP__ACTION_SUPER)
 
-#define SM__ACTION__HANDLED_IGNORED_OR_SUPER(action)                                            \
-    ((action) <= EDS__SM__ACTION__SUPER)
+#define SMP__ACTION_HANDLED_IGNORED_OR_SUPER(action)                                            \
+    ((action) <= SMP__ACTION_SUPER)
 
-#if (EDS_CONFIG__SMP__ENABLE_HSM != 0)
+#define SMP__ACTION_HANDLED                 0
+#define SMP__ACTION_IGNORED                 1
+#define SMP__ACTION_SUPER                   2
+#define SMP__ACTION_PUSHED_BACK             3
+#define SMP__ACTION_TRANSIT                 4
+
 struct hsm_path
 {
     eds_object__smp_state * buff[EDS_CONFIG__SMP__HSM_LEVELS];
     uint_fast8_t index;
 };
-#endif
 
 const struct eds_object__evt g__smp_events[] =
 {
@@ -33,7 +37,7 @@ hsm_get_state_super(struct eds_object__smp * sm, eds__sm_state * state)
     eds__sm_action action;
 
     action = state(sm, sm->p__workspace, &g__smp_events[EDS__SM_EVENT__SUPER]);
-    if (action != EDS__SM__ACTION__SUPER) {
+    if (action != SMP__ACTION_SUPER) {
         return EDS__ERROR_MALFORMED_SM;
     } else {
         return EDS__ERROR_NONE;
@@ -55,7 +59,7 @@ hsm_path_enter(struct eds_object__smp * sm, const struct hsm_path * entry)
             sm, 
             entry->buff[index]);
         action = entry->buff[index](sm, sm->p__workspace, &g__smp_events[EDS__SM_EVENT__ENTER]);
-        if (!SM__ACTION__HANDLED_IGNORED_OR_SUPER(action)) {
+        if (SMP__ACTION_HANDLED_IGNORED_OR_SUPER(action) == false) {
             EDS_TRACE__EXIT(
                 EDS_TRACE__SOURCE_EDS_SMP,
                 EDS__ERROR_MALFORMED_SM,
@@ -79,7 +83,7 @@ hsm_path_exit(struct eds_object__smp * sm, const struct hsm_path * exit)
 
         EDS_TRACE__INFO(EDS_TRACE__SOURCE_EDS_SMP, "(%p) exit: state = (%p)", sm, exit->buff[count]);
         action = exit->buff[count](sm, sm->p__workspace, &g__smp_events[EDS__SM_EVENT__EXIT]);
-        if (!SM__ACTION__HANDLED_IGNORED_OR_SUPER(action)) {
+        if (SMP__ACTION_HANDLED_IGNORED_OR_SUPER(action) == false) {
             EDS_TRACE__EXIT(EDS_TRACE__SOURCE_EDS_SMP,
                 EDS__ERROR_MALFORMED_SM,
                 "(%p) exit: state (%p) bad action %u",
@@ -225,9 +229,9 @@ eds_smp__dispatch(struct eds_object__smp * sm, const struct eds_object__evt * ev
         EDS_TRACE__INFO(EDS_TRACE__SOURCE_EDS_SMP, "(%p) handle: state = (%p)", sm, sm->p__state);
         exit.buff[exit.index++] = sm->p__state;
         action = sm->p__state(sm, sm->p__workspace, event);
-    } while (action == EDS__SM__ACTION__SUPER);
+    } while (action == SMP__ACTION_SUPER);
 
-    while (action == EDS__SM__ACTION__TRANSIT) {
+    while (action == SMP__ACTION_TRANSIT) {
         entry.buff[0] = sm->p__state;
         EDS_TRACE__INFO(EDS_TRACE__SOURCE_EDS_SMP, "(%p) transit: %p to %p", sm, exit.buff[0], entry.buff[0]);
         hsm_path_build(sm, &entry, &exit);
@@ -245,17 +249,45 @@ eds_smp__dispatch(struct eds_object__smp * sm, const struct eds_object__evt * ev
 #endif /* !(EDS_CONFIG__SMP__ENABLE_HSM == 0) */
 }
 
-extern inline eds__sm_action
-eds_smp__action_handled(struct eds_object__smp * sm);
+eds__sm_action
+eds__sm_event_handled(eds__sm * sm)
+{
+    (void)sm;
 
-extern inline eds__sm_action
-eds_smp__action_ignored(struct eds_object__smp * sm);
+    return SMP__ACTION_HANDLED;
+}
 
-extern inline eds__sm_action
-eds_smp__action_super(struct eds_object__smp * sm, eds_object__smp_state * super_state);
+eds__sm_action
+eds__sm_event_ignored(eds__sm * sm)
+{
+    (void)sm;
 
-extern inline eds__sm_action
-eds_smp__action_transit(struct eds_object__smp * sm, eds_object__smp_state * next_state);
+    return SMP__ACTION_IGNORED;
+}
 
-extern inline void*
-eds_smp__workspace(const struct eds_object__smp * sm);
+eds__sm_action
+eds__sm_transit_to(eds__sm * sm, eds__sm_state * new_state)
+{
+    sm->p__state = new_state;
+    return SMP__ACTION_TRANSIT;
+}
+
+eds__sm_action
+eds__sm_super_state(eds__sm * sm, eds__sm_state * super_state)
+{
+    sm->p__state = super_state;
+
+    return SMP__ACTION_SUPER;
+}
+
+eds__sm_action
+eds__sm_top_state(eds__sm * sm, void * workspace, const eds__event * event)
+{
+    (void)sm;
+    (void)workspace;
+    (void)event;
+
+    EDS_TRACE__INFO(EDS_TRACE__SOURCE_EDS_SMP, "(%p) ignored event_id %u", sm, event->p__id);
+
+    return SMP__ACTION_IGNORED;
+}

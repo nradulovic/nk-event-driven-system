@@ -1,0 +1,8 @@
+menu "Event Driven System (EDS) Portable Layer"
+    config EDS_PORT_TICK_PERIOD_MS
+        int "Duration of tick period in milliseconds."
+        default 10
+        help
+            Set the desired tick period of software timer which is used for time events.
+            
+endmenu

@@ -11,7 +11,7 @@
 size_t
 eds_equeue__calculate_storage_size(size_t n_entries)
 {
-    return eds_port__align_up(sizeof(struct eds_object__evt*)) * n_entries;
+    return EDS_PORT__ALIGN_UP(sizeof(struct eds_object__evt *)) * n_entries;
 }
 
 void

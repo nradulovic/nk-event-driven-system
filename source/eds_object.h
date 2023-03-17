@@ -66,8 +66,7 @@ struct eds_object__mem
      * Returns pointer to allocated memory section. If NULL pointer is returned then the allocation
      * memory has been depleted.
      */
-    void*
-    (*p__alloc)(void*, size_t);
+    void * (* p__alloc)(void *, size_t);
 
     /**
      * @brief       Deallocator method
@@ -76,8 +75,7 @@ struct eds_object__mem
      * - pointer to a context (specified by @ref p__context member)
      * - pointer to a previously allocated memory.
      */
-    void
-    (*p__dealloc)(void*, void*);
+    void (* p__dealloc)(void *, void *);
     void * p__context;                          //!< Memory context
     size_t p__max_size;                         //!< Max size of allocated memory block in bytes.
 };
@@ -120,49 +118,39 @@ struct eds_object__tmr_sentinel
 {
     struct eds_object__list p__active;          //!< List of active timers.
     struct eds_object__list p__pending;         //!< List of timers which wait for being activated.
-    struct eds_port__timer tick_timer;          //!< Tick portable timer instance
     enum eds_object__tmr_sentinel_state state;
 };
 
 /**
  * @brief       Timer node state enumerator.
  */
-enum eds_object__tmr_node_state
+enum eds_object__tmr_state
 {
-    EDS_OBJECT__TMR_NODE_STATE_DORMANT,         //!< Timer is in dormant state (not running).
-    EDS_OBJECT__TMR_NODE_STATE_PENDING,         //!< Timer is pending to be activated.
-    EDS_OBJECT__TMR_NODE_STATE_RUNNING          //!< Timer is currently active and running.
+    EDS_OBJECT__TMR_STATE_DORMANT,              //!< Timer is in dormant state (not running).
+    EDS_OBJECT__TMR_STATE_PENDING,              //!< Timer is pending to be activated.
+    EDS_OBJECT__TMR_STATE_ACTIVE                //!< Timer is currently active and running.
 };
 
 /**
  * @brief       Timer node object
  * @note        All members of this structure are private.
  */
-struct eds_object__tmr_node
+struct eds_object__tmr
 {
     struct eds_object__list p__list;            //!< Linked list node.
     uint32_t rtime_ticks;                       //!< Relative time in ticks.
     uint32_t itime_ticks;                       //!< Initial time in ticks.
-    void (* fn)(struct eds_object__tmr_node *); //!< Callback function.
-    enum eds_object__tmr_node_state state;      //!< State of timer node.
-};
-
-/**
- * @brief       Event timer object
- * @note        All members of this structure are private.
- */
-struct eds_object__etm_sentinel
-{
-    struct eds_object__tmr_sentinel p__tmr;              //!< Timer instance.
+    void (* fn)(struct eds_object__tmr *);      //!< Callback function.
+    enum eds_object__tmr_state state;           //!< State of timer node.
 };
 
 /**
  * @brief       Event timer node object
  * @note        All members of this structure are private.
  */
-struct eds_object__etm_node
+struct eds_object__etm
 {
-    struct eds_object__tmr_node p__node;        //!< Timer instance.
+    struct eds_object__tmr p__node;        //!< Timer instance.
     const struct eds_object__evt * p__evt;       //!< Event associated with this timer.
     struct eds_object__epa * p__epa;             //!< Owner of this timer.
     struct eds_object__mem * p__mem;             //!< Memory allocator reference.
@@ -251,7 +239,6 @@ struct eds_object__epn
 #if (EDS_PORT__GLOBAL_SLEEP == 0)
     struct eds_port__sleep p__sleep;            //!< Portable sleep data.
 #endif
-    struct eds_object__etm_sentinel etm_sentinel;              //!< Event timer sentinel.
     bool p__should_run;                         //!< Stop execution flag (used to terminate EPN).
     struct eds_object__mem * p__mem;            //!< Memory allocator reference.
     const struct eds__network_attr * p__attr;   //!< Attributes of the network.

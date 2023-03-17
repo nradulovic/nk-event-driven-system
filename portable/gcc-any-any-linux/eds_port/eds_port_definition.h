@@ -10,12 +10,14 @@
 
 #include <semaphore.h>
 
-struct eds_port__sleep_local
+#define EDS_PORT__USE_GLOBAL_CRITICAL
+
+struct eds_port__sleep
 {
     sem_t semaphore;
 };
 
-struct eds_port__critical_local
+struct eds_port__critical
 {
     int dummy;
 };

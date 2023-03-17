@@ -65,7 +65,7 @@ typedef struct eds_object__epa eds__agent;
 /**
  * @brief       EDS event timer (ETM) object type.
  */
-typedef struct eds_object__etm_node eds__etimer;
+typedef struct eds_object__etm eds__etimer;
 
 /**
  * @brief       EDS event processing channel (EPC) object type.
@@ -91,7 +91,7 @@ typedef struct eds_object__epn eds__network;
  *
  * @see         eds_mem
  */
-#define EDS__DEFAULT_MEM_ENTRIES                16u
+#define EDS__DEFAULT_MEM_ENTRIES            8u
 
 /**
  * @brief       Default minimum bytes of a memory pool allocator.
@@ -170,7 +170,7 @@ typedef struct eds_object__epn eds__network;
 
 /**
  * @brief       Version identification macro
- * 
+ *
  * This macro definition contains current EDS version triplet: major, minor and patch numbers.
  * * The major number is located on bit positions [23 - 16].
  * * The minor number is located on bit positions [15 - 8].
@@ -283,15 +283,10 @@ const char*
 eds__error_to_str(uint32_t error);
 
 /** @} */
-/**
- * @brief       Process single tick used for running event timers.
- * @return      Operation status.
- * @retval      EDS__ERROR_NONE (@ref EDS__ERROR_NONE) Operation completed successfully.
- */
-eds__error
-eds__tick_process_all(void);
 
-/** @} */
+eds__error
+eds__initialize(void);
+
 /**
  * @defgroup    eds_mem Memory allocator
  * @brief       Memory allocator interface.
@@ -649,7 +644,7 @@ typedef uint_fast8_t eds__sm_action;
  * machine processor what further action to take by returning a value.
  */
 typedef eds__sm_action
-(eds__sm_state)(eds__sm*, void * workspace, const eds__event * event);
+(eds__sm_state)(eds__sm * sm, void * workspace, const eds__event * event);
 
 /** @} */
 /**
@@ -1016,7 +1011,8 @@ eds__etimer_delete(eds__etimer * etimer);
  *              for time keeping.
  * @param[in]   agent Pointer to previously initialized and designated agent instance which will
  *              receive the @a event.
- * @param[in]   event Pointer to event which is to be sent to the @a agent.
+ * @param[in]   event Pointer to event which is to be sent to the @a agent. Event timers support only
+ *              dynamic events (the ones created by a call to @ref eds__event_create function).
  * @param       after_ms After this many milliseconds send @a event to @a agent.
  * @return      Operation status.
  * @retval      EDS__ERROR_NONE Operation completed successfully.
@@ -1027,6 +1023,7 @@ eds__etimer_delete(eds__etimer * etimer);
  *              Insert the agent with a call to @ref eds__network_add_agent function.
  * @retval      EDS__ERROR_ALREADY_EXISTS When the event timer is already running. The timer needs
  *              to be canceled first by calling @ref eds__etimer_cancel before trying to re-use it.
+ * @retval      EDS__ERROR_NO_RESOURCE When the given @a event is not a dynamic event.
  */
 eds__error
 eds__etimer_send_after(eds__etimer * etimer,
@@ -1040,7 +1037,8 @@ eds__etimer_send_after(eds__etimer * etimer,
  *              for time keeping.
  * @param[in]   agent Pointer to previously initialized and designated agent instance which will
  *              receive the @a event.
- * @param[in]   event Pointer to event which is to be sent to the @a agent.
+ * @param[in]   event Pointer to event which is to be sent to the @a agent. Event timers support only
+ *              dynamic events (the ones created by a call to @ref eds__event_create function).
  * @param       after_ms After this many milliseconds send @a event to @a agent.
  * @return      Operation status.
  * @retval      EDS__ERROR_NONE Operation completed successfully.
@@ -1051,6 +1049,7 @@ eds__etimer_send_after(eds__etimer * etimer,
  *              Insert the agent with a call to @ref eds__network_add_agent function.
  * @retval      EDS__ERROR_ALREADY_EXISTS When the event timer is already running. The timer needs
  *              to be canceled first by calling @ref eds__etimer_cancel before trying to re-use it.
+ * @retval      EDS__ERROR_NO_RESOURCE When the given @a event is not a dynamic event.
  */
 eds__error
 eds__etimer_send_every(eds__etimer * etimer,
@@ -1078,7 +1077,7 @@ eds__etimer_cancel(eds__etimer * etimer);
  * @brief       Event Processing Network interface
  *
  * Event Processing Network is responsible for executing the agents when an agent receives an event.
- * 
+ *
  * At least one network needs to exist in order to process the events.
  *
  * Agents which are part of a network are executing in the same thread context.
@@ -1134,22 +1133,22 @@ struct eds__network_attr
      *
      * When this member is initialized to NULL then no callback is called.
      *
-     * The callback receives: 
-     * - the pointer to current network instance and 
+     * The callback receives:
+     * - the pointer to current network instance and
      * - the global callback argument which is also part of this structure.
      *
      * @note    In order to use callbacks @ref EDS_CONFIG__NETWORK__ENABLE_CALLBACKS macro must be
      *          enabled.
      */
     void (* cb_to_idle)(eds__network *, void *);
-    
+
     /**
      * @brief  This callback is called when network wants to switch from __idle__ state to __run__ state.
      *
      * When this member is initialized to NULL then no callback is called.
      *
-     * The callback receives: 
-     * - the pointer to current network instance and 
+     * The callback receives:
+     * - the pointer to current network instance and
      * - the callback argument which is also part of this structure.
      *
      * @note    In order to use callbacks @ref EDS_CONFIG__NETWORK__ENABLE_CALLBACKS macro must be

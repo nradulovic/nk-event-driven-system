@@ -12,6 +12,8 @@
 
 #include "eds_object.h"
 
+#define EDS_CORE__ASSUME(expr)              do { if (!(expr)) __builtin_unreachable(); } while (0)
+
 /** @brief      Determines the first dimension of an array.
  *  @param      array An array : type unspecified
  *  @mseffect
@@ -26,16 +28,6 @@
  */
 #define EDS_CORE__CONTAINER_OF(ptr, type, member)                                               \
     ((type *)((char *)(uintptr_t)(ptr) - offsetof(type, member)))
-
-#define EDS_CORE__ERROR_NONE               0
-#define EDS_CORE__ERROR__NO_RESOURCE        0x1
-#define EDS_CORE__ERROR__NO_MEMORY          0x2
-#define EDS_CORE__ERROR__NO_PERMISSION      0x3
-#define EDS_CORE__ERROR__IN_USE             0x4
-#define EDS_CORE__ERROR__BAD_STATE          0x5
-#define EDS_CORE__ERROR__NO_SPACE           0x6
-
-typedef uint_fast8_t eds_core__error;
 
 #define EDS_CORE__LIST_INITIALIZER(list)                                                        \
     {                                                                                           \

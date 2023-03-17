@@ -148,7 +148,7 @@ eds_port__tick_from_ms(uint32_t ms)
 }
 
 void
-eds_port__timer_init(struct eds_port__timer * timer)
+eds_port__timer_set_cb(struct eds_port__timer * timer)
 {
     int error;
 

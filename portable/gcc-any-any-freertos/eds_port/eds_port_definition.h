@@ -8,19 +8,27 @@
 #ifndef NEON_KIT_EDS_PORTABLE_GCC_ANY_ANY_FREERTOS_EDS_PORT_DEFINITION_H_
 #define NEON_KIT_EDS_PORTABLE_GCC_ANY_ANY_FREERTOS_EDS_PORT_DEFINITION_H_
 
+#if defined(ESP_IDF)
+#include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
+#include "freertos/timers.h"
+#endif
+
+#define EDS_PORT__USE_GLOBAL_CRITICAL
+
+struct eds_object__tmr_sentinel;
+
 struct eds_port__sleep
 {
-    int dummy;
+    SemaphoreHandle_t instance;
+    StaticSemaphore_t buffer;
 };
 
 struct eds_port__critical
 {
-    int dummy;
+    SemaphoreHandle_t instance;
+    StaticSemaphore_t buffer;
 };
 
-struct eds_port__timer
-{
-    int dummy;
-};
 
 #endif /* NEON_KIT_EDS_PORTABLE_GCC_ANY_ANY_FREERTOS_EDS_PORT_DEFINITION_H_ */

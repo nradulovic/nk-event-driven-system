@@ -13,14 +13,17 @@
 extern inline void
 eds_epa__designate(struct eds_object__epa * epa, struct eds_object__epn * epn);
 
-extern inline struct eds_object__epn*
+extern inline struct eds_object__epn *
 eds_epa__designation(const struct eds_object__epa * epa);
 
 extern inline bool
 eds_epa__is_designated(const struct eds_object__epa * epa);
 
-extern inline const struct eds_object__smp*
+extern inline const struct eds_object__smp *
 eds_epa__smp(const struct eds_object__epa * epa);
+
+extern inline struct eds_object__epa *
+eds_epa__from_tasker_node(struct eds_object__tasker_node * epa);
 
 eds__error
 eds_epa__create(eds__sm_state * sm_initial_state,
@@ -74,7 +77,15 @@ eds_epa__create(eds__sm_state * sm_initial_state,
         attr->name,
         attr->equeue_entries,
         attr->prio);
+    eds_state__has_started = true;
+
     return EDS__ERROR_NONE;
+}
+
+eds__error
+eds_epa__send_initial_event(struct eds_object__epa * epa)
+{
+    return eds_epa__send(epa, &g__smp_events[EDS__SM_EVENT__INIT]);
 }
 
 eds__error
@@ -107,7 +118,7 @@ eds_epa__dispatch(struct eds_object__epa * epa, struct eds_port__critical * crit
 
     evt = eds_equeue__pop(&epa->p__equeue);
     if (eds_equeue__is_empty(&epa->p__equeue)) {
-        eds_core__tasker_pending_sleep(eds_epn__tasker(eds_epa__designation(epa)), &epa->p__task);
+        eds_core__tasker_pending_sleep(eds_epn__tasker(epa->p__epn), &epa->p__task);
     }
     EDS_PORT__CRITICAL_UNLOCK(critical);
     error = eds_smp__dispatch(&epa->p__smp, evt);
@@ -119,7 +130,7 @@ eds_epa__dispatch(struct eds_object__epa * epa, struct eds_port__critical * crit
 }
 
 void
-eds_epa__terminate(struct eds_object__epa * epa)
+eds_epa__flush_events(struct eds_object__epa * epa)
 {
     /* Clear the queue */
     while (eds_equeue__is_empty(&epa->p__equeue) == false) {
@@ -129,7 +140,7 @@ eds_epa__terminate(struct eds_object__epa * epa)
         eds_evt__ref_down(event);
         eds_evt__deallocate(event);
     }
-    eds_core__tasker_pending_sleep(eds_epn__tasker(eds_epa__designation(epa)), &epa->p__task);
+    eds_core__tasker_pending_sleep(eds_epn__tasker(epa->p__epn), &epa->p__task);
 }
 
 eds__error
@@ -198,7 +209,6 @@ eds__agent_send(eds__agent * agent, const eds__event * event)
 {
     EDS_PORT__CRITICAL_INSTANCE(critical);
     eds__error error;
-    eds_core__error core_error;
 
     if ((agent == NULL) || (event == NULL)) {
         EDS_TRACE__EXIT(EDS_TRACE__SOURCE_AGENT_SEND,
@@ -213,17 +223,9 @@ eds__agent_send(eds__agent * agent, const eds__event * event)
         return EDS__ERROR_NO_PERMISSION;
     }
     EDS_PORT__CRITICAL_LOCK(&critical);
-    core_error = eds_epa__send(agent, event);
+    error = eds_epa__send(agent, event);
     EDS_PORT__CRITICAL_UNLOCK(&critical);
     EDS_TRACE__EXIT(EDS_TRACE__SOURCE_AGENT_SEND, core_error, "agent, event = (%p, %p)", agent, event);
-    switch (core_error) {
-    case EDS_CORE__ERROR__NO_SPACE:
-        error = EDS__ERROR_NO_SPACE;
-        break;
-    default:
-        error = EDS__ERROR_NONE;
-        break;
-    }
     return error;
 }
 
@@ -236,12 +238,12 @@ eds__agent_from_sm(eds__sm * sm)
 eds__network*
 eds__agent_network(const eds__agent * agent)
 {
-    return eds_epa__designation(agent);
+    return agent->p__epn;
 }
 
 void*
 eds__agent_workspace(const eds__agent * agent)
 {
-    return eds_smp__workspace(eds_epa__smp(agent));
+    return eds_smp__workspace(&agent->p__smp);
 }
 

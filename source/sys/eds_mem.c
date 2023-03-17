@@ -11,18 +11,6 @@
 #include "eds.h"
 
 extern inline void*
-eds_mem__context(const struct eds_object__mem * mem);
-
-extern inline size_t
-eds_mem__max_size(const struct eds_object__mem * mem);
-
-extern inline eds__mem_alloc_fn*
-eds_mem__alloc_fn(const struct eds_object__mem * mem);
-
-extern inline eds__mem_dealloc_fn*
-eds_mem__dealloc_fn(const struct eds_object__mem * mem);
-
-extern inline void*
 eds_mem__allocate_from(struct eds_object__mem * mem, size_t size);
 
 extern inline void
@@ -55,15 +43,15 @@ eds__mem_add_allocator(eds__mem_alloc_fn * alloc,
     if ((alloc == NULL) || (dealloc == NULL) || (max_size < EDS__DEFAULT_MEM_MIN_BYTES)) {
         return EDS__ERROR_INVALID_ARGUMENT;
     }
+    if (eds_state__has_started) {
+        return EDS__ERROR_NO_PERMISSION;
+    }
     if (eds_core__vector_is_full(&eds_state__mem_instances) == true) {
         return EDS__ERROR_NO_RESOURCE;
     }
     existing_mem = eds_mem__find(&eds_state__mem_instances, max_size);
     if (existing_mem != NULL) {
         return EDS__ERROR_ALREADY_EXISTS;
-    }
-    if (eds_state__has_started) {
-        return EDS__ERROR_NO_PERMISSION;
     }
     /* entry init */
     new_entry.p__alloc = alloc;
