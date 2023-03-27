@@ -31,14 +31,11 @@ sm__blink_off(eds__sm * sm, void * workspace, const eds__event * event)
 {
     struct blinky3_workspace * ws = workspace;
     eds__error error;
-    eds__event * n_event;
 
     switch (eds__event_id(event)) {
     case EDS__SM_EVENT__INIT:
         log_message("blinky 3 SM" PRI_UINT32 ": blink_off: init\n", ws->instance);
-        error = eds__event_create(EVENT_TICK, 0, &n_event);
-        assert(error == EDS__ERROR_NONE);
-        error = eds__etimer_send_after(ws->tick, eds__agent_from_sm(sm), n_event, ws->period_ms);
+        error = eds__etimer_send_after(ws->tick, ws->period_ms);
         assert(error == EDS__ERROR_NONE);
         return eds__sm_event_handled(sm);
     case EVENT_TICK:
@@ -54,14 +51,11 @@ sm__blink_on(eds__sm * sm, void * workspace, const eds__event * event)
 {
     struct blinky3_workspace * ws = workspace;
     eds__error error;
-    eds__event * n_event;
 
     switch (eds__event_id(event)) {
     case EDS__SM_EVENT__INIT:
         log_message("blinky 3 SM" PRI_UINT32 ": blink_on: init\n", ws->instance);
-        error = eds__event_create(EVENT_TICK, 0, &n_event);
-        assert(error == EDS__ERROR_NONE);
-        error = eds__etimer_send_after(ws->tick, eds__agent_from_sm(sm), n_event, ws->period_ms);
+        error = eds__etimer_send_after(ws->tick, ws->period_ms);
         assert(error == EDS__ERROR_NONE);
         return eds__sm_event_handled(sm);
     case EVENT_TICK:
@@ -81,7 +75,7 @@ blinky3_initial_state(eds__sm * sm, void * workspace, const eds__event * event)
     switch (eds__event_id(event)) {
     case EDS__SM_EVENT__INIT:
         log_message("blinky 3 SM" PRI_UINT32 ": init: init\n", ws->instance);
-        error = eds__etimer_create(NULL, &ws->tick);
+        error = eds__etimer_create(sm, EVENT_TICK, NULL, &ws->tick);
         assert(error == EDS__ERROR_NONE);
         return eds__sm_transit_to(sm, sm__blink_on);
     default:

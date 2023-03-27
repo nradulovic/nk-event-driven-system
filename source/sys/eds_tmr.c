@@ -149,16 +149,8 @@ eds_tmr__init(struct eds_object__tmr * self, void (* fn)(struct eds_object__tmr 
     self->rtime_ticks = 0u;
     self->itime_ticks = 0u;
     self->fn = fn;
+    self->state = EDS_OBJECT__TMR_STATE_DORMANT;
 }
-
-bool
-eds_tmr__is_running(const struct eds_object__tmr * self)
-{
-    return eds_core__list_is_empty(&self->p__list) == false;
-}
-
-extern bool
-eds_tmr__is_periodic(const struct eds_object__tmr * self);
 
 void
 eds_tmr__start_after(struct eds_object__tmr * self, uint32_t after_ticks)
@@ -199,7 +191,8 @@ eds_tmr__cancel(struct eds_object__tmr * self)
             next_tmr->rtime_ticks += self->rtime_ticks;
         }
     }
-    eds_core__list_remove(&self->p__list);
+    eds_core__list_remove(&self->p__list); // Remove it from any list, active or pending one
+    self->state = EDS_OBJECT__TMR_STATE_DORMANT;
 }
 
 void

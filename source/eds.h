@@ -176,7 +176,7 @@ typedef struct eds_object__epn eds__network;
  * * The minor number is located on bit positions [15 - 8].
  * * The patch number is located on bit positions [7 - 0].
  */
-#define EDS__VERSION                        0x030005
+#define EDS__VERSION                        0x030006
 
 /** @} */
 /**
@@ -980,6 +980,10 @@ struct eds__etimer_attr
 
 /**
  * @brief       Create an event timer.
+ * @param[in]	sm State machine which will receive the event.
+ * @param       event_id Event identification number. This is a unique number which identifies an
+ *              event. Event identifiers are usually handled by enumerations. It is application
+ *              responsibility to allocate unique numbers for each event.
  * @param[in]   attr Use @a attr pointer to pass attribute structure. Use attribute structure to
  *              customize event timer instance. Pass NULL pointer to use defaults specified in
  *              @ref eds_defaults.
@@ -987,7 +991,8 @@ struct eds__etimer_attr
  *              after successful creation of the event timer.
  * @return      Operation status.
  * @retval      EDS__ERROR_NONE Operation completed successfully.
- * @retval      EDS__ERROR_INVALID_ARGUMENT Is returned when @a etimer pointer is NULL pointer.
+ * @retval      EDS__ERROR_INVALID_ARGUMENT Is returned when @a etimer or @a sm pointer is NULL 
+ * 		pointer.
  * @retval      EDS__ERROR_NO_RESOURCE When no suitable allocator was found and EDS is then unable
  *              to allocate memory space for the agent. To add allocators use
  *              @ref eds__add_allocator function.
@@ -995,7 +1000,11 @@ struct eds__etimer_attr
  *              have been depleted.
  */
 eds__error
-eds__etimer_create(const struct eds__etimer_attr * attr, eds__etimer ** etimer);
+eds__etimer_create(
+	eds__sm * sm, 
+	uint32_t event_id,  
+	const struct eds__etimer_attr * attr, 
+	eds__etimer ** etimer);
 
 /**
  * @brief       Delete an event timer.
@@ -1011,10 +1020,6 @@ eds__etimer_delete(eds__etimer * etimer);
  * @brief       Send @a event to @a agent using @a etimer after @a after_ms milliseconds.
  * @param[in]   etimer Pointer to previously initialized event timer instance which will be used
  *              for time keeping.
- * @param[in]   agent Pointer to previously initialized and designated agent instance which will
- *              receive the @a event.
- * @param[in]   event Pointer to event which is to be sent to the @a agent. Event timers support only
- *              dynamic events (the ones created by a call to @ref eds__event_create function).
  * @param       after_ms After this many milliseconds send @a event to @a agent.
  * @return      Operation status.
  * @retval      EDS__ERROR_NONE Operation completed successfully.
@@ -1028,19 +1033,12 @@ eds__etimer_delete(eds__etimer * etimer);
  * @retval      EDS__ERROR_NO_RESOURCE When the given @a event is not a dynamic event.
  */
 eds__error
-eds__etimer_send_after(eds__etimer * etimer,
-    eds__agent * agent,
-    const eds__event * event,
-    uint32_t after_ms);
+eds__etimer_send_after(eds__etimer * etimer, uint32_t after_ms);
 
 /**
  * @brief       Send @a event to @a agent using @a etimer every @a after_ms milliseconds.
  * @param[in]   etimer Pointer to previously initialized event timer instance which will be used
  *              for time keeping.
- * @param[in]   agent Pointer to previously initialized and designated agent instance which will
- *              receive the @a event.
- * @param[in]   event Pointer to event which is to be sent to the @a agent. Event timers support only
- *              dynamic events (the ones created by a call to @ref eds__event_create function).
  * @param       after_ms After this many milliseconds send @a event to @a agent.
  * @return      Operation status.
  * @retval      EDS__ERROR_NONE Operation completed successfully.
@@ -1054,10 +1052,7 @@ eds__etimer_send_after(eds__etimer * etimer,
  * @retval      EDS__ERROR_NO_RESOURCE When the given @a event is not a dynamic event.
  */
 eds__error
-eds__etimer_send_every(eds__etimer * etimer,
-    eds__agent * agent,
-    const eds__event * event,
-    uint32_t every_ms);
+eds__etimer_send_every(eds__etimer * etimer, uint32_t every_ms);
 
 /**
  * @brief       Cancel (stop) a running timer.

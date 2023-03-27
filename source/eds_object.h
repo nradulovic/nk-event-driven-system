@@ -145,18 +145,6 @@ struct eds_object__tmr
 };
 
 /**
- * @brief       Event timer node object
- * @note        All members of this structure are private.
- */
-struct eds_object__etm
-{
-    struct eds_object__tmr p__node;        //!< Timer instance.
-    const struct eds_object__evt * p__evt;       //!< Event associated with this timer.
-    struct eds_object__epa * p__epa;             //!< Owner of this timer.
-    struct eds_object__mem * p__mem;             //!< Memory allocator reference.
-};
-
-/**
  * @brief       Tasker object.
  * @note        All members of this structure are private.
  */
@@ -190,6 +178,18 @@ struct eds_object__evt
     uint32_t p__ref_count;                      //!< Event reference counter.
     size_t p__size;                             //!< Total size of an event in bytes.
     struct eds_object__mem * p__mem;             //!< Memory allocator reference.
+};
+
+/**
+ * @brief       Event timer node object
+ * @note        All members of this structure are private.
+ */
+struct eds_object__etm
+{
+    struct eds_object__tmr p__node;             //!< Timer instance.
+    struct eds_object__evt p__evt;              //!< Event associated with this timer.
+    struct eds_object__epa * p__epa;            //!< Owner of this timer.
+    struct eds_object__mem * p__mem;            //!< Memory allocator reference.
 };
 
 /**

@@ -63,16 +63,13 @@ blinky_initial_state(eds__sm * sm, void * workspace, const eds__event * event)
 {
     struct blinky_workspace * ws = workspace;
     eds__error error;
-    eds__event * n_event;
 
     switch (eds__event_id(event)) {
     case EDS__SM_EVENT__INIT:
         log_message("blinky SM: init: init\n");
-        error = eds__etimer_create(NULL, &ws->tick);
+        error = eds__etimer_create(sm, EVENT_TICK, NULL, &ws->tick);
         assert(error == EDS__ERROR_NONE);
-        error = eds__event_create(EVENT_TICK, 0, &n_event);
-        assert(error == EDS__ERROR_NONE);
-        error = eds__etimer_send_every(ws->tick, eds__agent_from_sm(sm), n_event, 1000);
+        error = eds__etimer_send_every(ws->tick, 1000);
         assert(error == EDS__ERROR_NONE);
         return eds__sm_transit_to(sm, sm__blink_on);
     default:

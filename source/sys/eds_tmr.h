@@ -8,14 +8,9 @@
 void
 eds_tmr__init(struct eds_object__tmr * self, void (* fn)(struct eds_object__tmr *));
 
-bool
-eds_tmr__is_running(const struct eds_object__tmr * self);
+#define eds_tmr__is_running(self)		((self)->state != EDS_OBJECT__TMR_STATE_DORMANT)
 
-inline bool
-eds_tmr__is_periodic(const struct eds_object__tmr * self)
-{
-    return self->itime_ticks != 0u;
-}
+#define eds_tmr__is_periodic(self)		((self)->itime_ticks != 0u)
 
 void
 eds_tmr__start_after(struct eds_object__tmr * self, uint32_t after_ticks);

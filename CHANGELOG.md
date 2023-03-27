@@ -1,3 +1,6 @@
+# 3.0.6
+- Refactor: simpler timer usage
+
 # 3.0.5
 - Add ESP-IDF build support.
 - Refactor code to reduce number of internal functions.
