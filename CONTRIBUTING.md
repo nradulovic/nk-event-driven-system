@@ -5,10 +5,9 @@
 This document is for developers who want to modify or contribute to Nano Kernel 
 source.
 
-All developers are obligated to read and understand the documentats in `documentation` directory 
-which are prefixed with `nk_devel_` prefix:
-- `nk_devel_coding_style.md` - [Coding style document](documentation/nk_devel_coding_style.md).
-- `nk_devel_pull_requests.md` - [pull requests (PR)](documentation/nk_devel_pull_requests.md).
+All developers are obligated to read and understand the documentats in `documentation` directory:
+- `DEVELOPER_MANUAL.md` - [Developer manual document](documentation/DEVELOPER_MANUAL.md).
+- `USER_MANUAL.md` - [User manual document](documentation/USER_MANUAL.md).
 
 ---
 ## 2. Vision

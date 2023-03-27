@@ -6,6 +6,13 @@
 - Documentation: Add blinky3 example using `After` events.
 - Documentation: Add `log_message` function to print logs with timestamping.
 
+# 3.0.4
+- Fix built-in build system
+
+# 3.0.3
+- Add SBS and UTF modules
+- Use relative paths for modules
+
 # 3.0.2
 - fixes of built-in build system
 

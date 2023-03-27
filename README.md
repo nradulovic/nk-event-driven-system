@@ -5,9 +5,11 @@ This module is part of Neon Kit.
 ## Architecture of Neon Kit
 
 Neon Kit consists of the following modules:
-- Event Driven System
-- Real-time kernel
-- Embedded Principle Library
+- Event Driven System (EDS)
+- Real-time kernel (RTK)
+- Embedded Principle Library (EPL)
+- Shared Build System (SBS)
+- Unit Test Framework (UTF)
 
 Each part is contained in a separate git repository. This allows application writer to assemble a 
 Neon Kit that suits his needs.
@@ -29,59 +31,51 @@ is shared across all supported ports.
 
 ## Portable code
 
-This code is something that is developed by application writer. The application writer is 
-responsible to implement all needed functionality of a port. Port templates are available in 
-`template` directory.
+This code is something that is used by application writer. The application writer is 
+responsible to implement all needed functionality of a port. Port code is located in `portable` 
+directory. For each supported combination of compiler (platform), CPU architecture, CPU family
+and operating system there exists a folder with neede portable code.
 
 ## Cloning this repository
 
-This repo uses Git Submodules to bring in dependent modules.
-
-Note: If you download the ZIP file provided by the GitHub UI, you will not get the contents of the 
-submodules. (The ZIP file is also not a valid git repository)
+This repo does no use Git Submodules to bring in dependent modules.
 
 To clone using HTTPS:
 
-    git clone https://github.com/nradulovic/nk-event-driven-system.git --recurse-submodules
+    git clone https://github.com/nradulovic/nk-event-driven-system.git
 
 Using SSH:
 
-    git clone git@github.com:nradulovic/nk-event-driven-system.git --recurse-submodules
-
-If you have downloaded the repo without using the --recurse-submodules argument, you need to run:
-
-    git submodule update --init --recursive
+    git clone git@github.com:nradulovic/nk-event-driven-system.git
 
 ## Project directory structure
 
 The project contains the following folders:
-- `build` - this directory contains a number of Makefile and Doxygen files which are used by
-  unit-testing and documentation build system. This directory was not intended to be used in
-  application build system, but it could be used for that purposes as well. The makefiles in
-  this directory are used to build unit-tests, documentation (HTML and PDF) and examples
-  which are located in `documentation` directory. Any build artifact is stored in new
-  directory called `generated` in project top level directory.
+- `build` - this directory contains a number of Makefile, CMake and Doxygen files which are 
+  used by unit-testing framework and documentation build system. This directory was not 
+  intended to be used in application build system, but it could be used for that purposes 
+  as well. The makefiles in this directory are used to build unit-tests, documentation (HTML 
+  and PDF) and examples which are located in `documentation/examples` directory. Any build 
+  artifact is stored in new directory called `generated` in project top level directory.
 - `documentation` - contains various descriptions of the system, how to use it properly and
   some examples in `documentation/examples`.
 - `source` - this directory contains all the source files. This is the only directory that is
   needed by application.
-- `template` - contains some template files which are needed by Even Driven System. Copy-paste the 
-  template files to your application and modify them as needed.
+- `portable` - contains portable files which are needed by Even Driven System.
 - `tests` - contains unit-tests and profiling tests.
-
-## Where is a build system?
-
-There is no build system for Neon Kit suite modules. The Neon Kit contains only sources which are 
-needed to build the system. Since Neon Kit modules are like a plugin to application project it 
-does not use or favor any build system. It is up to application writer to integrate Neon Kit 
-modules into the project. Since there are so many IDEs and build systems it is only natural to 
-leave the building process to application writer. The only thing that a Neon Kit module expect is
-a directory structure specified in the description following this chapter.
 
 ## Unit-testing
 
 Neon Kit Event Driven system contains unit-tests in `tests` directory. To start unit-testing refer
 to [documentation/DEVELOPER_MANUAL.md](documentation/DEVELOPER_MANUAL.md) for details.
+
+## Where is a build system?
+
+There is no default build system for Neon Kit suite modules. The Neon Kit is intended to be used
+like a plugin to application project and it does not favor any build system. It is up to application 
+writer to integrate Neon Kit modules into the project. Since there are so many IDEs and build 
+systems it is only natural to leave the building process to application writer. The only thing 
+that a Neon Kit module expect is a directory structure specified in the description following this chapter.
 
 ## Building a Neon Kit module
 
@@ -94,29 +88,32 @@ The following are needed to be configured in application project:
   - directory where a specific Neon Kit module is located: 
     `$NEON_KIT_ROOT/[module]/source`. In this case the path would be:
     `$NEON_KIT_ROOT/eds/source`.
-  - directory where portable definition header `[module]_port_definition.h` is located.
+  - directory where portable definition `[platform-architecture-family-os]` is located.
 - no defined macros are needed except when a custom module configuration is needed which is 
   explained below.
-- compile all sources under `source` directory, in this case `$NEON_KIT_ROOT/eds/source`.
+- compile all sources under `source` directory and selected portable directory, in this case
+ `$NEON_KIT_ROOT/eds/source`.
 
 ### Example
 
 Lets say that we have a firmware application called `application_1` with the following structure:
 1. The firmware application is located in `firmware/application_1` folder.
 2. In this application Neon Kit EDS module is used and is located in `firmware/application_1/lib/neon-kit/eds` folder.
-3. The portable definition header `eds_port_definition.h` is located in `firmware/application_1/eds_port/`. 
+3. The portable definition is located in `firmware/application_1/lib/neon-kit/eds/portable/gcc-any-any-freertos`. 
 
 With this setup we would need the following additional include paths:
 - `firmware/application_1/lib/neon-kit`
 - `firmware/application_1/lib/neon-kit/eds/source`
-- `firmware/application_1/eds_port/`
+- `firmware/application_1/lib/neon-kit/eds/portable/gcc-any-any-freertos`
 
 ## Building Event Driven System with custom configuration
 
 When a custom configuration is not enabled, Event Driven System uses default configuration which 
 should be a good fit for most applications. It is possible to create a specific Event Driven System
-implementation which is optimal for the current application. This feature remains yet to be defined 
-and implemented.
+implementation which is optimal for the current application. This feature is by default disabled. To
+enable using custom configuration the build system must define the `EDS_CONFIG__ENABLE` macro. When
+this macro is defined by the build system, then Event Driven System will include additional header
+file called `eds_config_definition.h`. Use this file to define the custom project configuration.
 
 ## Application Programming Interface
 
@@ -124,9 +121,9 @@ The application programming interface is governed by
 [coding style guide](documentation/DEVELOPER_MANUAL.md) document. The document defines:
 
 - __Coding style__: All public objects declared in Application Programming Interface are following
-  the coding style defined in [coding style document](documentation/nk_devel_coding_style.md).
+  the coding style defined in [coding style document](documentation/DEVELOPER_MANUAL.md).
 - __Naming rules__: Names of functions, types and variables are defined in the coding style guide
-  document, too. Naming abbreviations are defined by [abbreviations](documentation/abbreviations.md) 
+  document, too. Naming abbreviations are defined by [abbreviations](documentation/USER_MANUAL.md) 
   document.
 - __Common exception or error reporting__: All Neon Kit API functions are handling exceptions and
   errors in the same manner. Assertions are not used in great number which allows application writer 
@@ -150,17 +147,17 @@ The application programming interface is governed by
     don't have the module name field in them as the exceptions in other categories.
 
   For more details on exception and error handling refer to 
-  [error handling](documentation/error_handling.md) document.
+  [error handling](documentation/DEVELOPER_MANUAL.md) document.
 - __Function classes__: Functions are divided into classes regarding the execution context. The
   function class is part of the function name so there should be no confusion when a function may
-  be called. For details see [function classes](documentation/function_classes.md) document.
+  be called. For details see [function classes](documentation/DEVELOPER_MANUAL.md) document.
 
 ## Deterministic
 
 Majority of algorithms used in Neon Kit are belonging to **Constant Time Complexity** category. 
 Constant Time `O(1)` functions needs fixed amount of time to execute an algorithm. In other words 
 the execution time of Constant Time Complexity functions does not depend on number and/or value of 
-inputs. For more information see [time complexity](documentation/time_complexity.md) document.
+inputs. For more information see [time complexity](documentation/USER_MANUAL.md) document.
 
 ## Configurable
 
@@ -189,6 +186,6 @@ Each Agent has a defined priority. Lowest priority level is 0, while the highest
 
 Several application development approaches are defined when using Neon Kit. More details on how
 to structure the project are available in 
-[application development](documentation/application_development.md) document. 
+[application development](documentation/DEVELOPER_MANUAL.md) document. 
 
 
