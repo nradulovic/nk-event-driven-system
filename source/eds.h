@@ -176,7 +176,7 @@ typedef struct eds_object__epn eds__network;
  * * The minor number is located on bit positions [15 - 8].
  * * The patch number is located on bit positions [7 - 0].
  */
-#define EDS__VERSION                        0x030004
+#define EDS__VERSION                        0x030005
 
 /** @} */
 /**
@@ -356,7 +356,7 @@ typedef void
  *              handle zero allocations (size of allocation is equal to zero).
  * @param       dealloc is a pointer to function which receives the context structure and the
  *              previously allocated block and it should recycle its space. This function does not
- *              need to handle NULL deallocations.
+ *              need to handle NULL pointer deallocations.
  * @param       context is pointer to allocator context structure if it needed by allocator. The
  *              structure needs to exist the whole time while allocator functions are being used.
  * @param       max_size is maximum size of block that can be allocated and freed by allocator. In
@@ -373,6 +373,8 @@ typedef void
  *              tried to add more than @ref EDS__DEFAULT_MEM_ENTRIES instances of memory allocator.
  * @retval      EDS__ERROR_ALREADY_EXISTS (@ref EDS__ERROR_ALREADY_EXISTS) The allocator with
  *              @a max_size memory block was already added.
+ * @retval      EDS__ERROR_NO_PERMISSION (@ref EDS__ERROR_NO_PERMISSION) The memory manager cannot
+ *              accept this memory allocator because a `create` function was already called.
  */
 eds__error
 eds__mem_add_allocator(eds__mem_alloc_fn * alloc,

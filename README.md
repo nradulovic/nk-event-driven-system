@@ -1,20 +1,20 @@
 # Neon Kit
 
-This component is part of Neon Kit.
+This module is part of Neon Kit.
 
 ## Architecture of Neon Kit
 
-Neon Kit consists of the following components:
+Neon Kit consists of the following modules:
 - Event Driven System
 - Real-time kernel
-- Library
+- Embedded Principle Library
 
 Each part is contained in a separate git repository. This allows application writer to assemble a 
 Neon Kit that suits his needs.
 
 # Neon Kit - Event Driven System
 
-This component contains code which is responsible for event handling using state machines. The code 
+This module contains code which is responsible for event handling using state machines. The code 
 is split into two sections:
 - generic
 - portable
@@ -23,7 +23,7 @@ This approach provides high portability to various systems.
 
 ## Generic code
 
-The generic code is a code which does not depend on used CPU architecture,peripherals and compilers. 
+The generic code is a code which does not depend on used CPU architecture, peripherals and compilers. 
 A particular combination of CPU architecture, peripherals and compiler is called a port. This code 
 is shared across all supported ports.
 
@@ -35,7 +35,7 @@ responsible to implement all needed functionality of a port. Port templates are 
 
 ## Cloning this repository
 
-This repo uses Git Submodules to bring in dependent components.
+This repo uses Git Submodules to bring in dependent modules.
 
 Note: If you download the ZIP file provided by the GitHub UI, you will not get the contents of the 
 submodules. (The ZIP file is also not a valid git repository)
@@ -71,31 +71,31 @@ The project contains the following folders:
 
 ## Where is a build system?
 
-There is no build system for Neon Kit suite components. The Neon Kit contains only sources which are 
-needed to build the system. Since Neon Kit components are like a plugin to application project it 
+There is no build system for Neon Kit suite modules. The Neon Kit contains only sources which are 
+needed to build the system. Since Neon Kit modules are like a plugin to application project it 
 does not use or favor any build system. It is up to application writer to integrate Neon Kit 
-components into the project. Since there are so many IDEs and build systems it is only natural to 
-leave the building process to application writer. The only thing that a Neon Kit component expect is
+modules into the project. Since there are so many IDEs and build systems it is only natural to 
+leave the building process to application writer. The only thing that a Neon Kit module expect is
 a directory structure specified in the description following this chapter.
 
 ## Unit-testing
 
 Neon Kit Event Driven system contains unit-tests in `tests` directory. To start unit-testing refer
-to [documentation/nk_testing.md](documentation/nk_testing.md) for details.
+to [documentation/DEVELOPER_MANUAL.md](documentation/DEVELOPER_MANUAL.md) for details.
 
-## Building a Neon Kit component
+## Building a Neon Kit module
 
-All Neon Kit components need to be placed into a single directory. For convenience lets refer to
+All Neon Kit modules need to be placed into a single directory. For convenience lets refer to
 this directory as a variable named `NEON_KIT_ROOT`.
 
 The following are needed to be configured in application project:
 - include path should have the following entries:
   - directory where all Neon Kit projects are located in `$NEON_KIT_ROOT`.
-  - directory where a specific Neon Kit component is located: 
-    `$NEON_KIT_ROOT/[component]/source`. In this case the path would be:
+  - directory where a specific Neon Kit module is located: 
+    `$NEON_KIT_ROOT/[module]/source`. In this case the path would be:
     `$NEON_KIT_ROOT/eds/source`.
-  - directory where portable definition header `[component]_port_definition.h` is located.
-- no defined macros are needed except when a custom component configuration is needed which is 
+  - directory where portable definition header `[module]_port_definition.h` is located.
+- no defined macros are needed except when a custom module configuration is needed which is 
   explained below.
 - compile all sources under `source` directory, in this case `$NEON_KIT_ROOT/eds/source`.
 
@@ -103,7 +103,7 @@ The following are needed to be configured in application project:
 
 Lets say that we have a firmware application called `application_1` with the following structure:
 1. The firmware application is located in `firmware/application_1` folder.
-2. In this application Neon Kit EDS component is used and is located in `firmware/application_1/lib/neon-kit/eds` folder.
+2. In this application Neon Kit EDS module is used and is located in `firmware/application_1/lib/neon-kit/eds` folder.
 3. The portable definition header `eds_port_definition.h` is located in `firmware/application_1/eds_port/`. 
 
 With this setup we would need the following additional include paths:
@@ -121,7 +121,7 @@ and implemented.
 ## Application Programming Interface
 
 The application programming interface is governed by 
-[coding style guide](documentation/nk_devel_coding_style.md) document. The document defines:
+[coding style guide](documentation/DEVELOPER_MANUAL.md) document. The document defines:
 
 - __Coding style__: All public objects declared in Application Programming Interface are following
   the coding style defined in [coding style document](documentation/nk_devel_coding_style.md).
@@ -147,7 +147,7 @@ The application programming interface is governed by
     this exception handling might never be enabled. 
   - __general errors__: General errors are errors which can not be put into none of the above 
     categories. These errors can't be disabled, they are always enabled. Note that these errors 
-    don't have the component name field in them as the exceptions in other categories.
+    don't have the module name field in them as the exceptions in other categories.
 
   For more details on exception and error handling refer to 
   [error handling](documentation/error_handling.md) document.
@@ -167,13 +167,13 @@ inputs. For more information see [time complexity](documentation/time_complexity
 The Neon Kit uses configuration files which can be used to tailor the implementation to application 
 needs.
 
-In addition, the Neon Kit components implements a number of hooks which can alter or augment the 
-behavior of the component, by allowing application to intercept function calls between software 
-components.
+In addition, the Neon Kit modules implements a number of hooks which can alter or augment the 
+behavior of the module, by allowing application to intercept function calls between software 
+modules.
 
 ## Portable
 
-During the design stage of the component a special attention was given to achieve high portability. 
+During the design stage of the module a special attention was given to achieve high portability. 
 Some data structures and algorithms are tailored to exploit new hardware features.
 
 ## Static object allocation

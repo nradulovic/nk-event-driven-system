@@ -4,22 +4,76 @@
 
 __Intended audience__ of this document: 
 
-* Developers who will work on Nano Kernel sources (required).
-* Testers who test Nano Kernel sources (informative).
-* Users of the Nano Kernel (informative).
+* Developers who will work on Neon Kit sources (required).
+* Testers who test Neon Kit sources (informative).
+* Users of the Neon Kit (informative).
 
-This document describes coding style guidelines and rules used in Nano Kernel sources.
+This document describes coding style guidelines and rules used in Neon Kit sources.
 
 
 ## About This Guide
 
-Purpose of this style guide is to encourage use of common coding practices within the Nano Kernel.
+Purpose of this style guide is to encourage use of common coding practices within the Neon Kit.
 
 Style guide is a set of rules which are aimed to help create readable and maintainable code. 
 By writing code which looks the same way across the code base will help others read and understand 
 the code. By using the same conventions for spaces, newlines and indentation chances are reduced 
 that future changes will produce huge unreadable diffs. By following the common patterns for code
 structure and by using language features consistently will help others understand the code behavior.
+
+
+## Abstract software granularity hierarchy
+
+If we are to abstract from particular languages, frameworks and their own interpretations, the 
+abstract software granularity hierarchy is the following:
+
+    Product - application, library, service
+      Module - GUI, core logic, data, etc...
+        Component - purpose specific collection of objects
+          Object - collection of primitives
+            Primitive - numbers, functions, etc...
+
+### Product
+
+Plain and simple, the Product is a working collection of connected functional modules.
+
+### Module
+
+As the very name implies, the motivation of a Module is modularity. Contrary to what many claim, 
+it does not really imply code reuse. There are many modules which are not really reusable, and 
+don't fit with anything they were not designed to.
+
+It is important to separate different software layers, that makes software much easier to implement 
+and maintain, and should the need to reimplement something like a front end to a different GUI 
+framework, modularity enables that to happen in an easy and safe manner, without breaking code all 
+over the place.
+
+A module encapsulates a collection of components which all serve a common purpose as defined by the 
+module requirements. A module should be self-contained and complete, and while not really usable on 
+its own, it should be able to work in conjunction with any conforming implementation.
+
+### Component
+
+In terms of granularity the Component sits between the Module and the Object. The purpose of a 
+component is to put together a collection of general purpose objects to form a purpose specific unit.
+
+As the name implies, unlike the Module, the Component is not "self-contained", it is a part of a 
+larger functional whole.
+
+### Object
+
+Objects are the smaller building blocks of components. Objects are collections of primitives and 
+couple them together to serve a lower level, more universal while still somewhat specific purpose.
+
+### Primitive
+
+Primitives are the smallest, simplest and lowest level of software development granularity. It's 
+basically just integer and real numbers and functions/operators, although most languages have their 
+own additional "first class citizens".
+
+There is very little you can do with primitives, and at the same time, it is at a such a low level 
+that you can accomplish practically everything with it. It is just very, very verbose, insanely 
+complicated and impossibly tedious to accomplish while directly working with primitives.
 
 # Naming rules
 
@@ -33,40 +87,40 @@ structure and by using language features consistently will help others understan
       
 - __R0101__: All macro names are in `UPPERCASE` style, words are delimited by underscore `_` 
   character. 
-- __R0102__: All functions, variables and types are prefixed with: `nk_`.
+- __R0102__: All functions, variables and types are prefixed with module prefix: `eds_`, `rtk_`, `ep_`.
 - __R0103__: All typedefs are named in the same manner as struct or union types. No suffixes (like 
   the usual `_t` suffix) are allowed.
-- __R0104__: All macro names are prefixed with: `NK_`.
+- __R0104__: All macro names are prefixed with module prefix: `EDS_`, `RTK_`, `EP_`.
 - __R0105__: In addition to __R0102__, the global public variables are additionally prefixed with 
-  `__g__`, resulting in `nk__g__` prefix.
+  `__g__`, resulting in `eds__g__` prefix.
 - __R0106__: In addition to __R0102__, the global local (file scope) variables are additionally 
-  prefixed with `__l__`, resulting in `nk__l__` prefix.
+  prefixed with `__l__`, resulting in `eds__l__` prefix.
 - __R0107__: In addition to __R0102__, the global private variables or functions are additionally 
-  prefixed with `__p__`, resulting in `nk__p__` prefix.
+  prefixed with `__p__`, resulting in `eds__p__` prefix.
 - __R0108__: The name of API functions is constructed in the following way:
 
-      nk_[component]__[function_name]
+      [module]__[component]_[function_name]
       
   Where:
-  - `nk_` is standard prefix as defined by __R0102__.
+  - `[module]` is standard prefix as defined by __R0102__.
   - `[component]` is the name of the component which function is part of.
-  - `__` is component - function name separator.
+  - `__` is component and function name separator.
   - `[function_name]` is the name of the function.
   
   Examples: 
   - In the following example, the function name is  `do_something` and it is part of API for `list` 
     component:
     
-        void nk_list__do_something(void);
+        void eds__list_do_something(void);
         
   - The function name is `cancel` and it is part of API for `timer` component:
   
-        void nk_timer__cancel(nk_timer * timer);
+        void eds__timer_cancel(eds__timer * timer);
         
   - The function name is `long_name_operation` and it is part of API for `long_name_component` 
     component:
     
-        void nk_long_name_component__long_name_operation(void);
+        void eds__long_name_component_long_name_operation(void);
 
 ## Function classes naming rules
 
@@ -142,7 +196,7 @@ The Rob Pike article "Notes on programming in C" section about comments is spot 
 
 # Error handling
 
-Error handling in Nano Kernel is using _return value_ method. 
+Error handling in Neon Kit is using _return value_ method. 
 - __G0100__: The overall look of functions needs to comform to the following style:
 
       int function(void)
@@ -220,8 +274,8 @@ Error handling in Nano Kernel is using _return value_ method.
 
 __Intended audience__ of this document: 
 
-* Developers who work on Nano Kernel sources (required).
-* Testers who test Nano Kernel sources (informative).
+* Developers who work on Neon Kit sources (required).
+* Testers who test Neon Kit sources (informative).
 
 This document describes the pull request use-cases.
 
