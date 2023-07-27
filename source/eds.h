@@ -1203,6 +1203,19 @@ struct eds__network_attr
 /** @} */
 /**
  * @brief       Create a network.
+ * @param       attr Use @a attr pointer to pass attribute structure. Use attribute structure to
+ *              customize event timer instance. Pass NULL pointer to use defaults specified in
+ *              @ref eds_defaults.
+ * @param [out] network Pointer to pointer to network. The pointer to network will be filled after 
+ *              successful creation of the network.
+ * @return      Operation status.
+ * @retval      EDS__ERROR_NONE (@ref EDS__ERROR_NONE) Operation completed successfully.
+ * @retval      EDS__ERROR_INVALID_ARGUMENT (@ref EDS__ERROR_INVALID_ARGUMENT) Is returned when
+ *              @a network argument is NULL pointer.
+ * @retval      EDS__ERROR_NO_RESOURCE (@ref EDS__ERROR_NO_RESOURCE) Is returned when application
+ *              tried to add more than @ref EDS__DEFAULT_MEM_ENTRIES instances of memory allocator.
+ * @retval      EDS__ERROR_NO_MEMORY (@ref EDS__ERROR_NO_MEMORY) When a suitable allocator was found 
+ *              but its memory reserves have been depleted.
  */
 eds__error
 eds__network_create(const struct eds__network_attr * atrr, eds__network ** network);

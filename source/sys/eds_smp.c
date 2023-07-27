@@ -16,6 +16,12 @@
 #define SMP__ACTION_PUSHED_BACK             3
 #define SMP__ACTION_TRANSIT                 4
 
+/**
+ * @brief       HSM path structure
+ * 
+ * This structure contains a entry or exit path of HSM states. It is generated
+ * during the runtime when source and destination states are specified.
+ */
 struct hsm_path
 {
     eds_object__smp_state * buff[EDS_CONFIG__SMP__HSM_LEVELS];

@@ -1,3 +1,14 @@
+# User manual
+
+## Intro
+
+__Intended audience__ of this document: 
+
+* Users of the Neon Kit (informative).
+
+This document describes coding style guidelines and rules used in Neon Kit sources.
+
+
 # Abbreviations
 
 The following is the table containing abbreviations used in the API and source code:

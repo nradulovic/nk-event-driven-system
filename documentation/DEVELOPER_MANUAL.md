@@ -1,4 +1,4 @@
-# NK Development coding style
+# Developer manual
 
 ## Intro
 
@@ -10,7 +10,6 @@ __Intended audience__ of this document:
 
 This document describes coding style guidelines and rules used in Neon Kit sources.
 
-
 ## About This Guide
 
 Purpose of this style guide is to encourage use of common coding practices within the Neon Kit.
@@ -20,7 +19,6 @@ By writing code which looks the same way across the code base will help others r
 the code. By using the same conventions for spaces, newlines and indentation chances are reduced 
 that future changes will produce huge unreadable diffs. By following the common patterns for code
 structure and by using language features consistently will help others understand the code behavior.
-
 
 ## Abstract software granularity hierarchy
 
@@ -268,18 +266,7 @@ Error handling in Neon Kit is using _return value_ method.
                     
           return NK_ERROR__NONE;
       }
-# NK Development pull requests (PR)
-
-# Intro
-
-__Intended audience__ of this document: 
-
-* Developers who work on Neon Kit sources (required).
-* Testers who test Neon Kit sources (informative).
-
-This document describes the pull request use-cases.
-
-## Detailed use case
+# Development pull requests (PR)
 
 ![Pull request use-case](images/pull_request_use_case.png)
 
@@ -312,6 +299,7 @@ The Author/Reviewer(s)/Repo admin workflow is the following:
     initiate merge procedure. Once the merging is done the repository will notify __Author__.
 14. __Author__ closes the task and proceedes to delete the branch created in step 1. This step 
     completes the PR procedure.
+
 # Building HTML or PDF documentation
 
 This component uses Doxygen comments in code to build additional HTML or PDF
