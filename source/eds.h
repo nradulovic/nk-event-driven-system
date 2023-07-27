@@ -20,6 +20,11 @@
  * @defgroup    eds_intf Interface
  * @brief       Event Driven System (EDS) interface
  *
+ * This is the main interface of Event Driven System module. Application needs to include only 
+ * `eds.h` header file to use main functionality of the module.
+ * 
+ * When static allocation of object is needed, the application needs to include `eds_object.h` as
+ * well.
  * @{
  */
 
@@ -31,14 +36,13 @@
 #include <stdbool.h>
 
 /**
- * @defgroup    eds_system EDS management
- * @brief       EDS management interface.
- * @{
- */
-
-/**
  * @defgroup    eds_objects Objects
  * @brief       Objects declarations.
+ * 
+ * All object are declared as opaque structures. The creation of objects is done dynamically by
+ * `create` functions. When static instances of objects are needed the application needs to include
+ * `eds_object.h` header file to get full declaration of the objects.
+ * 
  * @{
  */
 
@@ -78,6 +82,12 @@ typedef struct eds_object__epc eds__channel;
 typedef struct eds_object__epn eds__network;
 
 /** @} */
+/**
+ * @defgroup    eds_system Management
+ * @brief       Management interface.
+ * @{
+ */
+
 /**
  * @defgroup    eds_defaults Defaults
  * @brief       Defaults interface.
@@ -274,19 +284,34 @@ typedef uint_fast8_t eds__error;
 /**
  * @brief       Convert EDS error to human readable string.
  *
- * @param       error is integer value of an EDS error. For possible values refer to @see eds_errors
- * @return      Pointer to constant string describing the error. This pointer can not be a NULL
- *              pointer. In case when error value is not recognized by the function, it will return
- *              string with text "unknown".
+ * @param       error is integer value of an EDS error. For possible values refer to @ref eds_errors
+ * @return      Pointer to constant string describing the error. In case when error value is not 
+ *              recognized by the function, it will return string with text "unknown".
+ * @post        This returned pointer shall not never be a NULL pointer.
  */
-const char*
+const char *
 eds__error_to_str(uint32_t error);
 
 /** @} */
+/**
+ * @defgroup    eds_general General
+ * @brief       General interface.
+ *
+ * @{
+ */
 
+/**
+ * @brief       Initialize Event Driven System module
+ * 
+ * This function must be the first function called from this module.
+ * 
+ * @return      Operation status.
+ * @retval      EDS__ERROR_NONE (@ref EDS__ERROR_NONE) Operation completed successfully.
+ */
 eds__error
 eds__initialize(void);
 
+/** @} */
 /**
  * @defgroup    eds_mem Memory allocator
  * @brief       Memory allocator interface.
@@ -311,13 +336,12 @@ eds__initialize(void);
  *
  * This type defines pointer to function which receives the following arguments:
  * - pointer to a context (which was supplied to @ref eds__mem_add_allocator function)
- * - size of memory block which needs to be allocated.
+ * - size of memory block in bytes which needs to be allocated.
  *
  * The method returns pointer to allocated memory section. If NULL pointer is returned then the
  * allocation memory has been depleted.
  */
-typedef void*
-(eds__mem_alloc_fn)(void*, size_t);
+typedef void * (eds__mem_alloc_fn)(void * context, size_t memory_size);
 
 /**
  * @brief       Deallocator function type.
@@ -326,25 +350,26 @@ typedef void*
  * - pointer to a context (which was supplied to @ref eds__mem_add_allocator function)
  * - pointer to a previously allocated memory by @ref eds__mem_alloc_fn function.
  */
-typedef void
-(eds__mem_dealloc_fn)(void*, void*);
+typedef void (eds__mem_dealloc_fn)(void * context, void * allocated_memory);
 
 /**
  * @brief       Add memory allocator for EDS objects creation.
  *
+ * @pre         The function @ref eds__initialize must be called before this function.
+ * 
  * This functions needs to be called before any other function from EDS package. The function will
  * store the information about available allocators. Allocators are used by create functions of EDS
  * when creating new objects. All objects used by EDS may be allocated dynamically or statically.
  * In order to create a static object use attribute structure `instance` pointer.
- *
- * If no allocators are provided EDS will not be able to create new objects and errors will be
- * returned.
  *
  * Specify for each allocator malloc/free pair how big memory partitions it can handle. This adds
  * ability to use multiple memory pools of different sizes.
  *
  * EDS can accept up to @ref EDS__DEFAULT_MEM_ENTRIES different allocators. It was shown in
  * practice that around 7 pool allocators of different sizes are needed for a typical application.
+ * 
+ * @note        If no allocators are added then EDS will not be able to create new objects and 
+ *              errors will be returned.
  *
  * @param       alloc is a pointer to function which allocates memory space. Allocator function
  *              receives the following arguments: first is the pointer to context structure, which
@@ -357,10 +382,11 @@ typedef void
  * @param       dealloc is a pointer to function which receives the context structure and the
  *              previously allocated block and it should recycle its space. This function does not
  *              need to handle NULL pointer deallocations.
- * @param       context is pointer to allocator context structure if it needed by allocator. The
+ * @param       context is pointer to allocator context structure if it is needed by allocator. The
  *              structure needs to exist the whole time while allocator functions are being used.
- * @param       max_size is maximum size of block that can be allocated and freed by allocator. In
- *              case when a pool memory is used this argument will be equal to pool  memory block
+ *              When no context is needed by allocator set this argument to NULL.
+ * @param       max_size is maximum size of block that can be allocated and freed by the allocator.
+ *              In case when a pool memory is used this argument will be equal to pool memory block
  *              size. When this argument is set to zero or SIZE_MAX value then this allocator would
  *              be used in case no other allocator satisfies required size.
  *
@@ -374,14 +400,19 @@ typedef void
  * @retval      EDS__ERROR_ALREADY_EXISTS (@ref EDS__ERROR_ALREADY_EXISTS) The allocator with
  *              @a max_size memory block was already added.
  * @retval      EDS__ERROR_NO_PERMISSION (@ref EDS__ERROR_NO_PERMISSION) The memory manager cannot
- *              accept this memory allocator because a `create` function was already called.
+ *              add any new memory allocator because a `create` function was already called. 
+ *              Application can add memory allocator only before a call to a `create` function.
+ *              After the first `create` function is called the application is forbidden to add new
+ *              memory allocators.
  */
 eds__error
-eds__mem_add_allocator(eds__mem_alloc_fn * alloc,
+eds__mem_add_allocator(
+    eds__mem_alloc_fn * alloc,
     eds__mem_dealloc_fn * dealloc,
     void * context,
     size_t max_size);
 
+/** @} */
 /** @} */
 /**
  * @defgroup    eds_event Event (EVT)
@@ -414,6 +445,8 @@ eds__mem_add_allocator(eds__mem_alloc_fn * alloc,
 /**
  * @brief       Create an event and initialize it.
  *
+ * @pre         The function @ref eds__mem_add_allocator must be called before this function.
+ * 
  * Before an event can be generated it needs to be created. This function creates a dynamic event.
  * Dynamic event are events that are allocated using a memory allocator.
  *
@@ -423,18 +456,18 @@ eds__mem_add_allocator(eds__mem_alloc_fn * alloc,
  * @param       event_data_size Some events might have some attached data. This argument specifies
  *              the size of attached data in bytes. When event does not have any data put this
  *              argument to zero.
- * @param [out] event Pointer to `eds_event *` variable. This variable will hold the pointer to
+ * @param[out]  event Pointer to `eds_event *` variable. This variable will hold the pointer to
  *              newly created event. The application might want to attach data to this event (see
- *              @ref eds_event__data function).
+ *              @ref eds__event_data function).
  * @return      Operation status.
- * @retval      EDS__ERROR_NONE Operation completed successfully.
- * @retval      EDS__ERROR_INVALID_ARGUMENT Is returned when either @a event_id is equal to zero or
- *              when @a event pointer is NULL pointer.
- * @retval      EDS__ERROR_NO_RESOURCE When no suitable allocator was found and EDS is then unable
- *              to allocate memory space for the event. To add allocators use
- *              @ref eds__add_allocator function.
- * @retval      EDS__ERROR_NO_MEMORY When a suitable allocator was found but its memory reserves
- *              have been depleted.
+ * @retval      EDS__ERROR_NONE (@ref EDS__ERROR_NONE) Operation completed successfully.
+ * @retval      EDS__ERROR_INVALID_ARGUMENT (@ref EDS__ERROR_INVALID_ARGUMENT) Is returned when 
+ *              either @a event_id is equal to zero or when @a event pointer is NULL pointer.
+ * @retval      EDS__ERROR_NO_RESOURCE (@ref EDS__ERROR_NO_RESOURCE) When no suitable allocator was 
+ *              found and EDS is then unable to allocate memory space for the event. To add 
+ *              allocators use @ref eds__mem_add_allocator function.
+ * @retval      EDS__ERROR_NO_MEMORY (@ref EDS__ERROR_NO_MEMORY) When a suitable allocator was found 
+ *              but its memory reserves have been depleted.
  */
 eds__error
 eds__event_create(uint32_t event_id, size_t event_data_size, eds__event ** event);
@@ -445,6 +478,8 @@ eds__event_create(uint32_t event_id, size_t event_data_size, eds__event ** event
  * Static event is an event which always exists. Once processed it can not be deleted. Using static
  * events is an alternative when embedded system does not allow any memory allocation.
  *
+ * @note        Static events cannot be canceled, see @ref eds__event_cancel function.
+ * @note        Do not initialize previosly initialized or created events.
  * @param       event Is a pointer to statically allocated event structure. The definition of this
  *              structure is available in `eds_object.h` header file.
  * @param       event_id Event identification number. This is a unique number which identifies an
@@ -468,15 +503,15 @@ eds__event_init(eds__event * event, uint32_t event_id, size_t event_data_size);
  * @{
  */
 /**
- * @brief       Put data into event
+ * @brief       Put data into the event
  *
- * @pre         Argument @a event must be a non-NULL pointer and pointing to a previously initialized
- *              or created event.
+ * @pre         Argument @a event must be a non-NULL pointer and pointing to a previously 
+ *              initialized (see @ref eds__event_init) or created (see @ref eds__event_create) event.
  * @param       event Pointer to event.
  * @return      Memory allocated by event where data can be put. The returned pointer will be NULL
  *              pointer if created event has been specified to have 0 bytes data.
  */
-void*
+void *
 eds__event_put_data(eds__event * event);
 
 /** @} */
@@ -487,8 +522,8 @@ eds__event_put_data(eds__event * event);
 /**
  * @brief       Get event identification number from the event.
  *
- * @pre         Argument @a event must be a non-NULL pointer and pointing to a previously initialized
- *              or created event.
+ * @pre         Argument @a event must be a non-NULL pointer and pointing to a previously 
+ *              initialized (see @ref eds__event_init) or created (see @ref eds__event_create) event.
  * @param       event Pointer to event.
  * @return      Event identification number (uint32_t).
  */
@@ -498,20 +533,20 @@ eds__event_id(const eds__event * event);
 /**
  * @brief       Get attached data from the event.
  *
- * @pre         Argument @a event must be a non-NULL pointer and pointing to a previously initialized
- *              or created event.
+ * @pre         Argument @a event must be a non-NULL pointer and pointing to a previously 
+ *              initialized (see @ref eds__event_init) or created (see @ref eds__event_create) event.
  * @param       event Pointer to event.
  * @return      Pointer to event data.
  * @retval      NULL The event has no attached data.
  */
-const void*
+const void *
 eds__event_data(const eds__event * event);
 
 /**
  * @brief       Get event attached data size from the event.
  *
- * @pre         Argument @a event must be a non-NULL pointer and pointing to a previously initialized
- *              or created event.
+ * @pre         Argument @a event must be a non-NULL pointer and pointing to a previously 
+ *              initialized (see @ref eds__event_init) or created (see @ref eds__event_create) event.
  * @param       event Pointer to event.
  * @return      Size of event attached data in bytes.
  * @retval      0 The event has no attached data.
@@ -530,13 +565,14 @@ eds__event_size(const eds__event * event);
  * Once the event is sent to an Agent, the only way to undo this action is to cancel the event. The
  * event is cancelled to all receiving Agents to which the event has been sent.
  *
+ * @note        If event is statically allocated it can not be canceled (see @ref eds__event_init)
+ *              and @ref EDS__ERROR_NO_PERMISSION error will be returned.
  * @param       event Pointer to event.
  * @return      Operation status.
  * @retval      EDS__ERROR_NONE Operation completed successfully.
  * @retval      EDS__ERROR_INVALID_ARGUMENT Is returned when @a event pointer is NULL pointer.
- * @retval      EDS__ERROR_NO_PERMISSION Is returned when event is statically allocated and that
+ * @retval      EDS__ERROR_NO_PERMISSION Is returned when the event is statically allocated and that
  *              class of events can not be canceled.
- * @note        If event is statically allocated it can not be canceled.
  */
 eds__error
 eds__event_cancel(eds__event * event);
@@ -553,8 +589,7 @@ eds__event_cancel(eds__event * event);
  * @retval      EDS__ERROR_NONE Operation completed successfully.
  * @retval      EDS__ERROR_INVALID_ARGUMENT Is returned when @a event pointer is NULL pointer.
  * @retval      EDS__ERROR_NO_PERMISSION Is returned when event is statically allocated and that
- *              class of events can not be recycled and therefore protected from it. In case static
- *              event is passed, this function will be NOP (no-operation) function.
+ *              class of events can not be recycled and therefore protected from it.
  */
 eds__error
 eds__event_keep(const eds__event * event);
@@ -571,8 +606,7 @@ eds__event_keep(const eds__event * event);
  * @retval      EDS__ERROR_NONE Operation completed successfully.
  * @retval      EDS__ERROR_INVALID_ARGUMENT Is returned when @a event pointer is NULL pointer.
  * @retval      EDS__ERROR_NO_PERMISSION Is returned when event is statically allocated and that
- *              class of events can not be recycled and therefore protected from it. In case static
- *              event is passed, this function will be NOP (no-operation) function.
+ *              class of events can not be recycled and therefore protected from it.
  */
 eds__error
 eds__event_toss(const eds__event * event);
@@ -829,11 +863,11 @@ struct eds__agent_attr
 /**
  * @brief       Create and initialize an agent (Event Processing Agent).
  *
- * @param[in]   sm_initial_state Pointer to initial state function of state machine.
- * @param[in]   sm_workspace Pointer to an allocated memory space reserved for state machine
+ * @param       sm_initial_state Pointer to initial state function of state machine.
+ * @param       sm_workspace Pointer to an allocated memory space reserved for state machine
  *              operation. Use this argument to pass pointer to structure instances which then can
  *              be used by state machine code.
- * @param[in]   attr Use @a attr pointer to pass attribute structure. Use attribute structure to
+ * @param       attr Use @a attr pointer to pass attribute structure. Use attribute structure to
  *              customize agent instance. Pass NULL pointer to use defaults specified in
  *              @ref eds_defaults.
  * @param[out]  agent Pointer to pointer to agent. The pointer to agent will be filled after
@@ -853,14 +887,15 @@ struct eds__agent_attr
  *              have been depleted.
  */
 eds__error
-eds__agent_create(eds__sm_state * sm_initial_state,
+eds__agent_create(
+    eds__sm_state * sm_initial_state,
     void * sm_workspace,
     const struct eds__agent_attr * attr,
     eds__agent ** agent);
 
 /**
  * @brief       Delete the agent.
- * @param[in]   agent Pointer to agent instance.
+ * @param       agent Pointer to agent instance.
  * @return      Operation status.
  * @retval      EDS__ERROR_NONE Operation completed successfully.
  * @retval      EDS__ERROR_INVALID_ARGUMENT Is returned when @a agent pointer is NULL pointer.
@@ -873,8 +908,8 @@ eds__agent_delete(eds__agent * agent);
 
 /**
  * @brief       Send the event to the agent.
- * @param[in]   agent Pointer to agent instance.
- * @param[in]   event Pointer to event instance which will be sent to the @a agent.
+ * @param       agent Pointer to agent instance.
+ * @param       event Pointer to event instance which will be sent to the @a agent.
  * @return      Operation status.
  * @retval      EDS__ERROR_NONE Operation completed successfully.
  * @retval      EDS__ERROR_INVALID_ARGUMENT Is returned when @a agent or @a event pointer is NULL
@@ -888,7 +923,7 @@ eds__agent_send(eds__agent * agent, const eds__event * event);
 
 /**
  * @brief       Get agent instance from state machine instance.
- * @param[in]   sm Pointer to state machine instance.
+ * @param       sm Pointer to state machine instance.
  * @return      Pointer to agent instance containing the state machine.
  * @pre         Argument @a sm must be a non-NULL pointer and pointing to a previously initialized
  *              instance of state machine.
@@ -980,11 +1015,11 @@ struct eds__etimer_attr
 
 /**
  * @brief       Create an event timer.
- * @param[in]	sm State machine which will receive the event.
+ * @param    	sm State machine which will receive the event.
  * @param       event_id Event identification number. This is a unique number which identifies an
  *              event. Event identifiers are usually handled by enumerations. It is application
  *              responsibility to allocate unique numbers for each event.
- * @param[in]   attr Use @a attr pointer to pass attribute structure. Use attribute structure to
+ * @param       attr Use @a attr pointer to pass attribute structure. Use attribute structure to
  *              customize event timer instance. Pass NULL pointer to use defaults specified in
  *              @ref eds_defaults.
  * @param[out]  etimer Pointer to pointer to event timer. The pointer to event timer will be filled
@@ -992,7 +1027,7 @@ struct eds__etimer_attr
  * @return      Operation status.
  * @retval      EDS__ERROR_NONE Operation completed successfully.
  * @retval      EDS__ERROR_INVALID_ARGUMENT Is returned when @a etimer or @a sm pointer is NULL 
- * 		pointer.
+ * 		        pointer.
  * @retval      EDS__ERROR_NO_RESOURCE When no suitable allocator was found and EDS is then unable
  *              to allocate memory space for the agent. To add allocators use
  *              @ref eds__add_allocator function.
@@ -1008,7 +1043,7 @@ eds__etimer_create(
 
 /**
  * @brief       Delete an event timer.
- * @param[in]   etimer Pointer to previously created event timer instance.
+ * @param       etimer Pointer to previously created event timer instance.
  * @return      Operation status.
  * @retval      EDS__ERROR_NONE Operation completed successfully.
  * @retval      EDS__ERROR_INVALID_ARGUMENT Is returned when @a etimer pointer is NULL pointer.
@@ -1018,7 +1053,7 @@ eds__etimer_delete(eds__etimer * etimer);
 
 /**
  * @brief       Send @a event to @a agent using @a etimer after @a after_ms milliseconds.
- * @param[in]   etimer Pointer to previously initialized event timer instance which will be used
+ * @param       etimer Pointer to previously initialized event timer instance which will be used
  *              for time keeping.
  * @param       after_ms After this many milliseconds send @a event to @a agent.
  * @return      Operation status.
@@ -1037,7 +1072,7 @@ eds__etimer_send_after(eds__etimer * etimer, uint32_t after_ms);
 
 /**
  * @brief       Send @a event to @a agent using @a etimer every @a after_ms milliseconds.
- * @param[in]   etimer Pointer to previously initialized event timer instance which will be used
+ * @param       etimer Pointer to previously initialized event timer instance which will be used
  *              for time keeping.
  * @param       after_ms After this many milliseconds send @a event to @a agent.
  * @return      Operation status.
@@ -1056,7 +1091,7 @@ eds__etimer_send_every(eds__etimer * etimer, uint32_t every_ms);
 
 /**
  * @brief       Cancel (stop) a running timer.
- * @param[in]   etimer Pointer to previously initialized event timer instance which needs to be
+ * @param       etimer Pointer to previously initialized event timer instance which needs to be
  *              canceled if it is running.
  * @return      Operation status.
  * @retval      EDS__ERROR_NONE Operation completed successfully.
