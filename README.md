@@ -102,7 +102,6 @@ Lets say that we have a firmware application called `application_1` with the fol
 3. The portable definition is located in `firmware/application_1/lib/neon-kit/eds/portable/gcc-any-any-freertos`. 
 
 With this setup we would need the following additional include paths:
-- `firmware/application_1/lib/neon-kit`
 - `firmware/application_1/lib/neon-kit/eds/source`
 - `firmware/application_1/lib/neon-kit/eds/portable/gcc-any-any-freertos`
 
