@@ -23,6 +23,8 @@ The following is the table containing abbreviations used in the API and source c
   | invalid                    | invld        |
   | illegal                    | ilgl         |
   | attribute                  | attr         |
+
+
 # Application development
 
 This document describes a typical application development cycle and how are Nano Kernel options 
