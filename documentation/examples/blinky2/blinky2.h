@@ -1,6 +1,7 @@
 #ifndef BLINKY2_H_
 #define BLINKY2_H_
 
+#include <stdint.h>
 #include "eds.h"
 
 struct blinky2_workspace

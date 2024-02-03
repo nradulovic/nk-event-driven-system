@@ -28,6 +28,10 @@
 /* Include NK EDS API integral types */
 #include "eds.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @brief       Vector object
  * @note        All members of this structure are private.
@@ -243,6 +247,10 @@ struct eds_object__epn
     struct eds_object__mem * p__mem;            //!< Memory allocator reference.
     const struct eds__network_attr * p__attr;   //!< Attributes of the network.
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* NEON_KIT_GENERIC_SOURCE_NK_EDS_OBJECT_H_ */
 /** @} */

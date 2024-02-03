@@ -8,4 +8,4 @@ struct eds_object__list eds_state__epn_instances = EDS_CORE__LIST_INITIALIZER(&e
 struct eds_object__vector eds_state__mem_instances = EDS_CORE__VECTOR__INITIALIZER(mem__instances_storage);
 struct eds_object__tmr_sentinel eds_state__tmr_sentinel;
 bool eds_state__has_started = false;
-bool eds_state__is_port_initialized = false;
+bool eds_state__is_eds_initialized = false;

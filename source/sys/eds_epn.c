@@ -127,10 +127,11 @@ eds_epn__pre_loop(struct eds_object__epn * epn)
     EDS_PORT__CRITICAL_INSTANCE(critical);
     
     EDS_PORT__CRITICAL_LOCK(&critical);
-    if (eds_state__is_port_initialized == false) {
-        eds_state__is_port_initialized = true;
+    if (eds_state__is_eds_initialized == false) {
+        eds_state__is_eds_initialized = true;
         EDS_PORT__CRITICAL_UNLOCK(&critical);
         eds_port__init();
+        eds_etm_service__init();
         EDS_PORT__CRITICAL_LOCK(&critical);
     }
     eds_core__list_add_after(&epn->p__list, &eds_state__epn_instances);

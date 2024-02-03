@@ -35,6 +35,10 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @defgroup    eds_objects Objects
  * @brief       Objects declarations.
@@ -291,25 +295,6 @@ typedef uint_fast8_t eds__error;
  */
 const char *
 eds__error_to_str(uint32_t error);
-
-/** @} */
-/**
- * @defgroup    eds_general General
- * @brief       General interface.
- *
- * @{
- */
-
-/**
- * @brief       Initialize Event Driven System module
- * 
- * This function must be the first function called from this module.
- * 
- * @return      Operation status.
- * @retval      EDS__ERROR_NONE (@ref EDS__ERROR_NONE) Operation completed successfully.
- */
-eds__error
-eds__initialize(void);
 
 /** @} */
 /**
@@ -1271,6 +1256,10 @@ eds__network_stop(eds__network * network);
  */
 eds__error
 eds__network_name(eds__network * network, const char ** name);
+
+#ifdef __cplusplus
+}
+#endif
 
 /** @} */
 #endif /* NEON_KIT_GENERIC_SOURCE_NK_EDS_H_ */

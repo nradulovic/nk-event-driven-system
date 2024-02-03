@@ -19,6 +19,8 @@
 #define EDS_PORT__GLOBAL_CRITICAL           0
 #endif
 
+struct eds_port__critical;
+
 #if (EDS_PORT__GLOBAL_CRITICAL == 1)
 
 extern struct eds_port__critical eds_port__global_critical;
@@ -32,7 +34,6 @@ extern struct eds_port__critical eds_port__global_critical;
 #define EDS_PORT__CRITICAL_UNLOCK(name)		eds_port__critical_unlock(name)
 #endif /* !(EDS_PORT__GLOBAL_CRITICAL == 1) */
 
-struct eds_port__critical;
 
 void
 eds_port__critical_lock(struct eds_port__critical * critical);
@@ -93,9 +94,6 @@ eds_port__ffs(uint32_t value);
 #define EDS_PORT__ALIGN_UP(size) \
     (((size) + sizeof(void *) - 1u) & ~(sizeof(void *) - 1u))
 #endif
-
-uint32_t
-eds_port__tick_duration_ms(void);
 
 uint32_t
 eds_port__tick_from_ms(uint32_t ms);

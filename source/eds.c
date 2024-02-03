@@ -40,12 +40,3 @@ eds__error_to_str(uint32_t error)
         return "unknown";
     }
 }
-
-eds__error
-eds__initialize(void)
-{
-    eds_port__init();
-    eds_etm_service__init();
-
-    return EDS__ERROR_NONE;
-}

@@ -12,6 +12,10 @@
 
 #include "eds_object.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define EDS_CORE__ASSUME(expr)              do { if (!(expr)) __builtin_unreachable(); } while (0)
 
 /** @brief      Determines the first dimension of an array.
@@ -175,7 +179,11 @@ eds_core__vector_n_size(const struct eds_object__vector * self)
 {
     return self->p__n_size;
 }
-
+inline bool
+foundation__vector_is_full(const struct eds_object__vector * self)
+{
+    return (self->p__n_entries == self->p__n_size);
+}
 inline bool
 eds_core__vector_is_full(const struct eds_object__vector * self)
 {
@@ -260,5 +268,9 @@ eds_core__tasker_highest(const struct eds_object__tasker * self);
 
 bool
 eds_core__tasker_is_running(const struct eds_object__tasker * self);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* NEON_KIT_GENERIC_SOURCE_NK_EDS_CORE_H_ */

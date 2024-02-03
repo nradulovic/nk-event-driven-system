@@ -1,6 +1,8 @@
 idf_component_register(
     SRCS 
-        "../../../documentation/examples/blinky/blinky.c" 
+        "../../../documentation/examples/blinky/main.c"
+        "../../../documentation/examples/blinky/blinky.c"
+        "../../../documentation/examples/blinky/std_allocator.c" 
     INCLUDE_DIRS 
         "../../../documentation/examples/blinky" 
     REQUIRES 

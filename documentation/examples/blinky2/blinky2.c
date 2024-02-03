@@ -1,8 +1,11 @@
 
+/* Implements */
 #include "blinky2.h"
 
+/* Depends */
 #include <stdio.h>
 #include <stdarg.h>
+#include <assert.h>
 #include <time.h>
 
 #define PRI_UINT32 "%lu"

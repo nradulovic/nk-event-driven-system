@@ -1,5 +1,6 @@
 # 3.0.6
 - Refactor: simpler timer usage
+- Refactor: simpler portable system
 
 # 3.0.5
 - Add ESP-IDF build support.

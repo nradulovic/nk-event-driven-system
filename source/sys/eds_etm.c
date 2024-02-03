@@ -195,7 +195,7 @@ eds__etimer_send_after(eds__etimer * etimer, uint32_t after_ms)
         EDS_TRACE__EXIT(EDS_TRACE__SOURCE_ETIMER_SEND_AFTER, EDS__ERROR_INVALID_ARGUMENT, "etimer, agent = (%p, %p)", etimer, agent);
         return EDS__ERROR_INVALID_ARGUMENT;
     }
-    if (after_ms < eds_port__tick_duration_ms()) {
+    if (eds_port__tick_from_ms(after_ms) == 0u) {
         return EDS__ERROR_OUT_OF_RANGE;
     }
     EDS_PORT__CRITICAL_LOCK(&critical);
@@ -214,7 +214,7 @@ eds__etimer_send_every(eds__etimer * etimer, uint32_t every_ms)
     if (etimer == NULL) {
         return EDS__ERROR_INVALID_ARGUMENT;
     }
-    if (every_ms < eds_port__tick_duration_ms()) {
+    if (eds_port__tick_from_ms(every_ms) == 0u) {
         return EDS__ERROR_OUT_OF_RANGE;
     }
     EDS_PORT__CRITICAL_LOCK(&critical);

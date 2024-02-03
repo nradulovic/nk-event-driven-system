@@ -22,13 +22,14 @@
 #include <signal.h>
 #include <sys/time.h>
 
-static pthread_mutex_t s__critical_mutex;
+struct eds_port__critical eds_port__global_critical;
 
 struct tick_context
 {
     struct sigaction sigaction;
     pthread_t timer_thread;
     sem_t timer_lock;
+    void (* timer_cb)(void);
 };
 
 static struct tick_context tick;
@@ -46,7 +47,7 @@ critical_mutex_init(void)
     assert(error == 0);
     error = pthread_mutexattr_settype(&mutextattr, PTHREAD_MUTEX_RECURSIVE);
     assert(error == 0);
-    error = pthread_mutex_init(&s__critical_mutex, &mutextattr);
+    error = pthread_mutex_init(&eds_port__global_critical.mutex, &mutextattr);
     assert(error == 0);
 }
 
@@ -66,38 +67,35 @@ tick_thread(void * arg)
     (void)arg;
 
     for (;;) {
-        eds__error error;
-
         sem_wait(&tick.timer_lock);
-        error = eds__tick_process_all();
-        assert(error == EDS__ERROR_NONE);
+        tick.timer_cb();
     }
     return NULL;
 }
 
 void
-eds_port__critical_local_lock(struct eds_port__critical_local * critical)
+eds_port__critical_lock(struct eds_port__critical * critical)
 {
     int error;
 
     (void)critical;
-    error = pthread_mutex_lock(&s__critical_mutex);
+    error = pthread_mutex_lock(&eds_port__global_critical.mutex);
     assert(error == 0);
 }
 
 void
-eds_port__critical_local_unlock(struct eds_port__critical_local * critical)
+eds_port__critical_unlock(struct eds_port__critical * critical)
 {
     int error;
 
     (void)critical;
-    error = pthread_mutex_unlock(&s__critical_mutex);
+    error = pthread_mutex_unlock(&eds_port__global_critical.mutex);
     assert(error == 0);
 }
 
 
 void
-eds_port__sleep_local_init(struct eds_port__sleep_local * sleep)
+eds_port__sleep_init(struct eds_port__sleep * sleep)
 {
     int error;
 
@@ -106,7 +104,7 @@ eds_port__sleep_local_init(struct eds_port__sleep_local * sleep)
 }
 
 void
-eds_port__sleep_local_wait(struct eds_port__sleep_local * sleep)
+eds_port__sleep_wait(struct eds_port__sleep * sleep)
 {
     int error;
 
@@ -115,7 +113,7 @@ eds_port__sleep_local_wait(struct eds_port__sleep_local * sleep)
 }
 
 void
-eds_port__sleep_local_signal(struct eds_port__sleep_local * sleep)
+eds_port__sleep_signal(struct eds_port__sleep * sleep)
 {
     int error;
 
@@ -136,23 +134,17 @@ eds_port__align_up(size_t non_aligned_value)
 }
 
 uint32_t
-eds_port__tick_duration_ms(void)
-{
-    return 1u;
-}
-
-uint32_t
 eds_port__tick_from_ms(uint32_t ms)
 {
     return ms;
 }
 
 void
-eds_port__timer_set_cb(struct eds_port__timer * timer)
+eds_port__timer_set_cb(void (* timer_cb)(void))
 {
     int error;
 
-    (void)timer;
+    tick.timer_cb = timer_cb;
     tick.sigaction.sa_handler = &timer_handler;
 
     error = sem_init(&tick.timer_lock, 0, 0);
@@ -165,12 +157,10 @@ eds_port__timer_set_cb(struct eds_port__timer * timer)
 }
 
 void
-eds_port__timer_start(struct eds_port__timer * timer)
+eds_port__timer_start(void)
 {
     struct itimerval timerval;
     int error;
-
-    (void)timer;
 
     timerval.it_value.tv_sec = 0;
     timerval.it_value.tv_usec = 1000;
@@ -182,12 +172,10 @@ eds_port__timer_start(struct eds_port__timer * timer)
 }
 
 void
-eds_port__timer_stop(struct eds_port__timer * timer)
+eds_port__timer_stop(void)
 {
     struct itimerval timerval;
     int error;
-
-    (void)timer;
 
     timerval.it_value.tv_sec = 0;
     timerval.it_value.tv_usec = 0;
