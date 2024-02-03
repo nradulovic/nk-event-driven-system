@@ -1,6 +1,8 @@
 # 3.0.6
-- Refactor: simpler timer usage
-- Refactor: simpler portable system
+- Refactor: Simpler timer usage.
+- Refactor: Simpler portable system.
+- Unit-tests: Using Meson build system.
+- Unit-tests: Using Google Test and Google Mock frameworks.
 
 # 3.0.5
 - Add ESP-IDF build support.
