@@ -190,7 +190,7 @@ typedef struct eds_object__epn eds__network;
  * * The minor number is located on bit positions [15 - 8].
  * * The patch number is located on bit positions [7 - 0].
  */
-#define EDS__VERSION                        0x030006
+#define EDS__VERSION                        0x030005
 
 /** @} */
 /**

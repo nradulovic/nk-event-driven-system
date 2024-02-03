@@ -5,11 +5,6 @@
  *      Author: nenad
  */
 #include "eds.h"
-#include "eds_object.h"
-#include "eds_port.h"
-#include "sys/eds_etm.h"
-#include "sys/eds_core.h"
-#include "sys/eds_state.h"
 
 const char*
 eds__error_to_str(uint32_t error)
