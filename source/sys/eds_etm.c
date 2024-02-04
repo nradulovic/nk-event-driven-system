@@ -46,16 +46,14 @@ etm_create(
     struct eds_object__etm * l_etm;
 
     if (attr->static_instance == NULL) {
-    EDS_PORT__CRITICAL_INSTANCE(critical);
-
         mem = eds_mem__find(&eds_state__mem_instances, sizeof(*l_etm));
         if (mem == NULL) {
             EDS_TRACE__EXIT(EDS_TRACE__SOURCE_ETIMER_CREATE, EDS__ERROR_NO_RESOURCE, "%u", sizeof(*l_etm));
             return EDS__ERROR_NO_RESOURCE;
         }
-        EDS_PORT__CRITICAL_LOCK(&critical);
+        eds_port__critical_lock();
         l_etm = eds_mem__allocate_from(mem, sizeof(*l_etm));
-        EDS_PORT__CRITICAL_UNLOCK(&critical);
+        eds_port__critical_unlock();
         if (l_etm == NULL) {
             EDS_TRACE__EXIT(EDS_TRACE__SOURCE_ETIMER_CREATE, EDS__ERROR_NO_MEMORY, "%u from %p", sizeof(*l_etm), mem);
             return EDS__ERROR_NO_MEMORY;
@@ -76,12 +74,10 @@ etm_create(
 static eds__error
 etm_delete(eds__etimer * etimer)
 {
-    EDS_PORT__CRITICAL_INSTANCE(critical);
-
     if (etimer->p__mem != NULL) {
-        EDS_PORT__CRITICAL_LOCK(&critical);
+    	eds_port__critical_lock();
         eds_mem__deallocate_to(etimer->p__mem, etimer);
-        EDS_PORT__CRITICAL_UNLOCK(&critical);
+        eds_port__critical_unlock();
     }
     return EDS__ERROR_NONE;
 }
@@ -188,7 +184,6 @@ eds__etimer_delete(eds__etimer * etimer)
 eds__error
 eds__etimer_send_after(eds__etimer * etimer, uint32_t after_ms)
 {
-    EDS_PORT__CRITICAL_INSTANCE(critical);
     eds__error error;
 
     if (etimer == NULL) {
@@ -198,9 +193,9 @@ eds__etimer_send_after(eds__etimer * etimer, uint32_t after_ms)
     if (eds_port__tick_from_ms(after_ms) == 0u) {
         return EDS__ERROR_OUT_OF_RANGE;
     }
-    EDS_PORT__CRITICAL_LOCK(&critical);
+    eds_port__critical_lock();
     error = etm_start_after(etimer, after_ms);
-    EDS_PORT__CRITICAL_UNLOCK(&critical);
+    eds_port__critical_unlock();
     EDS_TRACE__EXIT(EDS_TRACE__SOURCE_ETIMER_SEND_AFTER, EDS__ERROR_NONE, "etimer, agent, event_id, after_ms = (%p, %p, %u, %u)", etimer, agent, event_id, after_ms);
     return error;
 }
@@ -208,7 +203,6 @@ eds__etimer_send_after(eds__etimer * etimer, uint32_t after_ms)
 eds__error
 eds__etimer_send_every(eds__etimer * etimer, uint32_t every_ms)
 {
-    EDS_PORT__CRITICAL_INSTANCE(critical);
     eds__error error;
 
     if (etimer == NULL) {
@@ -217,9 +211,9 @@ eds__etimer_send_every(eds__etimer * etimer, uint32_t every_ms)
     if (eds_port__tick_from_ms(every_ms) == 0u) {
         return EDS__ERROR_OUT_OF_RANGE;
     }
-    EDS_PORT__CRITICAL_LOCK(&critical);
+    eds_port__critical_lock();
     error = etm_start_every(etimer, every_ms);
-    EDS_PORT__CRITICAL_UNLOCK(&critical);
+    eds_port__critical_unlock();
     EDS_TRACE__EXIT(EDS_TRACE__SOURCE_ETIMER_SEND_AFTER, EDS__ERROR_NONE, "etimer, agent, event_id, every_ms = (%p, %p, %u, %u)", etimer, agent, event_id, every_ms);
     return error;
 }
@@ -227,15 +221,14 @@ eds__etimer_send_every(eds__etimer * etimer, uint32_t every_ms)
 eds__error
 eds__etimer_cancel(eds__etimer * etimer)
 {
-    EDS_PORT__CRITICAL_INSTANCE(critical);
     eds__error error;
 
     if (etimer == NULL) {
         return EDS__ERROR_INVALID_ARGUMENT;
     }
-    EDS_PORT__CRITICAL_LOCK(&critical);
+    eds_port__critical_lock();
     error = etm_cancel(etimer);
-    EDS_PORT__CRITICAL_UNLOCK(&critical);
+    eds_port__critical_unlock();
     EDS_TRACE__EXIT(EDS_TRACE__SOURCE_ETIMER_CANCEL, error, "etimer = (%p)", etimer);
     return error;
 }

@@ -10,19 +10,14 @@
 #endif
 
 #include "eds_port.h"
-#include "eds.h"
 
 #include <semaphore.h>
 #include <pthread.h>
 #include <assert.h>
 #include <errno.h>
 #include <unistd.h>
-#include <pthread.h>
-#include <semaphore.h>
 #include <signal.h>
 #include <sys/time.h>
-
-struct eds_port__critical eds_port__global_critical;
 
 struct tick_context
 {
@@ -32,10 +27,9 @@ struct tick_context
     void (* timer_cb)(void);
 };
 
-static struct tick_context tick;
+static pthread_mutex_t critical;
 
-#define ALIGN_UP(num, align)                                       \
-        (((num) + (align) - 1u) & ~((align) - 1u))
+static struct tick_context tick;
 
 static void
 critical_mutex_init(void)
@@ -47,7 +41,7 @@ critical_mutex_init(void)
     assert(error == 0);
     error = pthread_mutexattr_settype(&mutextattr, PTHREAD_MUTEX_RECURSIVE);
     assert(error == 0);
-    error = pthread_mutex_init(&eds_port__global_critical.mutex, &mutextattr);
+    error = pthread_mutex_init(&critical, &mutextattr);
     assert(error == 0);
 }
 
@@ -74,22 +68,20 @@ tick_thread(void * arg)
 }
 
 void
-eds_port__critical_lock(struct eds_port__critical * critical)
+eds_port__critical_lock(void)
 {
     int error;
 
-    (void)critical;
-    error = pthread_mutex_lock(&eds_port__global_critical.mutex);
+    error = pthread_mutex_lock(&critical);
     assert(error == 0);
 }
 
 void
-eds_port__critical_unlock(struct eds_port__critical * critical)
+eds_port__critical_unlock(void)
 {
     int error;
 
-    (void)critical;
-    error = pthread_mutex_unlock(&eds_port__global_critical.mutex);
+    error = pthread_mutex_unlock(&critical);
     assert(error == 0);
 }
 
@@ -127,12 +119,6 @@ eds_port__ffs(uint32_t value)
     return (uint_fast8_t)(31u - (unsigned)__builtin_clz(value));
 }
 
-size_t
-eds_port__align_up(size_t non_aligned_value)
-{
-    return ALIGN_UP(non_aligned_value, sizeof(void*));
-}
-
 uint32_t
 eds_port__tick_from_ms(uint32_t ms)
 {
@@ -153,7 +139,6 @@ eds_port__timer_set_cb(void (* timer_cb)(void))
     assert(error == 0);
     error = sigaction(SIGALRM, &tick.sigaction, NULL);
     assert(error == 0);
-
 }
 
 void

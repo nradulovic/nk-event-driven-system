@@ -13,51 +13,15 @@
 
 #include "eds_port/eds_port_definition.h"
 
-#if defined(EDS_PORT__USE_GLOBAL_CRITICAL)
-#define EDS_PORT__GLOBAL_CRITICAL           1
-#else
-#define EDS_PORT__GLOBAL_CRITICAL           0
+#if !defined(EDS_PORT__USE_GLOBAL_SLEEP) || \
+	((EDS_PORT__USE_GLOBAL_SLEEP != 0) && (EDS_PORT__USE_GLOBAL_SLEEP != 1))
+#error "EDS port definition (eds_port_definition.h) needs to define EDS_PORT__USE_GLOBAL_SLEEP to 0 or 1"
 #endif
 
-struct eds_port__critical;
-
-#if (EDS_PORT__GLOBAL_CRITICAL == 1)
-
-extern struct eds_port__critical eds_port__global_critical;
-
-#define EDS_PORT__CRITICAL_INSTANCE(name)	(void)0
-#define EDS_PORT__CRITICAL_LOCK(name)		eds_port__critical_lock(&eds_port__global_critical)
-#define EDS_PORT__CRITICAL_UNLOCK(name)		eds_port__critical_unlock(&eds_port__global_critical)
-#else /* (EDS_PORT__GLOBAL_CRITICAL == 1) */
-#define EDS_PORT__CRITICAL_INSTANCE(name)	struct eds_port__critical name
-#define EDS_PORT__CRITICAL_LOCK(name)		eds_port__critical_lock(name)
-#define EDS_PORT__CRITICAL_UNLOCK(name)		eds_port__critical_unlock(name)
-#endif /* !(EDS_PORT__GLOBAL_CRITICAL == 1) */
-
-
 void
-eds_port__critical_lock(struct eds_port__critical * critical);
+eds_port__critical_lock(void);
 void
-eds_port__critical_unlock(struct eds_port__critical * critical);
-
-#if defined(EDS_PORT__USE_GLOBAL_SLEEP)
-#define EDS_PORT__GLOBAL_SLEEP		        1
-#else
-#define EDS_PORT__GLOBAL_SLEEP		        0
-#endif
-
-#if (EDS_PORT__GLOBAL_SLEEP == 1)
-
-extern struct eds_port__sleep eds_port__global_sleep;
-
-#define EDS_PORT__SLEEP_INIT(instance)      eds_port__sleep_init(&eds_port__global_sleep)
-#define EDS_PORT__SLEEP_WAIT(instance)      eds_port__sleep_wait(&eds_port__global_sleep)
-#define EDS_PORT__SLEEP_SIGNAL(instance)    eds_port__sleep_signal(&eds_port__global_sleep)
-#else /* (EDS_PORT__GLOBAL_SLEEP == 1) */
-#define EDS_PORT__SLEEP_INIT(instance)      eds_port__sleep_init(instance)
-#define EDS_PORT__SLEEP_WAIT(instance)      eds_port__sleep_wait(instance)
-#define EDS_PORT__SLEEP_SIGNAL(instance)    eds_port__sleep_signal(instance)
-#endif /* !(EDS_PORT__GLOBAL_SLEEP == 1) */
+eds_port__critical_unlock(void);
 
 struct eds_port__sleep;
 
@@ -68,15 +32,11 @@ eds_port__sleep_wait(struct eds_port__sleep * sleep);
 void
 eds_port__sleep_signal(struct eds_port__sleep * sleep);
 
-#if !defined(EDS_PORT__USE_TICKLESS_TIMER)
-#define EDS_PORT__USE_TICK_TIMER
-#endif
+#if (EDS_PORT__USE_GLOBAL_SLEEP == 1)
 
-#if defined(EDS_PORT__USE_GLOBAL_TIMER)
-#define EDS_PORT__USE_LOCAL_TIMER           0
-#else
-#define EDS_PORT__USE_LOCAL_TIMER           1
-#endif
+extern struct eds_port__sleep eds_port__global_sleep;
+
+#endif /* !(EDS_PORT__USE_GLOBAL_SLEEP == 0) */
 
 void
 eds_port__timer_set_cb(void (* callback)(void));

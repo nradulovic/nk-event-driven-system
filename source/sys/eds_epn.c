@@ -10,7 +10,6 @@
 static eds__error
 eds_epn__allocate(const struct eds__network_attr * attr, struct eds_object__epn ** epn, struct eds_object__mem ** mem)
 {
-    EDS_PORT__CRITICAL_INSTANCE(critical);
     struct eds_object__epn * l_epn;
     struct eds_object__mem * l_mem;
 
@@ -18,9 +17,9 @@ eds_epn__allocate(const struct eds__network_attr * attr, struct eds_object__epn 
     if (l_mem == NULL) {
         return EDS__ERROR_NO_RESOURCE;
     }
-    EDS_PORT__CRITICAL_LOCK(&critical);
+    eds_port__critical_lock();
     l_epn = eds_mem__allocate_from(l_mem, sizeof(*l_epn));
-    EDS_PORT__CRITICAL_UNLOCK(&critical);
+    eds_port__critical_unlock();
     if (l_epn == NULL) {
         return EDS__ERROR_NO_MEMORY;
     }
@@ -34,7 +33,9 @@ eds_epn__initialize(struct eds_object__epn * epn, struct eds_object__mem * mem, 
 {
     eds_core__list_init(&epn->p__list);
     eds_core__tasker_init(&epn->p__tasker);
-    EDS_PORT__SLEEP_INIT(&epn->p__sleep);
+#if (EDS_PORT__USE_GLOBAL_SLEEP == 0)
+    eds_port__sleep_init(&epn->p__sleep);
+#endif
     epn->p__should_run = true;
     epn->p__mem = mem;
     epn->p__attr = attr;
@@ -73,15 +74,13 @@ eds_epn__create(const struct eds__network_attr * attr, struct eds_object__epn **
 static eds__error
 eds_epn__delete(struct eds_object__epn * epn)
 {
-    EDS_PORT__CRITICAL_INSTANCE(critical);
-    
     if (epn->p__mem == NULL) {
         return EDS__ERROR_NO_PERMISSION;
     }
-    EDS_PORT__CRITICAL_LOCK(&critical);
+    eds_port__critical_lock();
     // TODO: Delete all associated EPAs
     eds_mem__deallocate_to(epn->p__mem, epn);
-    EDS_PORT__CRITICAL_UNLOCK(&critical);
+    eds_port__critical_unlock();
     
     return EDS__ERROR_NONE;
 }
@@ -89,62 +88,58 @@ eds_epn__delete(struct eds_object__epn * epn)
 static eds__error
 eds_epn__add_agent(struct eds_object__epn * epn, struct eds_object__epa * epa)
 {
-    EDS_PORT__CRITICAL_INSTANCE(critical);
     eds__error error;
     
-    EDS_PORT__CRITICAL_LOCK(&critical);
+    eds_port__critical_lock();
     if (eds_epa__is_designated(epa) == true) {
-        EDS_PORT__CRITICAL_UNLOCK(&critical);
+        eds_port__critical_unlock();
         return EDS__ERROR_ALREADY_EXISTS;
     }
     eds_epa__designate(epa, epn);
     error = eds_epa__send_initial_event(epa);
     // TODO: Add EPA to EPN list
-    EDS_PORT__CRITICAL_UNLOCK(&critical);
+    eds_port__critical_unlock();
     return error;
 }
 
 static eds__error
 eds_epn__remove_agent(struct eds_object__epn * epn, struct eds_object__epa * epa)
 {
-    EDS_PORT__CRITICAL_INSTANCE(critical);
-
-    EDS_PORT__CRITICAL_LOCK(&critical);
+	eds_port__critical_lock();
     if (eds_epa__is_designated(epa) == false) {
-        EDS_PORT__CRITICAL_UNLOCK(&critical);
+    	eds_port__critical_unlock();
         return EDS__ERROR_NOT_EXISTS;
     }
     eds_etm_service__delete_all(epa);
     eds_epa__flush_events(epa);
     eds_epa__designate(epa, NULL);
-    EDS_PORT__CRITICAL_UNLOCK(&critical);
+    eds_port__critical_unlock();
     return EDS__ERROR_NONE;
 }
 
 static void
 eds_epn__pre_loop(struct eds_object__epn * epn)
 {
-    EDS_PORT__CRITICAL_INSTANCE(critical);
-    
-    EDS_PORT__CRITICAL_LOCK(&critical);
+	eds_port__critical_lock();
     if (eds_state__is_eds_initialized == false) {
         eds_state__is_eds_initialized = true;
-        EDS_PORT__CRITICAL_UNLOCK(&critical);
+        eds_port__critical_unlock();
         eds_port__init();
         eds_etm_service__init();
-        EDS_PORT__CRITICAL_LOCK(&critical);
+#if (EDS_PORT__USE_GLOBAL_SLEEP == 1)
+        eds_port__sleep_init(&eds_port__global_sleep);
+#endif
+        eds_port__critical_lock();
     }
     eds_core__list_add_after(&epn->p__list, &eds_state__epn_instances);
-    EDS_PORT__CRITICAL_UNLOCK(&critical);
+    eds_port__critical_unlock();
 }
 
 static eds__error
 eds_epn__loop(struct eds_object__epn * epn)
 {
     while (epn->p__should_run) {
-        EDS_PORT__CRITICAL_INSTANCE(critical);
-        
-        EDS_PORT__CRITICAL_LOCK(&critical);
+    	eds_port__critical_lock();
         struct eds_object__tasker_node * tasker_node;
 
         while ((tasker_node = eds_core__tasker_highest(&epn->p__tasker)) != NULL) {
@@ -152,23 +147,23 @@ eds_epn__loop(struct eds_object__epn * epn)
             struct eds_object__epa * epa;
 
             epa = eds_epa__from_tasker_node(tasker_node);
-#if (EDS_PORT__GLOBAL_CRITICAL == 1)
             error = eds_epa__dispatch(epa);
-#else
-            error = eds_epa__dispatch(epa, &critical);
-#endif
             if (error != EDS__ERROR_NONE) {
-                EDS_PORT__CRITICAL_UNLOCK(&critical);
+            	eds_port__critical_unlock();
                 return error;
             }
         }
-        EDS_PORT__CRITICAL_UNLOCK(&critical);
+        eds_port__critical_unlock();
 #if (EDS_CONFIG__NETWORK__ENABLE_CALLBACKS == 1)
         if (epn->p__attr->cb_to_idle != NULL) {
             epn->p__attr->cb_to_idle(epn, epn->p__attr->cb_arg);
         }
 #endif
-        EDS_PORT__SLEEP_WAIT(&epn->p__sleep);
+#if (EDS_PORT__USE_GLOBAL_SLEEP == 0)
+        eds_port__sleep_wait(&epn->p__sleep);
+#else
+        eds_port__sleep_wait(&eds_port__global_sleep);
+#endif
 #if (EDS_CONFIG__NETWORK__ENABLE_CALLBACKS == 1)
         if (epn->p__attr->cb_to_run != NULL) {
             epn->p__attr->cb_to_run(epn, epn->p__attr->cb_arg);
@@ -181,11 +176,9 @@ eds_epn__loop(struct eds_object__epn * epn)
 static void
 eds_epn__post_loop(struct eds_object__epn * epn)
 {
-    EDS_PORT__CRITICAL_INSTANCE(critical);
-    
-    EDS_PORT__CRITICAL_LOCK(&critical);
+    eds_port__critical_lock();
     eds_core__list_remove(&epn->p__list);
-    EDS_PORT__CRITICAL_UNLOCK(&critical);
+    eds_port__critical_unlock();
 }
 
 eds__error

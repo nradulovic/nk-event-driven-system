@@ -189,8 +189,13 @@ typedef struct eds_object__epn eds__network;
  * * The major number is located on bit positions [23 - 16].
  * * The minor number is located on bit positions [15 - 8].
  * * The patch number is located on bit positions [7 - 0].
+ *
+ * Given a version number MAJOR.MINOR.PATCH, increment the:
+ * * MAJOR version when you make incompatible API changes,
+ * * MINOR version when you add functionality in a backwards compatible manner,
+ * * PATCH version when you make backwards compatible bug fixes.
  */
-#define EDS__VERSION                        0x030005
+#define EDS__VERSION                        0x040000
 
 /** @} */
 /**
@@ -340,8 +345,6 @@ typedef void (eds__mem_dealloc_fn)(void * context, void * allocated_memory);
 /**
  * @brief       Add memory allocator for EDS objects creation.
  *
- * @pre         The function @ref eds__initialize must be called before this function.
- * 
  * This functions needs to be called before any other function from EDS package. The function will
  * store the information about available allocators. Allocators are used by create functions of EDS
  * when creating new objects. All objects used by EDS may be allocated dynamically or statically.
@@ -867,7 +870,7 @@ struct eds__agent_attr
  *              non-NULL value. See the valid case examples in @ref eds__agent_attr description.
  * @retval      EDS__ERROR_NO_RESOURCE When no suitable allocator was found and EDS is then unable
  *              to allocate memory space for the agent. To add allocators use
- *              @ref eds__add_allocator function.
+ *              @ref eds__mem_add_allocator function.
  * @retval      EDS__ERROR_NO_MEMORY When a suitable allocator was found but its memory reserves
  *              have been depleted.
  */
@@ -900,8 +903,10 @@ eds__agent_delete(eds__agent * agent);
  * @retval      EDS__ERROR_INVALID_ARGUMENT Is returned when @a agent or @a event pointer is NULL
  *              pointer.
  * @retval      EDS__ERROR_NO_PERMISSION When the agent is not designated to any network. In order
- *              to send an event to an agent, the agent must be previosly a part of a network.
+ *              to send an event to an agent, the agent must be previously a part of a network.
  *              Insert the agent with a call to @ref eds__network_add_agent function.
+ * @retval		EDS__ERROR_NO_SPACE (@ref EDS__ERROR_NO_SPACE) is returned when the Agent queue is
+ *              full and cannot accept new event.
  */
 eds__error
 eds__agent_send(eds__agent * agent, const eds__event * event);
@@ -1015,7 +1020,7 @@ struct eds__etimer_attr
  * 		        pointer.
  * @retval      EDS__ERROR_NO_RESOURCE When no suitable allocator was found and EDS is then unable
  *              to allocate memory space for the agent. To add allocators use
- *              @ref eds__add_allocator function.
+ *              @ref eds__mem_add_allocator function.
  * @retval      EDS__ERROR_NO_MEMORY When a suitable allocator was found but its memory reserves
  *              have been depleted.
  */
@@ -1056,10 +1061,10 @@ eds__error
 eds__etimer_send_after(eds__etimer * etimer, uint32_t after_ms);
 
 /**
- * @brief       Send @a event to @a agent using @a etimer every @a after_ms milliseconds.
+ * @brief       Send @a event to @a agent using @a etimer every @a every_ms milliseconds.
  * @param       etimer Pointer to previously initialized event timer instance which will be used
  *              for time keeping.
- * @param       after_ms After this many milliseconds send @a event to @a agent.
+ * @param       every_ms After this many milliseconds send @a event to @a agent.
  * @return      Operation status.
  * @retval      EDS__ERROR_NONE Operation completed successfully.
  * @retval      EDS__ERROR_INVALID_ARGUMENT Is returned when @a etimer, @a agent or @a event pointer
@@ -1082,7 +1087,7 @@ eds__etimer_send_every(eds__etimer * etimer, uint32_t every_ms);
  * @retval      EDS__ERROR_NONE Operation completed successfully.
  * @retval      EDS__ERROR_INVALID_ARGUMENT Is returned when @a etimer is NULL pointer.
  * @retval      EDS__ERROR_NOT_EXISTS When the event timer is not running. The timer needs to be
- *              started first by calling @ref eds__etimer_send_after or @ref eds__etimer_send_evety
+ *              started first by calling @ref eds__etimer_send_after or @ref eds__etimer_send_every
  *              before trying to cancel it.
  */
 eds__error
@@ -1207,15 +1212,33 @@ eds__network_create(const struct eds__network_attr * atrr, eds__network ** netwo
 
 /**
  * @brief       Delete a network.
+ *
+ * @param       network Pointer to event processing network.
+ * @return      Operation status.
+ * @retval      EDS__ERROR_NONE (@ref EDS__ERROR_NONE) Operation completed successfully.
+ * @retval      EDS__ERROR_INVALID_ARGUMENT (@ref EDS__ERROR_INVALID_ARGUMENT) Is returned when
+ *              @a network argument is NULL pointer.
+ * @retval      EDS__ERROR_NO_PERMISSION When the network was statically allocated.
  */
 eds__error
 eds__network_delete(eds__network * network);
 
 /**
  * @brief       Add an agent to network.
+ *
+ * @param       network Pointer to event processing network.
+ * @param       agent Pointer to agent instance which is to be added to the network.
+ * @return      Operation status.
+ * @retval      EDS__ERROR_NONE (@ref EDS__ERROR_NONE) Operation completed successfully.
+ * @retval      EDS__ERROR_INVALID_ARGUMENT (@ref EDS__ERROR_INVALID_ARGUMENT) Is returned when
+ *              @a network argument or @a agent argument is NULL pointer.
+ * @retval      EDS__ERROR_ALREADY_EXISTS (@ref EDS__ERROR_ALREADY_EXISTS) Is returned when the
+ * 				given agent was already inserted into a network.
+ * @retval		EDS__ERROR_NO_SPACE (@ref EDS__ERROR_NO_SPACE) is returned when the Agent queue is
+ *              full and cannot accept initial event.
  */
 eds__error
-eds__network_add_agent(eds__network * network, eds__agent * sm);
+eds__network_add_agent(eds__network * network, eds__agent * agent);
 
 /**
  * @brief       Remove an agent from the network.
@@ -1234,12 +1257,14 @@ eds__network_remove_agent(eds__network * network, eds__agent * agent);
 
 /**
  * @brief       Start executing Agents which belong to this network.
+ * @param       network Pointer to event processing network.
  */
 eds__error
 eds__network_start(eds__network * network);
 
 /**
  * @brief       Stop executing Agents of this network.
+ * @param       network Pointer to event processing network.
  */
 eds__error
 eds__network_stop(eds__network * network);

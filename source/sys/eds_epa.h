@@ -13,8 +13,6 @@
 #include "eds_object.h"
 #include "sys/eds_core.h"
 
-struct eds_port__critical;
-
 inline void
 eds_epa__designate(struct eds_object__epa * epa, struct eds_object__epn * epn)
 {
@@ -57,13 +55,8 @@ eds_epa__send_initial_event(struct eds_object__epa * epa);
 eds__error
 eds_epa__send(struct eds_object__epa * epa, const struct eds_object__evt * evt);
 
-#if (EDS_PORT__GLOBAL_CRITICAL == 1)
 eds__error
 eds_epa__dispatch(struct eds_object__epa * agent);
-#else
-eds__error
-eds_epa__dispatch(struct eds_object__epa * agent, struct eds_port__critical * critical);
-#endif
 
 void
 eds_epa__flush_events(struct eds_object__epa * epa);

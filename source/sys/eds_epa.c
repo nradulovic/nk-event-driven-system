@@ -36,7 +36,6 @@ eds_epa__create(eds__sm_state * sm_initial_state,
     struct eds_object__mem * mem;
 
     if (attr->static_instance == NULL) {
-        EDS_PORT__CRITICAL_INSTANCE(critical);
         size_t epa_size_bytes;
 
         epa_size_bytes = sizeof(struct eds_object__epa)
@@ -46,9 +45,9 @@ eds_epa__create(eds__sm_state * sm_initial_state,
             EDS_TRACE__EXIT(EDS_TRACE__SOURCE_AGENT_CREATE, EDS__ERROR_NO_RESOURCE, "%u", epa_size_bytes);
             return EDS__ERROR_NO_RESOURCE;
         }
-        EDS_PORT__CRITICAL_LOCK(&critical);
+        eds_port__critical_lock();
         l_epa = eds_mem__allocate_from(mem, epa_size_bytes);
-        EDS_PORT__CRITICAL_UNLOCK(&critical);
+        eds_port__critical_unlock();
         if (l_epa == NULL) {
             EDS_TRACE__EXIT(EDS_TRACE__SOURCE_AGENT_CREATE, EDS__ERROR_NO_MEMORY, "%u from %p", epa_size_bytes, mem);
             return EDS__ERROR_NO_MEMORY;
@@ -97,7 +96,11 @@ eds_epa__send(struct eds_object__epa * epa, const struct eds_object__evt * evt)
         eds_evt__ref_up(evt);
         eds_equeue__push_back(&epa->p__equeue, evt);
         eds_core__tasker_run(eds_epn__tasker(eds_epa__designation(epa)), &epa->p__task);
-        EDS_PORT__SLEEP_SIGNAL(eds_epn__sleep(epa->p__epn));
+#if (EDS_PORT__USE_GLOBAL_SLEEP == 0)
+        eds_port__sleep_signal(eds_epn__sleep(epa->p__epn));
+#else
+        eds_port__sleep_signal(&eds_port__global_sleep);
+#endif
         error = EDS__ERROR_NONE;
     } else {
         error = EDS__ERROR_NO_SPACE;
@@ -105,13 +108,8 @@ eds_epa__send(struct eds_object__epa * epa, const struct eds_object__evt * evt)
     return error;
 }
 
-#if (EDS_PORT__GLOBAL_CRITICAL == 1)
 eds__error
 eds_epa__dispatch(struct eds_object__epa * epa)
-#else
-eds__error
-eds_epa__dispatch(struct eds_object__epa * epa, struct eds_port__critical * critical)
-#endif
 {
     const struct eds_object__evt * evt;
     eds__error error;
@@ -120,9 +118,9 @@ eds_epa__dispatch(struct eds_object__epa * epa, struct eds_port__critical * crit
     if (eds_equeue__is_empty(&epa->p__equeue)) {
         eds_core__tasker_pending_sleep(eds_epn__tasker(epa->p__epn), &epa->p__task);
     }
-    EDS_PORT__CRITICAL_UNLOCK(critical);
+    eds_port__critical_unlock();
     error = eds_smp__dispatch(&epa->p__smp, evt);
-    EDS_PORT__CRITICAL_LOCK(critical);
+    eds_port__critical_lock();
     eds_evt__ref_down(evt);
     eds_evt__deallocate(evt);
 
@@ -187,19 +185,17 @@ eds__agent_create(eds__sm_state * sm_initial_state,
 eds__error
 eds__agent_delete(eds__agent * agent)
 {
-    EDS_PORT__CRITICAL_INSTANCE(critical);
-
     if (agent == NULL) {
         return EDS__ERROR_INVALID_ARGUMENT;
     }
     if (eds_epa__is_designated(agent) == true) {
         return EDS__ERROR_NO_PERMISSION;
     }
-    EDS_PORT__CRITICAL_LOCK(&critical);
+    eds_port__critical_lock();
     if (agent->p__mem != NULL) {
         eds_mem__deallocate_to(agent->p__mem, agent);
     }
-    EDS_PORT__CRITICAL_UNLOCK(&critical);
+    eds_port__critical_unlock();
 
     return EDS__ERROR_NONE;
 }
@@ -207,7 +203,6 @@ eds__agent_delete(eds__agent * agent)
 eds__error
 eds__agent_send(eds__agent * agent, const eds__event * event)
 {
-    EDS_PORT__CRITICAL_INSTANCE(critical);
     eds__error error;
 
     if ((agent == NULL) || (event == NULL)) {
@@ -222,9 +217,9 @@ eds__agent_send(eds__agent * agent, const eds__event * event)
         EDS_TRACE__EXIT(EDS_TRACE__SOURCE_AGENT_SEND, EDS__ERROR_NO_PERMISSION, "agent = (%p)", agent);
         return EDS__ERROR_NO_PERMISSION;
     }
-    EDS_PORT__CRITICAL_LOCK(&critical);
+    eds_port__critical_lock();
     error = eds_epa__send(agent, event);
-    EDS_PORT__CRITICAL_UNLOCK(&critical);
+    eds_port__critical_unlock();
     EDS_TRACE__EXIT(EDS_TRACE__SOURCE_AGENT_SEND, core_error, "agent, event = (%p, %p)", agent, event);
     return error;
 }

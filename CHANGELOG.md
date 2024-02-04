@@ -1,3 +1,6 @@
+# 301.0
+- New version format
+
 # 3.0.6
 - Refactor: Simpler timer usage.
 - Refactor: Simpler portable system.

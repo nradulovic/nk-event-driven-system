@@ -240,7 +240,7 @@ struct eds_object__epn
 {
     struct eds_object__list p__list;            //!< Linked list node.
     struct eds_object__tasker p__tasker;        //!< Tasker which processes the tasks.
-#if (EDS_PORT__GLOBAL_SLEEP == 0)
+#if (EDS_PORT__USE_GLOBAL_SLEEP == 0)
     struct eds_port__sleep p__sleep;            //!< Portable sleep data.
 #endif
     bool p__should_run;                         //!< Stop execution flag (used to terminate EPN).
